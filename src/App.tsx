@@ -35,10 +35,17 @@ function App() {
                 method: "GET",
             }
         );
-        const response = await fetch(request);
-        const data = await response.json();
-        setJobStatus(data.jobs[0].status);
-        setLogStreamName(data.jobs[0].container.logStreamName);
+        let localJobStatus = "nothing yet!";
+        while (localJobStatus !== "SUCCEEDED") {
+            const response = await fetch(request);
+            const data = await response.json();
+            if (localJobStatus !== data.jobs[0].status) {
+                console.log("new status!");
+                localJobStatus = data.jobs[0].status;
+                setJobStatus(data.jobs[0].status);
+            }
+            setLogStreamName(data.jobs[0].container.logStreamName);
+        }
     };
 
     const fetchResultUrl = async () => {
