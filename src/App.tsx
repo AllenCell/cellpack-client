@@ -1,12 +1,11 @@
 import { useState } from "react";
 import "./App.css";
-import {queryFirebase} from "./firebase";
+import { queryFirebase } from "./firebase";
 
 function App() {
     const [recipe, setRecipe] = useState("examples/recipes/v2/one_sphere.json");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
-    const [resultUrl, setResultUrl] = useState("");
     const [logStreamName, setLogStreamName] = useState(
         "cellpack-test-job-definition/default/49c7ae8009714e189bf7e1bdd9674912"
     );
@@ -22,25 +21,26 @@ function App() {
         )
         const response = await fetch(request);
         const data = await response.json();
-        console.log("data", data);
-        setJobId(data.jobId)
-        console.log("jobId", jobId);
+        setJobId(data.jobId);
+        console.log(`jobId: ${data.jobId}`);
+        return data.jobId;
     };
 
-    const checkStatus = async () => {
+    const checkStatus = async (jobIdFromSubmit: string) => {
+        const id = jobIdFromSubmit ? jobIdFromSubmit : jobId;
         const request: RequestInfo = new Request(
             "https://ng44ddk8v1.execute-api.us-west-2.amazonaws.com/testing/packing-status?jobId=" +
-            jobId,
+            id,
             {
                 method: "GET",
             }
         );
         let localJobStatus = "nothing yet!";
-        while (localJobStatus !== "SUCCEEDED") {
+        console.log("going to check status")
+        while ((localJobStatus !== "SUCCEEDED") || (localJobStatus !== "FAILED")) {
             const response = await fetch(request);
             const data = await response.json();
             if (localJobStatus !== data.jobs[0].status) {
-                console.log("new status!");
                 localJobStatus = data.jobs[0].status;
                 setJobStatus(data.jobs[0].status);
             }
@@ -50,7 +50,7 @@ function App() {
 
     const fetchResultUrl = async () => {
         const url = await queryFirebase(jobId);
-        setResultUrl(url);
+        window.open("https://simularium.allencell.org/viewer?trajUrl="+url);
     };
 
     const getLogs = async () => {
@@ -67,6 +67,14 @@ function App() {
         setJobLogs(logs);
     };
 
+    const runPacking = async () => {
+        submitRecipe()
+            .then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit))
+    }
+
+    const jobSucceeded = (jobStatus == "SUCCEEDED");
+    const showLogButton = (jobSucceeded || (jobStatus == "FAILED"));
+
     return (
         <div className="app">
             <h1>Welcome to cellPACK</h1>
@@ -77,20 +85,18 @@ function App() {
                     value={recipe}
                     onChange={(e) => setRecipe(e.target.value)}
                 />
-                <button onClick={submitRecipe}>Pack</button>
+                <button onClick={runPacking}>Pack</button>
             </div>
             <div>
-                <button onClick={checkStatus}>Check Status</button>
                 Job Status: {jobStatus}
             </div>
-            <div>
-                <button onClick={fetchResultUrl}>Query Firebase</button>
-                Result URL: {resultUrl}
-            </div>
-            <div>
+            {jobSucceeded && (<div>
+                <button onClick={fetchResultUrl}>View result</button>
+            </div>)}
+            {showLogButton && (<div>
                 <button onClick={getLogs}>Logs</button>
                 {jobLogs}
-            </div>
+            </div>)}
         </div>
     );
 }

@@ -30,8 +30,10 @@ export  const queryFirebase = async (jobId: string) => {
         const querySnapshot = await getDocs(q);
         let resultUrl = "";
         querySnapshot.forEach((doc) => {
+            console.log("data: ", doc.data());
             // we'll only ever expect one doc to show up here
             resultUrl = doc.data().url;
+        console.log("results url: ", resultUrl); 
         });
         return resultUrl;
     };
