@@ -37,7 +37,7 @@ function App() {
         );
         let localJobStatus = "nothing yet!";
         console.log("going to check status")
-        while ((localJobStatus !== "SUCCEEDED") || (localJobStatus !== "FAILED")) {
+        while ((localJobStatus !== "SUCCEEDED") && (localJobStatus !== "FAILED")) {
             const response = await fetch(request);
             const data = await response.json();
             if (localJobStatus !== data.jobs[0].status) {
