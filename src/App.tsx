@@ -47,13 +47,10 @@ function App() {
         fetchRecipes();
     }, []);
 
-    // currently hardcoded, but could be a function that fetches from firebase
+
     const getConfigs = async () => {
-        return {
-            default: "examples/packing-configs/run.json",
-            debug: "examples/packing-configs/debug.json",
-            sparse: "examples/packing-configs/sparse-packing.json",
-        };
+        const configDict = await getLocationDict("configs");
+        return configDict;
     };
 
     useEffect(() => {
