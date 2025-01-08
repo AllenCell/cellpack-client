@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
+import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./apiEndpoints";
 
 function App() {
     const [recipes, setRecipes] = useState<{ [key: string]: string }>({});
@@ -17,9 +18,7 @@ function App() {
     const [resultUrl, setResultUrl] = useState<string>("");
 
     const submitRecipe = async () => {
-        const baseUrl =
-            "https://ng44ddk8v1.execute-api.us-west-2.amazonaws.com/testing/submit-packing";
-        let url = `${baseUrl}?recipe=${selectedRecipe}`;
+        let url = `${SUBMIT_PACKING}?recipe=${selectedRecipe}`;
         if (selectedConfig) {
             url += `&config=${selectedConfig}`;
         }
@@ -35,7 +34,7 @@ function App() {
     };
 
     const getRecipes = async () => {
-        const recipeDict = await getLocationDict("available_recipes");
+        const recipeDict = await getLocationDict("example_recipes");
         return recipeDict;
     };
 
@@ -63,9 +62,9 @@ function App() {
 
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit ? jobIdFromSubmit : jobId;
+        const url = packingStatusUrl(id);
         const request: RequestInfo = new Request(
-            "https://ng44ddk8v1.execute-api.us-west-2.amazonaws.com/testing/packing-status?jobId=" +
-            id,
+            url,
             {
                 method: "GET",
             }
@@ -89,9 +88,9 @@ function App() {
     };
 
     const getLogs = async () => {
+        const url = getLogsUrl(logStreamName);
         const request: RequestInfo = new Request(
-            "https://ng44ddk8v1.execute-api.us-west-2.amazonaws.com/testing/logs?logStreamName=" +
-            logStreamName,
+            url,
             {
                 method: "GET",
             }
