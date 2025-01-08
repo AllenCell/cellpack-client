@@ -33,7 +33,6 @@ const queryFirebase = async (jobId: string) => {
     querySnapshot.forEach((doc) => {
         // we'll only ever expect one doc to show up here
         resultUrl = doc.data().url;
-        console.log("results url: ", resultUrl);
     });
     return resultUrl;
 };

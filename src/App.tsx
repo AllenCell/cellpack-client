@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
-import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./constants/apiEndpoints";
-import { AWSBatchJobsResponse, CloudWatchLogsResponse, StringDict } from "./types";
+import {
+    SUBMIT_PACKING,
+    packingStatusUrl,
+    getLogsUrl,
+} from "./constants/apiEndpoints";
+import {
+    AWSBatchJobsResponse,
+    CloudWatchLogsResponse,
+    StringDict,
+} from "./types";
 
 function App() {
     const [recipes, setRecipes] = useState<StringDict>({});
@@ -11,12 +19,8 @@ function App() {
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
-    const [logStreamName, setLogStreamName] = useState(
-        // "cellpack-test-job-definition/default/49c7ae8009714e189bf7e1bdd9674912"
-        ""
-    );
+    const [logStreamName, setLogStreamName] = useState("");
     const [jobLogs, setJobLogs] = useState<string[]>([]);
-    const [resultUrl, setResultUrl] = useState<string>("");
 
     const submitRecipe = async () => {
         let url = `${SUBMIT_PACKING}?recipe=${selectedRecipe}`;
@@ -26,11 +30,9 @@ function App() {
         const request: RequestInfo = new Request(url, {
             method: "POST",
         });
-        console.log("recipe", selectedRecipe);
         const response = await fetch(request);
         const data = await response.json();
         setJobId(data.jobId);
-        console.log(`jobId: ${data.jobId}`);
         return data.jobId;
     };
 
@@ -46,7 +48,6 @@ function App() {
         };
         fetchRecipes();
     }, []);
-
 
     const getConfigs = async () => {
         const configDict = await getLocationDict("configs");
@@ -64,13 +65,10 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit ? jobIdFromSubmit : jobId;
         const url = packingStatusUrl(id);
-        const request: RequestInfo = new Request(
-            url,
-            {
-                method: "GET",
-            }
-        );
-        let localJobStatus = "nothing yet!";
+        const request: RequestInfo = new Request(url, {
+            method: "GET",
+        });
+        let localJobStatus = "";
         while (localJobStatus !== "SUCCEEDED" && localJobStatus !== "FAILED") {
             const response = await fetch(request);
             const data: AWSBatchJobsResponse = await response.json();
@@ -84,18 +82,14 @@ function App() {
 
     const fetchResultUrl = async () => {
         const url = await queryFirebase(jobId);
-        // window.open("https://simularium.allencell.org/viewer?trajUrl="+url);
-        setResultUrl("https://simularium.allencell.org/viewer?trajUrl=" + url);
+        window.open("https://simularium.allencell.org/viewer?trajUrl=" + url);
     };
 
     const getLogs = async () => {
         const url = getLogsUrl(logStreamName);
-        const request: RequestInfo = new Request(
-            url,
-            {
-                method: "GET",
-            }
-        );
+        const request: RequestInfo = new Request(url, {
+            method: "GET",
+        });
         const response = await fetch(request);
         const data: CloudWatchLogsResponse = await response.json();
         const logs = data.events.map((event: { message: string }) => event.message);
@@ -155,25 +149,8 @@ function App() {
                     {jobLogs}
                 </div>
             )}
-            {
-                resultUrl && (
-                    <div>
-                        <iframe
-                            src={resultUrl}
-                            style={{
-                                width: "100%",
-                                height: "500px",
-                                border: "1px solid black",
-                            }}
-                        ></iframe>
-                        {/* this is too small to display results, maybe a modal? */}
-                    </div>
-                )
-            }
         </div>
     );
 }
 
 export default App;
-
-
