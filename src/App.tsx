@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
-import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./apiEndpoints";
+import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./constants/apiEndpoints";
+import { AWSBatchJobsResponse, CloudWatchLogsResponse, StringDict } from "./types";
 
 function App() {
-    const [recipes, setRecipes] = useState<{ [key: string]: string }>({});
-    const [configs, setConfigs] = useState<{ [key: string]: string }>({});
+    const [recipes, setRecipes] = useState<StringDict>({});
+    const [configs, setConfigs] = useState<StringDict>({});
     const [selectedRecipe, setSelectedRecipe] = useState("");
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
@@ -14,7 +15,7 @@ function App() {
         // "cellpack-test-job-definition/default/49c7ae8009714e189bf7e1bdd9674912"
         ""
     );
-    const [jobLogs, setJobLogs] = useState("");
+    const [jobLogs, setJobLogs] = useState<string[]>([]);
     const [resultUrl, setResultUrl] = useState<string>("");
 
     const submitRecipe = async () => {
@@ -72,7 +73,7 @@ function App() {
         let localJobStatus = "nothing yet!";
         while (localJobStatus !== "SUCCEEDED" && localJobStatus !== "FAILED") {
             const response = await fetch(request);
-            const data = await response.json();
+            const data: AWSBatchJobsResponse = await response.json();
             if (localJobStatus !== data.jobs[0].status) {
                 localJobStatus = data.jobs[0].status;
                 setJobStatus(data.jobs[0].status);
@@ -96,7 +97,7 @@ function App() {
             }
         );
         const response = await fetch(request);
-        const data = await response.json();
+        const data: CloudWatchLogsResponse = await response.json();
         const logs = data.events.map((event: { message: string }) => event.message);
         setJobLogs(logs);
     };
