@@ -1,16 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
-import {
-    SUBMIT_PACKING,
-    packingStatusUrl,
-    getLogsUrl,
-} from "./constants/apiEndpoints";
-import {
-    AWSBatchJobsResponse,
-    CloudWatchLogsResponse,
-    StringDict,
-} from "./types";
+import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./constants/apiEndpoints";
+import { AWSBatchJobsResponse, CloudWatchLogsResponse, StringDict } from "./types";
 
 function App() {
     const [recipes, setRecipes] = useState<StringDict>({});
@@ -19,8 +11,11 @@ function App() {
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
-    const [logStreamName, setLogStreamName] = useState("");
+    const [logStreamName, setLogStreamName] = useState(
+        ""
+    );
     const [jobLogs, setJobLogs] = useState<string[]>([]);
+    const [resultUrl, setResultUrl] = useState<string>("https://simularium.allencell.org/embed?trajFileName=endocytosis.simularium");
 
     const submitRecipe = async () => {
         let url = `${SUBMIT_PACKING}?recipe=${selectedRecipe}`;
@@ -49,6 +44,7 @@ function App() {
         fetchRecipes();
     }, []);
 
+
     const getConfigs = async () => {
         const configDict = await getLocationDict("configs");
         return configDict;
@@ -65,9 +61,12 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit ? jobIdFromSubmit : jobId;
         const url = packingStatusUrl(id);
-        const request: RequestInfo = new Request(url, {
-            method: "GET",
-        });
+        const request: RequestInfo = new Request(
+            url,
+            {
+                method: "GET",
+            }
+        );
         let localJobStatus = "";
         while (localJobStatus !== "SUCCEEDED" && localJobStatus !== "FAILED") {
             const response = await fetch(request);
@@ -82,14 +81,17 @@ function App() {
 
     const fetchResultUrl = async () => {
         const url = await queryFirebase(jobId);
-        window.open("https://simularium.allencell.org/viewer?trajUrl=" + url);
+        setResultUrl("https://simularium.allencell.org/viewer?trajUrl=" + url);
     };
 
     const getLogs = async () => {
         const url = getLogsUrl(logStreamName);
-        const request: RequestInfo = new Request(url, {
-            method: "GET",
-        });
+        const request: RequestInfo = new Request(
+            url,
+            {
+                method: "GET",
+            }
+        );
         const response = await fetch(request);
         const data: CloudWatchLogsResponse = await response.json();
         const logs = data.events.map((event: { message: string }) => event.message);
@@ -149,8 +151,24 @@ function App() {
                     {jobLogs}
                 </div>
             )}
+            {
+                resultUrl && (
+                    <div>
+                        <iframe
+                            src={resultUrl}
+                            style={{
+                                width: "1000px",
+                                height: "600px",
+                                border: "1px solid black",
+                            }}
+                        ></iframe>
+                    </div>
+                )
+            }
         </div>
     );
 }
 
 export default App;
+
+
