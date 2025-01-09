@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
 import {
-    SUBMIT_PACKING,
+    getSubmitPackingUrl,
     packingStatusUrl,
     getLogsUrl,
 } from "./constants/apiEndpoints";
@@ -23,10 +23,7 @@ function App() {
     const [jobLogs, setJobLogs] = useState<string[]>([]);
 
     const submitRecipe = async () => {
-        let url = `${SUBMIT_PACKING}?recipe=${selectedRecipe}`;
-        if (selectedConfig) {
-            url += `&config=${selectedConfig}`;
-        }
+        const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
         const request: RequestInfo = new Request(url, {
             method: "POST",
         });
