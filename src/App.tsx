@@ -6,6 +6,7 @@ import {
     packingStatusUrl,
     getLogsUrl,
 } from "./constants/apiEndpoints";
+import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
@@ -23,7 +24,7 @@ function App() {
         ""
     );
     const [jobLogs, setJobLogs] = useState<string[]>([]);
-    const [resultUrl, setResultUrl] = useState<string>("https://simularium.allencell.org/embed?trajFileName=endocytosis.simularium");
+    const [resultUrl, setResultUrl] = useState<string>("");
 
     const submitRecipe = async () => {
         const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
@@ -86,7 +87,7 @@ function App() {
 
     const fetchResultUrl = async () => {
         const url = await queryFirebase(jobId);
-        setResultUrl("https://simularium.allencell.org/viewer?trajUrl=" + url);
+        setResultUrl(SIMULARIUM_EMBED_URL + url);
     };
 
     const getLogs = async () => {
