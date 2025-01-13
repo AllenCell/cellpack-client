@@ -7,10 +7,6 @@ export type FirestoreDoc = Document & {
     id: string;
 };
 
-export type Accumulator = {
-    [key: string]: string;
-};
-
 export interface AWSBatchJobsResponse {
     jobs: Array<{
         status: string;

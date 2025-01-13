@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { queryFirebase, getLocationDict } from "./firebase";
-import { SUBMIT_PACKING, packingStatusUrl, getLogsUrl } from "./constants/apiEndpoints";
-import { AWSBatchJobsResponse, CloudWatchLogsResponse, StringDict } from "./types";
+import {
+    getSubmitPackingUrl,
+    packingStatusUrl,
+    getLogsUrl,
+} from "./constants/apiEndpoints";
+import {
+    AWSBatchJobsResponse,
+    CloudWatchLogsResponse,
+    StringDict,
+} from "./types";
 
 function App() {
     const [recipes, setRecipes] = useState<StringDict>({});
@@ -18,10 +26,7 @@ function App() {
     const [resultUrl, setResultUrl] = useState<string>("https://simularium.allencell.org/embed?trajFileName=endocytosis.simularium");
 
     const submitRecipe = async () => {
-        let url = `${SUBMIT_PACKING}?recipe=${selectedRecipe}`;
-        if (selectedConfig) {
-            url += `&config=${selectedConfig}`;
-        }
+        const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
         const request: RequestInfo = new Request(url, {
             method: "POST",
         });
