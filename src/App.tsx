@@ -5,7 +5,11 @@ import {
     getSubmitPackingUrl,
     packingStatusUrl,
     getLogsUrl,
-} from "./constants/apiEndpoints";
+    JobStatus,
+} from "./constants/awsBatch";
+import {
+    FIRESTORE_COLLECTIONS
+} from "./constants/firebaseConstants";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
@@ -34,7 +38,7 @@ function App() {
     };
 
     const getRecipes = async () => {
-        const recipeDict = await getLocationDict("example_recipes");
+        const recipeDict = await getLocationDict(FIRESTORE_COLLECTIONS.EXAMPLE_RECIPES);
         return recipeDict;
     };
 
@@ -47,7 +51,7 @@ function App() {
     }, []);
 
     const getConfigs = async () => {
-        const configDict = await getLocationDict("configs");
+        const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
         return configDict;
     };
 
@@ -60,13 +64,13 @@ function App() {
     }, []);
 
     const checkStatus = async (jobIdFromSubmit: string) => {
-        const id = jobIdFromSubmit ? jobIdFromSubmit : jobId;
+        const id = jobIdFromSubmit || jobId;
         const url = packingStatusUrl(id);
         const request: RequestInfo = new Request(url, {
             method: "GET",
         });
         let localJobStatus = "";
-        while (localJobStatus !== "SUCCEEDED" && localJobStatus !== "FAILED") {
+        while (localJobStatus !== JobStatus.SUCCEEDED && localJobStatus !== JobStatus.FAILED) {
             const response = await fetch(request);
             const data: AWSBatchJobsResponse = await response.json();
             if (localJobStatus !== data.jobs[0].status) {
@@ -97,8 +101,8 @@ function App() {
         submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
     };
 
-    const jobSucceeded = jobStatus == "SUCCEEDED";
-    const showLogButton = jobSucceeded || jobStatus == "FAILED";
+    const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
+    const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
 
     return (
         <div className="app">
