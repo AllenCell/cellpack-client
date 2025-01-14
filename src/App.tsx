@@ -10,6 +10,7 @@ import {
 import {
     FIRESTORE_COLLECTIONS
 } from "./constants/firebaseConstants";
+import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
