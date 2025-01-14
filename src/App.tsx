@@ -157,7 +157,15 @@ function App() {
             {showLogButton && (
                 <div>
                     <button onClick={getLogs}>Logs</button>
-                    {jobLogs}
+                    {jobLogs.length > 0 && (
+                        <div className="logs-container">
+                            {jobLogs.map((log, index) => (
+                                <div key={index} className="log-entry">
+                                    <span>{log}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
             {
@@ -179,5 +187,3 @@ function App() {
 }
 
 export default App;
-
-
