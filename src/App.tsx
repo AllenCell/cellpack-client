@@ -155,20 +155,6 @@ function App() {
                     <button onClick={fetchResultUrl}>View result</button>
                 </div>
             )}
-            {showLogButton && (
-                <div>
-                    <button onClick={getLogs}>Logs</button>
-                    {jobLogs.length > 0 && (
-                        <div className="logs-container">
-                            {jobLogs.map((log, index) => (
-                                <div key={index} className="log-entry">
-                                    <span>{log}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
             {
                 resultUrl && (
                     <div>
@@ -183,6 +169,20 @@ function App() {
                     </div>
                 )
             }
+            {showLogButton && (
+                <div>
+                    <button onClick={getLogs}>Logs</button>
+                    {jobLogs.length > 0 && (
+                        <div className="logs-container">
+                            {jobLogs.map((log, index) => (
+                                <div key={index} className="log-entry">
+                                    <span>{log}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
