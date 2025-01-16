@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { queryFirebase, getLocationDict } from "./firebase";
+import { queryFirebase, getLocationDict, getDocById } from "./firebase";
 import {
     getSubmitPackingUrl,
     packingStatusUrl,
@@ -14,12 +14,12 @@ import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
-    StringDict,
+    FirebaseDict,
 } from "./types";
 
 function App() {
-    const [recipes, setRecipes] = useState<StringDict>({});
-    const [configs, setConfigs] = useState<StringDict>({});
+    const [recipes, setRecipes] = useState<FirebaseDict>({});
+    const [configs, setConfigs] = useState<FirebaseDict>({});
     const [selectedRecipe, setSelectedRecipe] = useState("");
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
@@ -112,6 +112,21 @@ function App() {
         submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
     };
 
+    const selectRecipe = async (recipe: string) => {
+        setSelectedRecipe(recipe);
+        // Determine the firebaseId for this recipe
+        let firebaseId = "unknown"
+        for (let name in recipes) {
+            let path = recipes[name]["path"];
+            if (path == recipe) {
+                firebaseId = recipes[name]["firebaseId"]
+            }
+        }
+        console.log("firebase id: ", firebaseId);
+        const recipeStr = await getDocById(FIRESTORE_COLLECTIONS.EXAMPLE_RECIPES, firebaseId);
+        console.log(recipeStr);
+    }
+
     const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
     const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
 
@@ -121,13 +136,13 @@ function App() {
             <div className="input-container">
                 <select
                     value={selectedRecipe}
-                    onChange={(e) => setSelectedRecipe(e.target.value)}
+                    onChange={(e) => selectRecipe(e.target.value)}
                 >
                     <option value="" disabled>
                         Select a recipe
                     </option>
                     {Object.entries(recipes).map(([key, value]) => (
-                        <option key={key} value={value}>
+                        <option key={key} value={value["path"]}>
                             {key}
                         </option>
                     ))}
@@ -140,7 +155,7 @@ function App() {
                         Select a config
                     </option>
                     {Object.entries(configs).map(([key, value]) => (
-                        <option key={key} value={value}>
+                        <option key={key} value={value["path"]}>
                             {key}
                         </option>
                     ))}

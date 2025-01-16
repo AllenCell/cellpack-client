@@ -11,7 +11,7 @@ import {
     FIRESTORE_COLLECTIONS,
     FIRESTORE_FIELDS,
 } from "./constants/firebaseConstants";
-import { StringDict, FirestoreDoc } from "./types";
+import { FirestoreDoc, FirebaseDict } from "./types";
 
 
 const firebaseConfig = {
@@ -57,15 +57,25 @@ const getLocationDict = async (collectionName: string) => {
     // docs is an array of objects, each with an id, a name, and other fields
     // we want to create a dictionary with the name as the key and the original_location as the value
     // `reduce` is a method that takes an array and reduces it to a single value
-    const locationDict = docs.reduce((locationDict: StringDict, doc: FirestoreDoc) => {
+    const locationDict = docs.reduce((locationDict: FirebaseDict, doc: FirestoreDoc) => {
         const name = doc[FIRESTORE_FIELDS.NAME];
         const originalLocation = doc[FIRESTORE_FIELDS.ORIGINAL_LOCATION];
+        const id = doc.id;
         if (name && originalLocation) {
-            locationDict[name] = originalLocation;
+            locationDict[name] = {
+                "path": originalLocation,
+                "firebaseId": id,
+            };
         }
         return locationDict;
-    }, {} as StringDict);
+    }, {} as FirebaseDict);
     return locationDict;
 }
 
-export { db, queryFirebase, getLocationDict };
+const getDocById = async (coll: string, id: string) => {
+    const docs = await getAllDocsFromCollection(coll);
+    const doc = docs.find(d => d.id === id);
+    return JSON.stringify(doc, null, 2);
+}
+
+export { db, queryFirebase, getLocationDict, getDocById };
