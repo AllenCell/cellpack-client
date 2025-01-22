@@ -29,3 +29,25 @@
   word-wrap: break-word;
   /* Prevent long messages from breaking layout */
 }
+
+.box {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  text-align: start;
+  width: 900px;
+}
+
+.collapsible {
+  width: 450px;
+}
+
+.recipeBox {
+  width: 450px;
+  float: left;
+}
+
+.configBox {
+  width: 450px;
+  float: right;
+}

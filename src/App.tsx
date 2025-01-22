@@ -29,6 +29,10 @@ function App() {
     );
     const [jobLogs, setJobLogs] = useState<string[]>([]);
     const [resultUrl, setResultUrl] = useState<string>("");
+    const [recipeStr, setRecipeStr] = useState<string>("");
+    const [configStr, setConfigStr] = useState<string>("");
+    const [viewRecipe, setViewRecipe] = useState<Boolean>(true);
+    const [viewConfig, setViewConfig] = useState<Boolean>(true);
 
     const submitRecipe = async () => {
         const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
@@ -110,6 +114,8 @@ function App() {
 
     const runPacking = async () => {
         submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
+        setViewConfig(false);
+        setViewRecipe(false);
     };
 
     const selectRecipe = async (recipe: string) => {
@@ -122,9 +128,31 @@ function App() {
                 firebaseId = recipes[name]["firebaseId"]
             }
         }
-        console.log("firebase id: ", firebaseId);
-        const recipeStr = await getDocById(FIRESTORE_COLLECTIONS.EXAMPLE_RECIPES, firebaseId);
-        console.log(recipeStr);
+        const recStr = await getDocById(FIRESTORE_COLLECTIONS.EXAMPLE_RECIPES, firebaseId);
+        setRecipeStr(recStr);
+    }
+
+    const selectConfig = async (config: string) => {
+        setSelectedConfig(config);
+        // Determine the firebaseId for this config
+        let firebaseId = "unknown"
+        for (let name in configs) {
+            let path = configs[name]["path"];
+            if (path == config) {
+                firebaseId = configs[name]["firebaseId"]
+            }
+        }
+        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, firebaseId);
+        console.log(confStr);
+        setConfigStr(confStr);
+    }
+
+    const toggleRecipe = () => {
+        setViewRecipe(!viewRecipe);
+    }
+
+    const toggleConfig = () => {
+        setViewConfig(!viewConfig);
     }
 
     const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
@@ -149,7 +177,7 @@ function App() {
                 </select>
                 <select
                     value={selectedConfig}
-                    onChange={(e) => setSelectedConfig(e.target.value)}
+                    onChange={(e) => selectConfig(e.target.value)}
                 >
                     <option value="" disabled>
                         Select a config
@@ -163,6 +191,24 @@ function App() {
                 <button onClick={runPacking} disabled={!selectedRecipe}>
                     Pack
                 </button>
+            </div>
+            <div className="box">
+                {recipeStr.length > 0 && (
+                    <div className="recipeBox">
+                        <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe:</button>
+                        {viewRecipe && (
+                            <pre>{recipeStr}</pre>
+                        )}
+                    </div>
+                )}
+                {configStr.length > 0 && (
+                    <div className="configBox">
+                        <button type="button" className="collapsible" onClick={toggleConfig}>Config:</button>
+                        {viewConfig && (
+                            <pre>{configStr}</pre>
+                        )}
+                    </div>
+                )}
             </div>
             <div>Job Status: {jobStatus}</div>
             {jobSucceeded && (
