@@ -35,19 +35,29 @@
   justify-content: space-between;
   flex-direction: row;
   text-align: start;
-  width: 900px;
 }
 
 .collapsible {
   width: 450px;
+  margin-top: 5%;
 }
 
 .recipeBox {
-  width: 450px;
+  width: 45%;
   float: left;
 }
 
+.recipeJSON {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .configBox {
-  width: 450px;
+  width: 45%;
   float: right;
+}
+
+.configJSON {
+  max-height: 300px;
+  overflow-y: auto;
 }

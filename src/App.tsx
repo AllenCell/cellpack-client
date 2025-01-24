@@ -33,6 +33,7 @@ function App() {
     const [configStr, setConfigStr] = useState<string>("");
     const [viewRecipe, setViewRecipe] = useState<Boolean>(true);
     const [viewConfig, setViewConfig] = useState<Boolean>(true);
+    const [viewLogs, setViewLogs] = useState<Boolean>(true);
 
     const submitRecipe = async () => {
         const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
@@ -155,6 +156,14 @@ function App() {
         setViewConfig(!viewConfig);
     }
 
+    const toggleLogs = async () => {
+        if (jobLogs.length == 0) {
+            await getLogs();
+        } else {
+            setViewLogs(!viewLogs);
+        }
+    }
+
     const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
     const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
 
@@ -195,22 +204,26 @@ function App() {
             <div className="box">
                 {recipeStr.length > 0 && (
                     <div className="recipeBox">
-                        <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe:</button>
-                        {viewRecipe && (
-                            <pre>{recipeStr}</pre>
-                        )}
+                        <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe</button>
+                        <div className="recipeJSON">
+                            {viewRecipe && (
+                                <pre>{recipeStr}</pre>
+                            )}
+                        </div>
                     </div>
                 )}
                 {configStr.length > 0 && (
                     <div className="configBox">
-                        <button type="button" className="collapsible" onClick={toggleConfig}>Config:</button>
-                        {viewConfig && (
-                            <pre>{configStr}</pre>
-                        )}
+                        <button type="button" className="collapsible" onClick={toggleConfig}>Config</button>
+                        <div className="configJSON">
+                            {viewConfig && (
+                                <pre>{configStr}</pre>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
-            <div>Job Status: {jobStatus}</div>
+            <h3>Job Status: {jobStatus}</h3>
             {jobSucceeded && (
                 <div>
                     <button onClick={fetchResultUrl}>View result</button>
@@ -232,8 +245,8 @@ function App() {
             }
             {showLogButton && (
                 <div>
-                    <button onClick={getLogs}>Logs</button>
-                    {jobLogs.length > 0 && (
+                    <button className="collapsible" onClick={toggleLogs}>Logs</button>
+                    {viewLogs && jobLogs.length > 0 && (
                         <div className="logs-container">
                             {jobLogs.map((log, index) => (
                                 <div key={index} className="log-entry">
