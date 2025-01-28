@@ -10,6 +10,7 @@ import {
 import {
     FIRESTORE_COLLECTIONS
 } from "./constants/firebaseConstants";
+import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
@@ -23,8 +24,11 @@ function App() {
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
-    const [logStreamName, setLogStreamName] = useState("");
+    const [logStreamName, setLogStreamName] = useState(
+        ""
+    );
     const [jobLogs, setJobLogs] = useState<string[]>([]);
+    const [resultUrl, setResultUrl] = useState<string>("");
 
     const submitRecipe = async () => {
         const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
@@ -50,6 +54,7 @@ function App() {
         fetchRecipes();
     }, []);
 
+
     const getConfigs = async () => {
         const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
         return configDict;
@@ -66,9 +71,12 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
         const url = packingStatusUrl(id);
-        const request: RequestInfo = new Request(url, {
-            method: "GET",
-        });
+        const request: RequestInfo = new Request(
+            url,
+            {
+                method: "GET",
+            }
+        );
         let localJobStatus = "";
         while (localJobStatus !== JobStatus.SUCCEEDED && localJobStatus !== JobStatus.FAILED) {
             const response = await fetch(request);
@@ -83,14 +91,17 @@ function App() {
 
     const fetchResultUrl = async () => {
         const url = await queryFirebase(jobId);
-        window.open("https://simularium.allencell.org/viewer?trajUrl=" + url);
+        setResultUrl(SIMULARIUM_EMBED_URL + url);
     };
 
     const getLogs = async () => {
         const url = getLogsUrl(logStreamName);
-        const request: RequestInfo = new Request(url, {
-            method: "GET",
-        });
+        const request: RequestInfo = new Request(
+            url,
+            {
+                method: "GET",
+            }
+        );
         const response = await fetch(request);
         const data: CloudWatchLogsResponse = await response.json();
         const logs = data.events.map((event: { message: string }) => event.message);
@@ -150,8 +161,24 @@ function App() {
                     {jobLogs}
                 </div>
             )}
+            {
+                resultUrl && (
+                    <div>
+                        <iframe
+                            src={resultUrl}
+                            style={{
+                                width: "1000px",
+                                height: "600px",
+                                border: "1px solid black",
+                            }}
+                        ></iframe>
+                    </div>
+                )
+            }
         </div>
     );
 }
 
 export default App;
+
+
