@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { queryFirebase, getLocationDict } from "./firebase";
+import { queryFirebase, getLocationDict, getDocById } from "./firebase";
 import {
     getSubmitPackingUrl,
     packingStatusUrl,
@@ -14,12 +14,12 @@ import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
     AWSBatchJobsResponse,
     CloudWatchLogsResponse,
-    StringDict,
+    FirebaseDict,
 } from "./types";
 
 function App() {
-    const [recipes, setRecipes] = useState<StringDict>({});
-    const [configs, setConfigs] = useState<StringDict>({});
+    const [recipes, setRecipes] = useState<FirebaseDict>({});
+    const [configs, setConfigs] = useState<FirebaseDict>({});
     const [selectedRecipe, setSelectedRecipe] = useState("");
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
@@ -29,6 +29,11 @@ function App() {
     );
     const [jobLogs, setJobLogs] = useState<string[]>([]);
     const [resultUrl, setResultUrl] = useState<string>("");
+    const [recipeStr, setRecipeStr] = useState<string>("");
+    const [configStr, setConfigStr] = useState<string>("");
+    const [viewRecipe, setViewRecipe] = useState<Boolean>(true);
+    const [viewConfig, setViewConfig] = useState<Boolean>(true);
+    const [viewLogs, setViewLogs] = useState<Boolean>(true);
 
     const submitRecipe = async () => {
         const url = getSubmitPackingUrl(selectedRecipe, selectedConfig);
@@ -110,7 +115,54 @@ function App() {
 
     const runPacking = async () => {
         submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
+        setViewConfig(false);
+        setViewRecipe(false);
     };
+
+    const selectRecipe = async (recipe: string) => {
+        setSelectedRecipe(recipe);
+        // Determine the firebaseId for this recipe
+        let firebaseId = "unknown"
+        for (let name in recipes) {
+            let path = recipes[name]["path"];
+            if (path == recipe) {
+                firebaseId = recipes[name]["firebaseId"]
+            }
+        }
+        const recStr = await getDocById(FIRESTORE_COLLECTIONS.EXAMPLE_RECIPES, firebaseId);
+        setRecipeStr(recStr);
+    }
+
+    const selectConfig = async (config: string) => {
+        setSelectedConfig(config);
+        // Determine the firebaseId for this config
+        let firebaseId = "unknown"
+        for (let name in configs) {
+            let path = configs[name]["path"];
+            if (path == config) {
+                firebaseId = configs[name]["firebaseId"]
+            }
+        }
+        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, firebaseId);
+        console.log(confStr);
+        setConfigStr(confStr);
+    }
+
+    const toggleRecipe = () => {
+        setViewRecipe(!viewRecipe);
+    }
+
+    const toggleConfig = () => {
+        setViewConfig(!viewConfig);
+    }
+
+    const toggleLogs = async () => {
+        if (jobLogs.length == 0) {
+            await getLogs();
+        } else {
+            setViewLogs(!viewLogs);
+        }
+    }
 
     const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
     const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
@@ -121,26 +173,26 @@ function App() {
             <div className="input-container">
                 <select
                     value={selectedRecipe}
-                    onChange={(e) => setSelectedRecipe(e.target.value)}
+                    onChange={(e) => selectRecipe(e.target.value)}
                 >
                     <option value="" disabled>
                         Select a recipe
                     </option>
                     {Object.entries(recipes).map(([key, value]) => (
-                        <option key={key} value={value}>
+                        <option key={key} value={value["path"]}>
                             {key}
                         </option>
                     ))}
                 </select>
                 <select
                     value={selectedConfig}
-                    onChange={(e) => setSelectedConfig(e.target.value)}
+                    onChange={(e) => selectConfig(e.target.value)}
                 >
                     <option value="" disabled>
                         Select a config
                     </option>
                     {Object.entries(configs).map(([key, value]) => (
-                        <option key={key} value={value}>
+                        <option key={key} value={value["path"]}>
                             {key}
                         </option>
                     ))}
@@ -149,16 +201,32 @@ function App() {
                     Pack
                 </button>
             </div>
-            <div>Job Status: {jobStatus}</div>
+            <div className="box">
+                {recipeStr.length > 0 && (
+                    <div className="recipeBox">
+                        <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe</button>
+                        <div className="recipeJSON">
+                            {viewRecipe && (
+                                <pre>{recipeStr}</pre>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {configStr.length > 0 && (
+                    <div className="configBox">
+                        <button type="button" className="collapsible" onClick={toggleConfig}>Config</button>
+                        <div className="configJSON">
+                            {viewConfig && (
+                                <pre>{configStr}</pre>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+            <h3>Job Status: {jobStatus}</h3>
             {jobSucceeded && (
                 <div>
                     <button onClick={fetchResultUrl}>View result</button>
-                </div>
-            )}
-            {showLogButton && (
-                <div>
-                    <button onClick={getLogs}>Logs</button>
-                    {jobLogs}
                 </div>
             )}
             {
@@ -175,10 +243,22 @@ function App() {
                     </div>
                 )
             }
+            {showLogButton && (
+                <div>
+                    <button className="collapsible" onClick={toggleLogs}>Logs</button>
+                    {viewLogs && jobLogs.length > 0 && (
+                        <div className="logs-container">
+                            {jobLogs.map((log, index) => (
+                                <div key={index} className="log-entry">
+                                    <span>{log}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
 
 export default App;
-
-
