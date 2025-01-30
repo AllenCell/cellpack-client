@@ -37,13 +37,13 @@ jobs:
         run: bun install
       - name: Build
         run: bun run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v4
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
           # Upload dist folder
-          path: './dist'
+          # path: './dist'
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
