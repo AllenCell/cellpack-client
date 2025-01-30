@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest # The first job utilizes windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,16 +31,17 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Install and Build
-        run: |
-          bun install
-          bun run build
+      - name: Install
+        run: bun install
+
+      - name: Build with Vite
+        run: bun run build --base=/cellpack-client
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: site-files
           path: ./dist
+          # name: site-files
 
   deploy:
     concurrency: ci-${{ github.ref }}
