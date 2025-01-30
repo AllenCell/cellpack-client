@@ -39,7 +39,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: site
+          name: site-files
           path: ./dist
 
   deploy:
@@ -53,7 +53,8 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: site
+          name: site-files
+          path: ./dist
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
