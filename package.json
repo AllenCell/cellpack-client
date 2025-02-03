@@ -1,13 +1,12 @@
 {
   "name": "cellpack-client",
-  "private": false,
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "start": "vite",
     "preview": "vite preview"
   },
   "dependencies": {
