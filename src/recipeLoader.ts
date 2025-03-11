@@ -3,7 +3,8 @@ import {
     FirebaseComposition,
     FirebaseGradient,
     FirebaseObject,
-    FirebaseRecipe
+    FirebaseRecipe,
+    RegionObject
 } from "./types";
 
 const isFirebaseRef = (x: string | null | undefined) => {
@@ -63,20 +64,19 @@ const resolveRefsInComposition = (
         fullDoc.objects[objectObj.name] = resolveRefsInObject(objectObj, refsDict, fullDoc);
     }
     if (compObj.regions) {
-        for (const region_type in compObj.regions) {
-            const region_data: Array<string|{count: number, object: string}> = compObj.regions[region_type];
-            for (let i = 0; i < region_data.length; i++) {
-                const obj = region_data[i];
-                if (typeof obj === 'string' && isFirebaseRef(obj)) {
+        for (const regionData of Object.values(compObj.regions)) {
+            for (let i = 0; i < regionData.length; i++) {
+                const regionObj: string | RegionObject = regionData[i];
+                if (typeof regionObj === 'string' && isFirebaseRef(regionObj)) {
                     // This reference is to another composition object
-                    const inheritCompObj = refsDict[obj];
-                    compObj.regions[region_type][i] = inheritCompObj.name;
+                    const inheritCompObj = refsDict[regionObj];
+                    regionData[i] = inheritCompObj.name;
                 }
-                else if (obj instanceof Object && isFirebaseRef(obj.object)) {
-                    const objectObj: FirebaseObject = refsDict[obj.object];
+                else if (regionObj instanceof Object && isFirebaseRef(regionObj.object)) {
+                    const obj: FirebaseObject = refsDict[regionObj.object];
                     fullDoc.objects ??= {};
-                    compObj.regions[region_type][i].object = objectObj.name;
-                    fullDoc.objects[objectObj.name] = resolveRefsInObject(objectObj, refsDict, fullDoc);
+                    regionObj.object = obj.name;
+                    fullDoc.objects[obj.name] = resolveRefsInObject(obj, refsDict, fullDoc);
                 }
             }
         }

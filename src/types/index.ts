@@ -36,7 +36,7 @@ export interface Dictionary<T> {
 }
 
 export interface FirebaseObject {
-    name?: string;
+    name: string;
     type: string;
     color: Array<number>;
     id?: string;
@@ -72,7 +72,7 @@ export interface FirebaseObject {
 }
 
 export interface FirebaseGradient {
-    name?: string;
+    name: string;
     id?: string;
     dedup_hash?: string;
     description?: string;
@@ -85,8 +85,13 @@ export interface FirebaseGradient {
     invert?: string;
 }
 
+export type RegionObject = {
+    count: number;
+    object: string;
+}
+
 export interface FirebaseComposition {
-    name?: string;
+    name: string;
     id?: string;
     count?: number;
     dedup_hash?: string;
@@ -94,10 +99,10 @@ export interface FirebaseComposition {
     object?: string;
     inherit?: string;
     regions?: {
-        interior?: Array<string|{count: number, object: string}>;
-        surface?: Array<string|{count: number, object: string}>;
-        outer_leaflet?: Array<string|{count: number, object: string}>;
-        inner_leaflet?: Array<string|{count: number, object: string}>;
+        interior?: Array<string|RegionObject>;
+        surface?: Array<string|RegionObject>;
+        outer_leaflet?: Array<string|RegionObject>;
+        inner_leaflet?: Array<string|RegionObject>;
     }
 };
 

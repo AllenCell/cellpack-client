@@ -166,16 +166,14 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
     // Go through references received above. May be compositions or object
     refsToGet = [];
     for (const ref in refsDict) {
-        for (const field in refsDict[ref]) {
+        for (const [field, fieldValue] of Object.entries(refsDict[ref])) {
             if (field === FIRESTORE_FIELDS.OBJECT) {
-                const fieldValue = refsDict[ref][field];
                 if (isFirebaseRef(fieldValue)) {
                     refsToGet.push(fieldValue);
                 }
             } else if (field === FIRESTORE_FIELDS.REGIONS) {
-                const regions = refsDict[ref][field];
-                for (const region_type in regions) {
-                    const region_data: Array<string|{count: number, object: string}> = regions[region_type];
+                for (const region_type in fieldValue) {
+                    const region_data: Array<string|{count: number, object: string}> = fieldValue[region_type];
                     if (region_data) {
                         region_data.forEach((obj) => {
                             if (typeof obj === "string" && isFirebaseRef(obj)) {
@@ -195,15 +193,14 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
     // Go through references received above. May be gradients or objects
     refsToGet = [];
     for (const ref in refsDict) {
-        for (const field in refsDict[ref]) {
+        for (const [field, fieldValue] of Object.entries(refsDict[ref])) {
             if (
-                field === FIRESTORE_FIELDS.OBJECT ||
-        field === FIRESTORE_FIELDS.GRADIENT ||
-        field === FIRESTORE_FIELDS.INHERIT
+                field === FIRESTORE_FIELDS.OBJECT
+                || field === FIRESTORE_FIELDS.GRADIENT
+                || field === FIRESTORE_FIELDS.INHERIT
             ) {
-                const refPath = refsDict[ref][field];
-                if (isFirebaseRef(refPath) && typeof refPath == "string" && !(refPath in refsDict)) {
-                    refsToGet.push(refPath);
+                if (isFirebaseRef(fieldValue) && typeof fieldValue == "string" && !(fieldValue in refsDict)) {
+                    refsToGet.push(fieldValue);
                 }
             }
         }
