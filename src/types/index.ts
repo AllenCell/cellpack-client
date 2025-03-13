@@ -23,12 +23,8 @@ export interface CloudWatchLogsResponse {
     }>;
 }
 
-export type StringDict = {
-    [key: string]: string;
-};
-
 export type FirebaseDict = {
-    [key: string]: StringDict;
+    [key: string]: Dictionary<string>;
 };
 
 export interface Dictionary<T> {
