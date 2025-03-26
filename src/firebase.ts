@@ -19,9 +19,11 @@ import {
     FirestoreDoc,
     FirebaseGradient,
     FirebaseObject,
-    FirebaseRecipe
+    FirebaseRecipe,
+    RefsByCollection,
+    RegionObject,
 } from "./types";
-import { resolveRefs, isFirebaseRef } from "./recipeLoader";
+import { resolveRefs, isFirebaseRef, isInRefsByCollection, addRef } from "./recipeLoader";
 
 
 const firebaseConfig = {
@@ -116,42 +118,41 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
 
 const searchForRefs = async (
     refs: string[],
-    refsToJson: Dictionary<FirebaseGradient | FirebaseComposition | FirebaseRecipe | FirebaseObject> = {}
-): Promise<Dictionary<FirebaseRecipe | FirebaseGradient | FirebaseComposition | FirebaseObject>> => {
+    refsToObj: RefsByCollection
+): Promise<RefsByCollection> => {
     // split up the refs we're searching for by collection, so we can
     // handle searching with one query per collection
-    const refsByCollection: Dictionary<Array<string>> = {};
+    const refsToGetByCollection: Dictionary<Array<string>> = {};
     refs.forEach((ref) => {
-    // if we don't already have the JSON for this reference
-        if (!(ref in refsToJson)) {
+        const splitRef: string[] = ref.split((/:|\//));
+        const collectionName = splitRef[1];
+        // Only need to search if we don't already have the object for this reference
+        if (!isInRefsByCollection(ref, collectionName, refsToObj)) {
             // firebase:collection/doc -> [firebase, collection, doc]
-            const splitRef: string[] = ref.split((/:|\//));
-            const collectionName = splitRef[1];
-
-            if (!(collectionName in refsByCollection)) {
-                refsByCollection[collectionName] = [];
+            if (!(collectionName in refsToGetByCollection)) {
+                refsToGetByCollection[collectionName] = [];
             }
-            if (!(splitRef[2] in refsByCollection[collectionName])) {
+            if (!(splitRef[2] in refsToGetByCollection[collectionName])) {
                 // Only need to search for each ref once
-                refsByCollection[collectionName].push(splitRef[2]);
+                refsToGetByCollection[collectionName].push(splitRef[2]);
             }
         }
     });
 
-    for (const coll in refsByCollection) {
-        const results = await getDocsByIds(coll, refsByCollection[coll]);
+    for (const coll in refsToGetByCollection) {
+        const results = await getDocsByIds(coll, refsToGetByCollection[coll]);
         results.forEach((result) => {
             const refName = "firebase:" + coll + "/" + result.id;
-            refsToJson[refName] = result;
+            refsToObj = addRef(refName, coll, result, refsToObj);
         });
     }
-    return refsToJson
+    return refsToObj
 }
 
 const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
     // Step through the recipe, and search Firebase for the referenced paths
 
-    // First, walk through the compositions, and retrieve references from those
+    // First, walk through the recipe's compositions, and resolve their references
     let refsToGet: string[] = [];
     if (doc.composition) {
         const compositions: Dictionary<FirebaseComposition> = doc.composition;
@@ -161,19 +162,21 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
             }
         }
     }
-    let refsDict: Dictionary<FirebaseObject | FirebaseComposition | FirebaseGradient | FirebaseRecipe> = await searchForRefs(refsToGet);
+    let refsDict: RefsByCollection = {recipes: {}, composition: {}, gradients: {}, objects: {}};
+    refsDict = await searchForRefs(refsToGet, refsDict);
 
-    // Go through references received above. May be compositions or object
+    // Second, step through the resolved compositions from above and resolve references to other
+    // compositions or objects referenced there
     refsToGet = [];
-    for (const ref in refsDict) {
-        for (const [field, fieldValue] of Object.entries(refsDict[ref])) {
+    for (const ref in refsDict.composition) {
+        for (const [field, fieldValue] of Object.entries(refsDict.composition[ref])) {
             if (field === FIRESTORE_FIELDS.OBJECT) {
                 if (isFirebaseRef(fieldValue)) {
                     refsToGet.push(fieldValue);
                 }
             } else if (field === FIRESTORE_FIELDS.REGIONS) {
                 for (const region_type in fieldValue) {
-                    const region_data: Array<string|{count: number, object: string}> = fieldValue[region_type];
+                    const region_data: Array<string|RegionObject> = fieldValue[region_type];
                     if (region_data) {
                         region_data.forEach((obj) => {
                             if (typeof obj === "string" && isFirebaseRef(obj)) {
@@ -190,16 +193,27 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
     }
     refsDict = await searchForRefs(refsToGet, refsDict);
 
-    // Go through references received above. May be gradients or objects
+    // Third, go through references in compositions or objects received above. References may be to gradients or objects
     refsToGet = [];
-    for (const ref in refsDict) {
-        for (const [field, fieldValue] of Object.entries(refsDict[ref])) {
+    for (const ref in refsDict.composition) {
+        for (const [field, fieldValue] of Object.entries(refsDict.composition[ref])) {
             if (
                 field === FIRESTORE_FIELDS.OBJECT
-                || field === FIRESTORE_FIELDS.GRADIENT
                 || field === FIRESTORE_FIELDS.INHERIT
             ) {
-                if (isFirebaseRef(fieldValue) && typeof fieldValue == "string" && !(fieldValue in refsDict)) {
+                if (isFirebaseRef(fieldValue) && !(fieldValue in refsDict.composition)) {
+                    refsToGet.push(fieldValue);
+                }
+            }
+        }
+    }
+    for (const ref in refsDict.objects) {
+        for (const [field, fieldValue] of Object.entries(refsDict.objects[ref])) {
+            if (
+                field === FIRESTORE_FIELDS.GRADIENT
+                || field === FIRESTORE_FIELDS.INHERIT
+            ) {
+                if (isFirebaseRef(fieldValue) && !(fieldValue in refsDict.objects)) {
                     refsToGet.push(fieldValue);
                 }
             }

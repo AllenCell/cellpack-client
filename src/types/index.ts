@@ -31,12 +31,19 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
+export interface RefsByCollection {
+    recipes: Dictionary<FirebaseRecipe>;
+    composition: Dictionary<FirebaseComposition>;
+    objects: Dictionary<FirebaseObject>;
+    gradients: Dictionary<FirebaseGradient>;
+}
+
 export interface FirebaseObject {
     name: string;
-    type: string;
-    color: Array<number>;
-    id?: string;
-    dedup_hash?: string;
+    id: string;
+    dedup_hash: string;
+    type?: string;
+    color?: Array<number>;
     packing_mode?: string;
     place_method?: string;
     radius?: number;
@@ -69,15 +76,15 @@ export interface FirebaseObject {
 
 export interface FirebaseGradient {
     name: string;
-    id?: string;
-    dedup_hash?: string;
+    id: string;
+    dedup_hash: string;
     description?: string;
-    mode: string;
-    mode_settings: object;
-    weight_mode: string;
+    mode?: string;
+    mode_settings?: object;
+    weight_mode?: string;
     weight_mode_settings?: object;
-    pick_mode: string;
-    reversed: boolean;
+    pick_mode?: string;
+    reversed?: boolean;
     invert?: string;
 }
 
@@ -88,9 +95,9 @@ export type RegionObject = {
 
 export interface FirebaseComposition {
     name: string;
-    id?: string;
+    id: string;
+    dedup_hash: string;
     count?: number;
-    dedup_hash?: string;
     molarity?: number;
     object?: string;
     inherit?: string;
@@ -103,14 +110,28 @@ export interface FirebaseComposition {
 };
 
 export interface FirebaseRecipe {
-    name?: string;
-    dedup_hash?: string;
-    bounding_box?: [][] | object;
-    format_version?: string;
-    recipe_path?: string;
+    name: string;
+    id: string;
+    dedup_hash: string;
     version?: string;
-    id?: string;
+    format_version?: string;
+    bounding_box?: [][] | object;
+    recipe_path?: string;
     composition?: Dictionary<FirebaseComposition>;
     objects?: Dictionary<FirebaseObject>;
     gradients?: Dictionary<FirebaseGradient>;
 };
+
+export type ViewableComposition = Omit<FirebaseComposition, "name" | "id" | "dedup_hash">
+export type ViewableObject = Omit<FirebaseObject, "name" | "id" | "dedup_hash">
+export type ViewableGradient = Omit<FirebaseGradient, "name" | "id" | "dedup_hash">
+
+export type ViewableRecipe = {
+    version?: string;
+    format_version?: string;
+    bounding_box?: [][] | object;
+    recipe_path?: string;
+    composition?: Dictionary<ViewableComposition>;
+    objects?: Dictionary<ViewableObject>;
+    gradients?: Dictionary<ViewableGradient>;
+}

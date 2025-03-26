@@ -1,14 +1,49 @@
+import { FIRESTORE_COLLECTIONS } from "./constants/firebaseConstants";
 import {
-    Dictionary,
     FirebaseComposition,
     FirebaseGradient,
     FirebaseObject,
     FirebaseRecipe,
-    RegionObject
+    RegionObject,
+    RefsByCollection
 } from "./types";
 
 const isFirebaseRef = (x: string | null | undefined) => {
     return x !== null && x !== undefined && typeof x == "string" && x.startsWith("firebase");
+}
+
+const isInRefsByCollection = (ref: string, coll: string, refsByColl: RefsByCollection): Boolean => {
+    let refsForColl = {};
+    if (coll === FIRESTORE_COLLECTIONS.RECIPES) {
+        refsForColl = refsByColl.recipes;
+    } else if (coll === FIRESTORE_COLLECTIONS.COMPOSITION) {
+        refsForColl = refsByColl.composition;
+    } else if (coll === FIRESTORE_COLLECTIONS.OBJECTS) {
+        refsForColl = refsByColl.objects;
+    } else if (coll === FIRESTORE_COLLECTIONS.GRADIENTS) {
+        refsForColl = refsByColl.gradients;
+    } else {
+        return false;
+    }
+    return ref in refsForColl;
+}
+
+const addRef = (
+    ref: string,
+    coll: string,
+    obj: FirebaseRecipe | FirebaseComposition | FirebaseObject | FirebaseGradient,
+    refsByColl: RefsByCollection
+): RefsByCollection => {
+    if (coll === FIRESTORE_COLLECTIONS.RECIPES) {
+        refsByColl.recipes[ref] = obj;
+    } else if (coll === FIRESTORE_COLLECTIONS.COMPOSITION) {
+        refsByColl.composition[ref] = obj;
+    } else if (coll === FIRESTORE_COLLECTIONS.OBJECTS) {
+        refsByColl.objects[ref] = obj;
+    } else if (coll === FIRESTORE_COLLECTIONS.GRADIENTS) {
+        refsByColl.gradients[ref] = obj;
+    }
+    return refsByColl;
 }
 
 const isDbDict = (x: object) => {
@@ -25,40 +60,33 @@ const isDbDict = (x: object) => {
 
 const resolveRefsInObject = (
     obj: FirebaseObject,
-    refsDict: Dictionary<FirebaseComposition | FirebaseObject | FirebaseGradient>,
+    refsDict: RefsByCollection,
     fullDoc: FirebaseRecipe
 ) => {
     if (isFirebaseRef(obj.gradient)) {
-        const gradientObj: FirebaseGradient = refsDict[obj.gradient!];
+        const gradientObj: FirebaseGradient = refsDict.gradients[obj.gradient!];
         obj.gradient = gradientObj.name;
         fullDoc.gradients ??= {};
-        // remove fields that shouldn't be displayed on the UI
-        delete gradientObj.id;
-        delete gradientObj.dedup_hash;
         fullDoc.gradients[gradientObj.name] = gradientObj;
     }
 
     if (isFirebaseRef(obj.inherit)) {
-        const objectObj: FirebaseObject = refsDict[obj.inherit!];
+        const objectObj: FirebaseObject = refsDict.objects[obj.inherit!];
         obj.inherit = objectObj.name;
         fullDoc.objects ??= {};
         fullDoc.objects[objectObj.name] = resolveRefsInObject(objectObj, refsDict, fullDoc);
     }
-
-    // remove fields that shouldn't be displayed on the UI
-    delete obj.id;
-    delete obj.dedup_hash;
 
     return obj;
 };
 
 const resolveRefsInComposition = (
     compObj: FirebaseComposition,
-    refsDict: Dictionary<FirebaseComposition | FirebaseObject | FirebaseGradient>,
+    refsDict: RefsByCollection,
     fullDoc: FirebaseRecipe
 ) => {
     if (isFirebaseRef(compObj.object)) {
-        const objectObj: FirebaseObject = refsDict[compObj.object!];
+        const objectObj: FirebaseObject = refsDict.objects[compObj.object!];
         compObj.object = objectObj.name;
         fullDoc.objects ??= {};
         fullDoc.objects[objectObj.name] = resolveRefsInObject(objectObj, refsDict, fullDoc);
@@ -69,11 +97,11 @@ const resolveRefsInComposition = (
                 const regionObj: string | RegionObject = regionData[i];
                 if (typeof regionObj === 'string' && isFirebaseRef(regionObj)) {
                     // This reference is to another composition object
-                    const inheritCompObj = refsDict[regionObj];
+                    const inheritCompObj = refsDict.composition[regionObj];
                     regionData[i] = inheritCompObj.name;
                 }
                 else if (regionObj instanceof Object && isFirebaseRef(regionObj.object)) {
-                    const obj: FirebaseObject = refsDict[regionObj.object];
+                    const obj: FirebaseObject = refsDict.objects[regionObj.object];
                     fullDoc.objects ??= {};
                     regionObj.object = obj.name;
                     fullDoc.objects[obj.name] = resolveRefsInObject(obj, refsDict, fullDoc);
@@ -83,21 +111,21 @@ const resolveRefsInComposition = (
     }
 
     // remove fields that shouldn't be displayed on the UI
-    delete compObj.id;
-    delete compObj.dedup_hash;
+    // delete compObj.id;
+    // delete compObj.dedup_hash;
 
     return compObj;
 }
 
 const resolveRefs = (
     doc: FirebaseRecipe,
-    refsDict: Dictionary<FirebaseComposition | FirebaseObject | FirebaseGradient | FirebaseRecipe>
+    refsDict: RefsByCollection
 ) => {
     // Handle Compositions
     for (const compName in doc.composition) {
         const ref = doc.composition[compName].inherit;
         if (isFirebaseRef(ref)) {
-            const compositionObj: FirebaseComposition = refsDict[ref!];
+            const compositionObj: FirebaseComposition = refsDict.composition[ref!];
             doc.composition[compName] = resolveRefsInComposition(compositionObj, refsDict, doc);
         }
     }
@@ -109,12 +137,7 @@ const resolveRefs = (
         doc.bounding_box = unpackedDict;
     }
 
-    // remove fields that shouldn't be displayed on the UI
-    delete doc.recipe_path;
-    delete doc.id;
-    delete doc.dedup_hash;
-
     return doc;
 }
 
-export { isFirebaseRef, resolveRefs };
+export { isFirebaseRef, resolveRefs, isInRefsByCollection, addRef };
