@@ -127,10 +127,10 @@ export type ViewableObject = Omit<FirebaseObject, "name" | "id" | "dedup_hash">
 export type ViewableGradient = Omit<FirebaseGradient, "name" | "id" | "dedup_hash">
 
 export type ViewableRecipe = {
+    name: string;
     version?: string;
     format_version?: string;
     bounding_box?: [][] | object;
-    recipe_path?: string;
     composition?: Dictionary<ViewableComposition>;
     objects?: Dictionary<ViewableObject>;
     gradients?: Dictionary<ViewableGradient>;

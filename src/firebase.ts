@@ -17,14 +17,12 @@ import {
     FirebaseComposition,
     FirebaseDict,
     FirestoreDoc,
-    FirebaseGradient,
-    FirebaseObject,
     FirebaseRecipe,
     RefsByCollection,
     RegionObject,
+    ViewableRecipe,
 } from "./types";
 import { resolveRefs, isFirebaseRef, isInRefsByCollection, addRef } from "./recipeLoader";
-
 
 const firebaseConfig = {
     apiKey: import.meta.env.API_KEY,
@@ -222,7 +220,7 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<string> => {
     refsDict = await searchForRefs(refsToGet, refsDict);
 
     // Resolve references in doc using refsDict
-    const resolvedDoc = resolveRefs(doc, refsDict);
+    const resolvedDoc: ViewableRecipe = resolveRefs(doc, refsDict);
     return JSON.stringify(resolvedDoc, null, 2);
 }
 

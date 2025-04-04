@@ -1,11 +1,16 @@
 import { FIRESTORE_COLLECTIONS } from "./constants/firebaseConstants";
 import {
+    Dictionary,
     FirebaseComposition,
     FirebaseGradient,
     FirebaseObject,
     FirebaseRecipe,
     RegionObject,
-    RefsByCollection
+    RefsByCollection,
+    ViewableRecipe,
+    ViewableComposition,
+    ViewableGradient,
+    ViewableObject
 } from "./types";
 
 const isFirebaseRef = (x: string | null | undefined) => {
@@ -109,18 +114,45 @@ const resolveRefsInComposition = (
             }
         }
     }
-
-    // remove fields that shouldn't be displayed on the UI
-    // delete compObj.id;
-    // delete compObj.dedup_hash;
-
     return compObj;
+}
+
+const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
+    let viewableComp: Dictionary<ViewableComposition> = {};
+    for (const key in recipe.composition) {
+        const comp: FirebaseComposition = recipe.composition[key];
+        const {name, id, dedup_hash, ...viewable} = comp;
+        viewableComp[key] = viewable;
+    }
+    let viewableObj: Dictionary<ViewableObject> = {};
+    for (const key in recipe.objects) {
+        const obj: FirebaseObject = recipe.objects[key];
+        const {name, id, dedup_hash, ...viewable} = obj;
+        viewableObj[key] = viewable;
+    }
+    let viewableGradient: Dictionary<ViewableGradient> = {};
+    for (const key in recipe.gradients) {
+        const obj: FirebaseGradient = recipe.gradients[key];
+        const {name, id, dedup_hash, ...viewable} = obj;
+        viewableGradient[key] = viewable;
+    }
+    const viewableRecipe: ViewableRecipe = {
+        name: recipe.name,
+        version: recipe.version,
+        format_version: recipe.format_version,
+        bounding_box: recipe.bounding_box,
+        composition: viewableComp,
+        objects: viewableObj,
+        gradients: viewableGradient,
+    };
+    return viewableRecipe;
+
 }
 
 const resolveRefs = (
     doc: FirebaseRecipe,
     refsDict: RefsByCollection
-) => {
+): ViewableRecipe => {
     // Handle Compositions
     for (const compName in doc.composition) {
         const ref = doc.composition[compName].inherit;
@@ -136,8 +168,8 @@ const resolveRefs = (
         }
         doc.bounding_box = unpackedDict;
     }
-
-    return doc;
+    const viewable: ViewableRecipe = recipeToViewable(doc);
+    return viewable;
 }
 
 export { isFirebaseRef, resolveRefs, isInRefsByCollection, addRef };
