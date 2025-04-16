@@ -63,6 +63,15 @@ function App() {
         return name + "_v1";
     };
 
+    const checkName = (name: string): string => {
+        if (name in configs) {
+            const newName = incrementVersion(name);
+            return checkName(newName);
+        }
+        // Name is unique, it's good to go
+        return name;
+    };
+
     const configHasChanged = async (configJson: object): Promise<boolean> => {
         const originalConfig = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, selectedConfig);
         return !isEqual(originalConfig, configJson);
@@ -75,10 +84,7 @@ function App() {
         let newConfigId = undefined;
         if (hasChanged) {
             // automatically increment name version if name didn't change
-            let name = configJson["name"];
-            if (name in configs) {
-                configJson["name"] = incrementVersion(name);
-            }
+            configJson["name"] = checkName(configJson["name"]);
             // add new config to firebase and save new firebase id
             newConfigId = await updateConfig(configJson);
             if (newConfigId) {
