@@ -102,7 +102,7 @@ const getRecipeDoc = async (id: string): Promise<FirebaseRecipe> => {
     );
     const querySnapshot = await getDocs(q);
     const docs: Array<FirebaseRecipe> = querySnapshot.docs.map((doc) => ({
-        id: doc.id, // Do we actually need to keep this id field here?
+        id: doc.id,
         ...doc.data(),
     }));
     return docs[0];
@@ -115,7 +115,7 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
     );
     const querySnapshot = await getDocs(q);
     const docs = querySnapshot.docs.map((doc) => ({
-        id: doc.id, // Do we actually need to keep this id field here?
+        id: doc.id,
         ...doc.data(),
     }));
     return docs;
@@ -240,7 +240,6 @@ const getFirebaseRecipe = async (name: string): Promise<string> => {
 const updateConfig = async (data) => {
     try {
         const docRef = await addDoc(collection(db, FIRESTORE_COLLECTIONS.CONFIGS), data);
-        console.log("Document written with ID: ", docRef.id);
         return docRef.id;
     } catch (e) {
         console.error("Error adding document: ", e);
