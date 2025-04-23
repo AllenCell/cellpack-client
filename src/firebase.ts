@@ -98,6 +98,9 @@ const getRecipeDoc = async (id: string): Promise<FirebaseRecipe> => {
         id: doc.id,
         ...doc.data(),
     }));
+    if (docs.length === 0) {
+        throw new Error(`Recipe with ID ${id} not found`);
+    }
     return docs[0];
 };
 
