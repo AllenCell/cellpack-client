@@ -69,11 +69,9 @@ const getLocationDict = async (collectionName: string) => {
     // `reduce` is a method that takes an array and reduces it to a single value
     const locationDict = docs.reduce((locationDict: FirebaseDict, doc: FirestoreDoc) => {
         const name = doc[FIRESTORE_FIELDS.NAME];
-        const originalLocation = doc[FIRESTORE_FIELDS.ORIGINAL_LOCATION] ?? doc[FIRESTORE_FIELDS.RECIPE_PATH] ?? "";
         const id = doc.id;
         if (name) {
             locationDict[name] = {
-                "path": originalLocation,
                 "firebaseId": id,
             };
         } 
