@@ -128,15 +128,7 @@ function App() {
 
     const selectConfig = async (config: string) => {
         setSelectedConfig(config);
-        // Determine the firebaseId for this config
-        let firebaseId = "unknown"
-        for (const name in configs) {
-            const path = configs[name]["path"];
-            if (path == config) {
-                firebaseId = configs[name]["firebaseId"]
-            }
-        }
-        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, firebaseId);
+        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, config);
         setConfigStr(confStr);
     }
 
@@ -184,7 +176,7 @@ function App() {
                         Select a config
                     </option>
                     {Object.entries(configs).map(([key, value]) => (
-                        <option key={key} value={value["path"]}>
+                        <option key={key} value={value["firebaseId"]}>
                             {key}
                         </option>
                     ))}
