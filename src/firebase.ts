@@ -17,6 +17,8 @@ import {
     FirebaseComposition,
     FirebaseDict,
     FirestoreDoc,
+    FirebaseGradient,
+    FirebaseObject,
     FirebaseRecipe,
     RefsByCollection,
     RegionObject,
@@ -94,6 +96,8 @@ const getRecipeDoc = async (id: string): Promise<FirebaseRecipe> => {
     const querySnapshot = await getDocs(q);
     const docs: Array<FirebaseRecipe> = querySnapshot.docs.map((doc) => ({
         id: doc.id,
+        name: doc.data().name,
+        dedup_hash: doc.data().dedup_hash,
         ...doc.data(),
     }));
     if (docs.length === 0) {
@@ -110,6 +114,8 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
     const querySnapshot = await getDocs(q);
     const docs = querySnapshot.docs.map((doc) => ({
         id: doc.id,
+        name: doc.data().name,
+        dedup_hash: doc.data().dedup_hash,
         ...doc.data(),
     }));
     return docs;
@@ -139,7 +145,7 @@ const searchForRefs = async (
     });
 
     for (const coll in refsToGetByCollection) {
-        const results = await getDocsByIds(coll, refsToGetByCollection[coll]);
+        const results: FirebaseRecipe[] | FirebaseComposition[] | FirebaseObject[] | FirebaseGradient[] = await getDocsByIds(coll, refsToGetByCollection[coll]);
         results.forEach((result) => {
             const refName = "firebase:" + coll + "/" + result.id;
             refsToObj = addRef(refName, coll, result, refsToObj);

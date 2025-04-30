@@ -17,7 +17,7 @@ const isFirebaseRef = (x: string | null | undefined) => {
     return x !== null && x !== undefined && typeof x == "string" && x.startsWith("firebase");
 }
 
-const isInRefsByCollection = (ref: string, coll: string, refsByColl: RefsByCollection): Boolean => {
+const isInRefsByCollection = (ref: string, coll: string, refsByColl: RefsByCollection): boolean => {
     let refsForColl = {};
     if (coll === FIRESTORE_COLLECTIONS.RECIPES) {
         refsForColl = refsByColl.recipes;
@@ -118,19 +118,19 @@ const resolveRefsInComposition = (
 }
 
 const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
-    let viewableComp: Dictionary<ViewableComposition> = {};
+    const viewableComp: Dictionary<ViewableComposition> = {};
     for (const key in recipe.composition) {
         const comp: FirebaseComposition = recipe.composition[key];
         const {name, id, dedup_hash, ...viewable} = comp;
         viewableComp[key] = viewable;
     }
-    let viewableObj: Dictionary<ViewableObject> = {};
+    const viewableObj: Dictionary<ViewableObject> = {};
     for (const key in recipe.objects) {
         const obj: FirebaseObject = recipe.objects[key];
         const {name, id, dedup_hash, ...viewable} = obj;
         viewableObj[key] = viewable;
     }
-    let viewableGradient: Dictionary<ViewableGradient> = {};
+    const viewableGradient: Dictionary<ViewableGradient> = {};
     for (const key in recipe.gradients) {
         const obj: FirebaseGradient = recipe.gradients[key];
         const {name, id, dedup_hash, ...viewable} = obj;
