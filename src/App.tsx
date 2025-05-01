@@ -37,7 +37,8 @@ function App() {
 
     const submitRecipe = async () => {
         const firebaseRecipe = "firebase:recipes/" + selectedRecipe
-        const url = getSubmitPackingUrl(firebaseRecipe, selectedConfig);
+        const firebaseConfig = "firebase:configs/" + selectedConfig;
+        const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
         const request: RequestInfo = new Request(url, {
             method: "POST",
         });
