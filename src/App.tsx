@@ -38,16 +38,19 @@ function App() {
 
     let start = 0;
 
+    async function sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
     const submitRecipe = async (useECS: boolean = false) => {
         setResultUrl("");
         const firebaseRecipe = "firebase:recipes/" + selectedRecipe
         const firebaseConfig = "firebase:configs/" + selectedConfig;
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig, useECS);
-        const m = useECS ? "GET" : "POST";
         const request: RequestInfo = new Request(url, {
-            method: m,
+            method: useECS ? "GET" : "POST",
         });
-        let start = Date.now();
+        start = Date.now();
         const response = await fetch(request);
         const data = await response.json();
         if (useECS == false) {
@@ -111,6 +114,7 @@ function App() {
                 setJobStatus(data.jobs[0].status);
             }
             setLogStreamName(data.jobs[0].container.logStreamName);
+            await sleep(500);
         }
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
