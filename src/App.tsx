@@ -40,7 +40,7 @@ function App() {
 
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    }
+    };
 
     const submitRecipe = async (useECS: boolean = false) => {
         setResultUrl("");
@@ -53,10 +53,7 @@ function App() {
         start = Date.now();
         const response = await fetch(request);
         const data = await response.json();
-        if (useECS == false) {
-            setJobId(data.jobId);
-            return data.jobId;
-        } else {
+        if (useECS) {
             if (response.ok) {
                 const range = (Date.now() - start) / 1000;
                 setRunTime(range);
@@ -66,6 +63,9 @@ function App() {
             } else {
                 setJobStatus(JobStatus.FAILED);
             }
+        } else {
+            setJobId(data.jobId);
+            return data.jobId;
         }
     };
 
