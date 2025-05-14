@@ -33,6 +33,7 @@ function App() {
     const [configStr, setConfigStr] = useState<string>("");
     const [viewRecipe, setViewRecipe] = useState<boolean>(true);
     const [viewConfig, setViewConfig] = useState<boolean>(true);
+    const [viewResults, setViewResults] = useState<boolean>(false);
     const [viewLogs, setViewLogs] = useState<boolean>(true);
     const [runTime, setRunTime] = useState<number>(0);
 
@@ -172,6 +173,13 @@ function App() {
         setViewConfig(!viewConfig);
     }
 
+    const toggleResults = () => {
+        if (resultUrl == "") {
+            fetchResultUrl();
+        }
+        setViewResults(!viewResults);
+    }
+
     const toggleLogs = async () => {
         if (jobLogs.length == 0) {
             await getLogs();
@@ -182,6 +190,7 @@ function App() {
 
     const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
     const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
+    const showResults = resultUrl && viewResults;
 
     return (
         <div className="app">
@@ -246,11 +255,11 @@ function App() {
             {jobSucceeded && (
                 <div>
                     <h4>Time to Run: {runTime} sec</h4>
-                    <button onClick={fetchResultUrl}>View result</button>
+                    <button onClick={toggleResults}>Results</button>
                 </div>
             )}
             {
-                resultUrl && (
+                showResults && (
                     <div>
                         <iframe
                             src={resultUrl}
