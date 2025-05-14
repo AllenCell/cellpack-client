@@ -141,6 +141,7 @@ const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
         version: recipe.version,
         format_version: recipe.format_version,
         bounding_box: recipe.bounding_box,
+        grid_file_path: recipe.grid_file_path,
         composition: viewableComp,
         objects: viewableObj,
         gradients: viewableGradient,
