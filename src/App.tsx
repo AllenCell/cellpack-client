@@ -34,18 +34,36 @@ function App() {
     const [viewRecipe, setViewRecipe] = useState<boolean>(true);
     const [viewConfig, setViewConfig] = useState<boolean>(true);
     const [viewLogs, setViewLogs] = useState<boolean>(true);
+    const [runTime, setRunTime] = useState<number>(0);
 
-    const submitRecipe = async () => {
+    let start = 0;
+
+    const submitRecipe = async (useECS: boolean = false) => {
+        setResultUrl("");
         const firebaseRecipe = "firebase:recipes/" + selectedRecipe
         const firebaseConfig = "firebase:configs/" + selectedConfig;
-        const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
+        const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig, useECS);
+        const m = useECS ? "GET" : "POST";
         const request: RequestInfo = new Request(url, {
-            method: "POST",
+            method: m,
         });
+        let start = Date.now();
         const response = await fetch(request);
         const data = await response.json();
-        setJobId(data.jobId);
-        return data.jobId;
+        if (useECS == false) {
+            setJobId(data.jobId);
+            return data.jobId;
+        } else {
+            if (response.ok) {
+                const range = (Date.now() - start) / 1000;
+                setRunTime(range);
+                setJobId(data.job_id);
+                setJobStatus(JobStatus.SUCCEEDED);
+                return data.job_id;
+            } else {
+                setJobStatus(JobStatus.FAILED);
+            }
+        }
     };
 
     const getRecipes = async () => {
@@ -94,6 +112,8 @@ function App() {
             }
             setLogStreamName(data.jobs[0].container.logStreamName);
         }
+        const range = (Date.now() - start) / 1000;
+        setRunTime(range);
     };
 
     const fetchResultUrl = async () => {
@@ -117,6 +137,13 @@ function App() {
 
     const runPacking = async () => {
         submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
+        setViewConfig(false);
+        setViewRecipe(false);
+    };
+
+    const runPackingECS = async () => {
+        submitRecipe(true);
+        setJobStatus(JobStatus.SUBMITTED);
         setViewConfig(false);
         setViewRecipe(false);
     };
@@ -183,7 +210,10 @@ function App() {
                     ))}
                 </select>
                 <button onClick={runPacking} disabled={!selectedRecipe}>
-                    Pack
+                    Pack on Batch
+                </button>
+                <button onClick={runPackingECS} disabled={!selectedRecipe}>
+                    Pack on ECS
                 </button>
             </div>
             <div className="box">
@@ -211,6 +241,7 @@ function App() {
             <h3>Job Status: {jobStatus}</h3>
             {jobSucceeded && (
                 <div>
+                    <h4>Time to Run: {runTime} sec</h4>
                     <button onClick={fetchResultUrl}>View result</button>
                 </div>
             )}
