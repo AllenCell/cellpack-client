@@ -58,9 +58,9 @@ function App() {
             if (response.ok) {
                 const range = (Date.now() - start) / 1000;
                 setRunTime(range);
-                setJobId(data.job_id);
+                setJobId(data.jobId);
                 setJobStatus(JobStatus.SUCCEEDED);
-                return data.job_id;
+                return data.jobId;
             } else {
                 setJobStatus(JobStatus.FAILED);
             }
