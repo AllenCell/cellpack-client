@@ -14,6 +14,7 @@ export const FIRESTORE_COLLECTIONS = {
     GRADIENTS: "gradients",
     COMPOSITION: "composition",
     EXAMPLE_RECIPES: "example_recipes",
+    JOB_STATUS: "job_status",
 };
 
 //firestore field names
