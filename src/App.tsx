@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { queryFirebase, getLocationDict, getDocById, getFirebaseRecipe } from "./firebase";
+import { queryFirebase, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus } from "./firebase";
 import {
     getSubmitPackingUrl,
-    packingStatusUrl,
-    getLogsUrl,
     JobStatus,
 } from "./constants/awsBatch";
 import {
@@ -12,8 +10,6 @@ import {
 } from "./constants/firebaseConstants";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
-    AWSBatchJobsResponse,
-    CloudWatchLogsResponse,
     FirebaseDict,
 } from "./types";
 
@@ -24,10 +20,7 @@ function App() {
     const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
-    const [logStreamName, setLogStreamName] = useState(
-        ""
-    );
-    const [jobLogs, setJobLogs] = useState<string[]>([]);
+    const [jobLogs, setJobLogs] = useState<string>("");
     const [resultUrl, setResultUrl] = useState<string>("");
     const [recipeStr, setRecipeStr] = useState<string>("");
     const [configStr, setConfigStr] = useState<string>("");
@@ -43,30 +36,24 @@ function App() {
         return new Promise((resolve) => setTimeout(resolve, ms));
     };
 
-    const submitRecipe = async (useECS: boolean = false) => {
+    const submitRecipe = async () => {
         setResultUrl("");
+        setRunTime(0);
         const firebaseRecipe = "firebase:recipes/" + selectedRecipe
         const firebaseConfig = "firebase:configs/" + selectedConfig;
-        const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig, useECS);
-        const request: RequestInfo = new Request(url, {
-            method: useECS ? "GET" : "POST",
-        });
+        const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
+        const request: RequestInfo = new Request(url, { method: "POST" });
         start = Date.now();
         const response = await fetch(request);
+        setJobStatus(JobStatus.SUBMITTED);
         const data = await response.json();
-        if (useECS) {
-            if (response.ok) {
-                const range = (Date.now() - start) / 1000;
-                setRunTime(range);
-                setJobId(data.jobId);
-                setJobStatus(JobStatus.SUCCEEDED);
-                return data.jobId;
-            } else {
-                setJobStatus(JobStatus.FAILED);
-            }
-        } else {
+        if (response.ok) {
             setJobId(data.jobId);
+            setJobStatus(JobStatus.STARTING);
             return data.jobId;
+        } else {
+            setJobStatus(JobStatus.FAILED);
+            setJobLogs(JSON.stringify(data));
         }
     };
 
@@ -99,58 +86,40 @@ function App() {
 
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
-        const url = packingStatusUrl(id);
-        const request: RequestInfo = new Request(
-            url,
-            {
-                method: "GET",
-            }
-        );
-        let localJobStatus = "";
-        while (localJobStatus !== JobStatus.SUCCEEDED && localJobStatus !== JobStatus.FAILED) {
-            const response = await fetch(request);
-            const data: AWSBatchJobsResponse = await response.json();
-            if (localJobStatus !== data.jobs[0].status) {
-                localJobStatus = data.jobs[0].status;
-                setJobStatus(data.jobs[0].status);
-            }
-            setLogStreamName(data.jobs[0].container.logStreamName);
+        let localJobStatus = await getJobStatus(id);
+        while (localJobStatus !== JobStatus.DONE && localJobStatus !== JobStatus.FAILED) {
             await sleep(500);
+            const newJobStatus = await getJobStatus(id);
+            if (localJobStatus !== newJobStatus) {
+                localJobStatus = newJobStatus;
+                setJobStatus(newJobStatus);
+            }
         }
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
+        if (localJobStatus == JobStatus.DONE) {
+            fetchResultUrl(id);
+        } else if (localJobStatus == JobStatus.FAILED) {
+            getLogs(id);
+        }
     };
 
-    const fetchResultUrl = async () => {
-        const url = await queryFirebase(jobId);
+    const fetchResultUrl = async (jobIdFromSubmit?: string) => {
+        const id = jobIdFromSubmit || jobId;
+        const url = await queryFirebase(id);
         setResultUrl(SIMULARIUM_EMBED_URL + url);
     };
 
-    const getLogs = async () => {
-        const url = getLogsUrl(logStreamName);
-        const request: RequestInfo = new Request(
-            url,
-            {
-                method: "GET",
-            }
-        );
-        const response = await fetch(request);
-        const data: CloudWatchLogsResponse = await response.json();
-        const logs = data.events.map((event: { message: string }) => event.message);
-        setJobLogs(logs);
-    };
-
-    const runPacking = async () => {
-        submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
-        setViewConfig(false);
-        setViewRecipe(false);
+    const getLogs = async (jobIdFromSubmit?: string) => {
+        const id = jobIdFromSubmit || jobId;
+        const logStr: string = await getDocById(FIRESTORE_COLLECTIONS.JOB_STATUS, id);
+        setJobLogs(logStr);
     };
 
     const runPackingECS = async () => {
-        submitRecipe(true);
-        setJobStatus(JobStatus.SUBMITTED);
         setViewConfig(false);
         setViewRecipe(false);
+        submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
     };
 
     const selectRecipe = async (recipe: string) => {
@@ -188,8 +157,8 @@ function App() {
         }
     }
 
-    const jobSucceeded = jobStatus == JobStatus.SUCCEEDED;
-    const showLogButton = jobSucceeded || jobStatus == JobStatus.FAILED;
+    const jobSucceeded = jobStatus == JobStatus.DONE;
+    const showLogButton = jobStatus == JobStatus.FAILED;
     const showResults = resultUrl && viewResults;
 
     return (
@@ -222,11 +191,8 @@ function App() {
                         </option>
                     ))}
                 </select>
-                <button onClick={runPacking} disabled={!selectedRecipe}>
-                    Pack on Batch
-                </button>
                 <button onClick={runPackingECS} disabled={!selectedRecipe}>
-                    Pack on ECS
+                    Pack
                 </button>
             </div>
             <div className="box">
@@ -254,7 +220,7 @@ function App() {
             <h3>Job Status: {jobStatus}</h3>
             {jobSucceeded && (
                 <div>
-                    <h4>Time to Run: {runTime} sec</h4>
+                    {runTime > 0 && (<h4>Time to Run: {runTime} sec</h4>)}
                     <button onClick={toggleResults}>Results</button>
                 </div>
             )}
@@ -276,12 +242,8 @@ function App() {
                 <div>
                     <button className="collapsible" onClick={toggleLogs}>Logs</button>
                     {viewLogs && jobLogs.length > 0 && (
-                        <div className="logs-container">
-                            {jobLogs.map((log, index) => (
-                                <div key={index} className="log-entry">
-                                    <span>{log}</span>
-                                </div>
-                            ))}
+                        <div className="logBox">
+                            <pre>{jobLogs}</pre>
                         </div>
                     )}
                 </div>

@@ -54,6 +54,20 @@ const queryFirebase = async (jobId: string) => {
     return resultUrl;
 };
 
+const getJobStatus = async (jobId: string) => {
+    const q = query(
+        collection(db, FIRESTORE_COLLECTIONS.JOB_STATUS),
+        where(documentId(), "==", jobId)
+    );
+    const querySnapshot = await getDocs(q);
+    let status = "";
+    querySnapshot.forEach((doc) => {
+        // we'll only ever expect one doc to show up here
+        status = doc.data().status;
+    });
+    return status;
+}
+
 const getAllDocsFromCollection = async (collectionName: string) => {
     const q = query(collection(db, collectionName));
     const querySnapshot = await getDocs(q);
@@ -237,4 +251,4 @@ const getFirebaseRecipe = async (name: string): Promise<string> => {
     return unpackedRecipe;
 }
 
-export { db, queryFirebase, getLocationDict, getDocById, getFirebaseRecipe };
+export { db, queryFirebase, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };
