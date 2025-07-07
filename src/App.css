@@ -64,6 +64,17 @@
   overflow-y: auto;
 }
 
+textarea {
+  width: 450px;
+  height: 300px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  resize: none;
+}
+
 .logBox {
   display: flex;
   justify-content: space-between;

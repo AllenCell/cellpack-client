@@ -8,6 +8,8 @@ import {
     documentId,
     QuerySnapshot,
     DocumentData
+    setDoc,
+    doc,
 } from "firebase/firestore";
 import {
     FIREBASE_CONFIG,
@@ -268,4 +270,8 @@ const getFirebaseRecipe = async (name: string): Promise<string> => {
     return unpackedRecipe;
 }
 
-export { db, getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };
+const updateRecipe = async (id: string, data: object) => {
+    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
+}
+
+export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, updateRecipe };
