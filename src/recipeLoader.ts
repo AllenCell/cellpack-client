@@ -8,9 +8,6 @@ import {
     RegionObject,
     RefsByCollection,
     ViewableRecipe,
-    ViewableComposition,
-    ViewableGradient,
-    ViewableObject
 } from "./types";
 
 const isFirebaseRef = (x: string | null | undefined) => {
