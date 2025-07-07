@@ -117,37 +117,39 @@ const resolveRefsInComposition = (
     return compObj;
 }
 
+
+const stripFirebaseFields = <T extends { name: string; id: string; dedup_hash: string }>(
+    obj: T
+): Omit<T, "name" | "id" | "dedup_hash"> => {
+    const { name, id, dedup_hash, ...viewable } = obj;
+    return viewable;
+};
+
+// reusable function for converting a collection of Firebase objects to a viewable format)
+const convertCollectionToViewable = <T extends { name: string; id: string; dedup_hash: string }>(
+    collection: Dictionary<T> | undefined
+): Dictionary<Omit<T, "name" | "id" | "dedup_hash">> => {
+    if (!collection) return {};
+
+    const viewableCollection: Dictionary<Omit<T, "name" | "id" | "dedup_hash">> = {};
+    for (const key in collection) {
+        viewableCollection[key] = stripFirebaseFields(collection[key]);
+    }
+    return viewableCollection;
+};
+
 const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
-    const viewableComp: Dictionary<ViewableComposition> = {};
-    for (const key in recipe.composition) {
-        const comp: FirebaseComposition = recipe.composition[key];
-        const {name, id, dedup_hash, ...viewable} = comp;
-        viewableComp[key] = viewable;
-    }
-    const viewableObj: Dictionary<ViewableObject> = {};
-    for (const key in recipe.objects) {
-        const obj: FirebaseObject = recipe.objects[key];
-        const {name, id, dedup_hash, ...viewable} = obj;
-        viewableObj[key] = viewable;
-    }
-    const viewableGradient: Dictionary<ViewableGradient> = {};
-    for (const key in recipe.gradients) {
-        const obj: FirebaseGradient = recipe.gradients[key];
-        const {name, id, dedup_hash, ...viewable} = obj;
-        viewableGradient[key] = viewable;
-    }
     const viewableRecipe: ViewableRecipe = {
         name: recipe.name,
         version: recipe.version,
         format_version: recipe.format_version,
         bounding_box: recipe.bounding_box,
         grid_file_path: recipe.grid_file_path,
-        composition: viewableComp,
-        objects: viewableObj,
-        gradients: viewableGradient,
+        composition: convertCollectionToViewable(recipe.composition),
+        objects: convertCollectionToViewable(recipe.objects),
+        gradients: convertCollectionToViewable(recipe.gradients),
     };
     return viewableRecipe;
-
 }
 
 const resolveRefs = (
