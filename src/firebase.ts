@@ -7,7 +7,7 @@ import {
     where,
     documentId,
     QuerySnapshot,
-    DocumentData
+    DocumentData,
     setDoc,
     doc,
 } from "firebase/firestore";
@@ -274,4 +274,4 @@ const updateRecipe = async (id: string, data: object) => {
     await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
 }
 
-export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, updateRecipe };
+export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe };
