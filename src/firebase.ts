@@ -6,6 +6,8 @@ import {
     getDocs,
     where,
     documentId,
+    QuerySnapshot,
+    DocumentData
 } from "firebase/firestore";
 import {
     FIREBASE_CONFIG,
@@ -40,43 +42,66 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const queryFirebase = async (jobId: string) => {
+// Generic firestore query functions
+const queryDocumentById = async (collectionName: string, id: string) => {
     const q = query(
-        collection(db, FIRESTORE_COLLECTIONS.RESULTS),
-        where(FIRESTORE_FIELDS.BATCH_JOB_ID, "==", jobId)
+        collection(db, collectionName),
+        where(documentId(), "==", id)
     );
-    const querySnapshot = await getDocs(q);
-    let resultUrl = "";
-    querySnapshot.forEach((doc) => {
-    // we'll only ever expect one doc to show up here
-        resultUrl = doc.data().url;
-    });
-    return resultUrl;
+    return await getDocs(q);
 };
 
-const getJobStatus = async (jobId: string) => {
+const queryDocumentsByIds = async (collectionName: string, ids: string[]) => {
     const q = query(
-        collection(db, FIRESTORE_COLLECTIONS.JOB_STATUS),
-        where(documentId(), "==", jobId)
+        collection(db, collectionName),
+        where(documentId(), "in", ids)
     );
-    const querySnapshot = await getDocs(q);
-    let status = "";
-    querySnapshot.forEach((doc) => {
-        // we'll only ever expect one doc to show up here
-        status = doc.data().status;
-    });
-    return status;
-}
+    return await getDocs(q);
+};
 
-const getAllDocsFromCollection = async (collectionName: string) => {
+const queryDocumentsByField = async (collectionName: string, field: string, value: string | number | boolean) => {
+    const q = query(
+        collection(db, collectionName),
+        where(field, "==", value)
+    );
+    return await getDocs(q);
+};
+
+const queryAllDocuments = async (collectionName: string) => {
     const q = query(collection(db, collectionName));
-    const querySnapshot = await getDocs(q);
-    const docs = querySnapshot.docs.map((doc) => ({
+    return await getDocs(q);
+};
+
+const mapQuerySnapshotToDocs = (querySnapshot: QuerySnapshot<DocumentData>) => {
+    return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
     })) as FirestoreDoc[];
-    return docs;
+};
+
+const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, field?: string) => {
+    let result = "";
+    querySnapshot.forEach((doc) => {
+        result = field ? doc.data()[field] : doc.data();
+    });
+    return result;
+};
+
+// Query functions for our use case using generic functions
+const getResultPath = async (jobId: string) => {
+    const querySnapshot = await queryDocumentsByField(FIRESTORE_COLLECTIONS.RESULTS, FIRESTORE_FIELDS.BATCH_JOB_ID, jobId);
+    return extractSingleDocumentData(querySnapshot, "url");
+};
+
+const getJobStatus = async (jobId: string) => {
+    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
+    return extractSingleDocumentData(querySnapshot, "status");
 }
+
+const getAllDocsFromCollection = async (collectionName: string) => {
+    const querySnapshot = await queryAllDocuments(collectionName);
+    return mapQuerySnapshotToDocs(querySnapshot);
+};
 
 const getLocationDict = async (collectionName: string) => {
     const docs = await getAllDocsFromCollection(collectionName);
@@ -103,11 +128,7 @@ const getDocById = async (coll: string, id: string) => {
 }
 
 const getRecipeDoc = async (id: string): Promise<FirebaseRecipe> => {
-    const q = query(
-        collection(db, FIRESTORE_COLLECTIONS.RECIPES),
-        where(documentId(), "==", id)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.RECIPES, id);
     const docs: Array<FirebaseRecipe> = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
@@ -121,11 +142,7 @@ const getRecipeDoc = async (id: string): Promise<FirebaseRecipe> => {
 };
 
 const getDocsByIds = async (coll: string, ids: string[]) => {
-    const q = query(
-        collection(db, coll),
-        where(documentId(), "in", ids)
-    );
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await queryDocumentsByIds(coll, ids);
     const docs = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
@@ -251,4 +268,4 @@ const getFirebaseRecipe = async (name: string): Promise<string> => {
     return unpackedRecipe;
 }
 
-export { db, queryFirebase, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };
+export { db, getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };

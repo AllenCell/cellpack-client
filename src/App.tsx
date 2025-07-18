@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { queryFirebase, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus } from "./firebase";
+import { getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus } from "./firebase";
 import {
     getSubmitPackingUrl,
     JobStatus,
@@ -106,7 +106,7 @@ function App() {
 
     const fetchResultUrl = async (jobIdFromSubmit?: string) => {
         const id = jobIdFromSubmit || jobId;
-        const url = await queryFirebase(id);
+        const url = await getResultPath(id);
         setResultUrl(SIMULARIUM_EMBED_URL + url);
     };
 
