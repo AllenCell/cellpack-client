@@ -88,7 +88,7 @@ const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, f
 };
 
 // Query functions for our use case using generic functions
-const queryFirebase = async (jobId: string) => {
+const getResultPath = async (jobId: string) => {
     const querySnapshot = await queryDocumentsByField(FIRESTORE_COLLECTIONS.RESULTS, FIRESTORE_FIELDS.BATCH_JOB_ID, jobId);
     return extractSingleDocumentData(querySnapshot, "url");
 };
@@ -268,4 +268,4 @@ const getFirebaseRecipe = async (name: string): Promise<string> => {
     return unpackedRecipe;
 }
 
-export { db, queryFirebase, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };
+export { db, getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus };
