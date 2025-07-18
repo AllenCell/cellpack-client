@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import "./App.css";
-import { getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus } from "./firebase";
+import { getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, updateRecipe } from "./firebase";
 import {
     getSubmitPackingUrl,
     JobStatus,
 } from "./constants/awsBatch";
 import {
-    FIRESTORE_COLLECTIONS
+    FIRESTORE_COLLECTIONS,
+    FIRESTORE_FIELDS,
 } from "./constants/firebaseConstants";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import {
@@ -36,11 +38,40 @@ function App() {
         return new Promise((resolve) => setTimeout(resolve, ms));
     };
 
+    const recipeHasChanged = async (): Promise<boolean> => {
+        const originalRecipe = await getFirebaseRecipe(selectedRecipe);
+        return !(originalRecipe == recipeStr);
+    }
+
+    const recipeToFirebase = (recipe: string, path: string): object => {
+        const recipeJson = JSON.parse(recipe);
+        if (recipeJson.bounding_box) {
+            let flattened_array = Object.assign({}, recipeJson.bounding_box);
+            recipeJson.bounding_box = flattened_array;
+        }
+        recipeJson[FIRESTORE_FIELDS.RECIPE_PATH] = path;
+        return recipeJson;
+    }
+
     const submitRecipe = async () => {
         setResultUrl("");
         setRunTime(0);
-        const firebaseRecipe = "firebase:recipes/" + selectedRecipe
+        let firebaseRecipe = "firebase:recipes/" + selectedRecipe;
         const firebaseConfig = "firebase:configs/" + selectedConfig;
+        let recipeChanged: boolean = await recipeHasChanged();
+        if (recipeChanged) {
+            const recipeId = uuidv4();
+            firebaseRecipe = "firebase:recipes_edited/" + recipeId;
+            const recipeJson = recipeToFirebase(recipeStr, firebaseRecipe);
+            try {
+                await updateRecipe(recipeId, recipeJson);
+            } catch(e) {
+                setJobStatus(JobStatus.FAILED);
+                setJobLogs(String(e));
+                return;
+            }
+
+        }
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
         const request: RequestInfo = new Request(url, { method: "POST" });
         start = Date.now();
@@ -201,7 +232,7 @@ function App() {
                         <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe</button>
                         <div className="recipeJSON">
                             {viewRecipe && (
-                                <pre>{recipeStr}</pre>
+                                <textarea value={recipeStr} onChange={e => setRecipeStr(e.target.value)}/>
                             )}
                         </div>
                     </div>
