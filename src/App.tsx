@@ -45,13 +45,14 @@ function App() {
         return !(originalRecipe == recipeStr);
     }
 
-    const recipeToFirebase = (recipe: string, path: string): object => {
+    const recipeToFirebase = (recipe: string, path: string, id: string): object => {
         const recipeJson = JSON.parse(recipe);
         if (recipeJson.bounding_box) {
-            let flattened_array = Object.assign({}, recipeJson.bounding_box);
+            const flattened_array = Object.assign({}, recipeJson.bounding_box);
             recipeJson.bounding_box = flattened_array;
         }
         recipeJson[FIRESTORE_FIELDS.RECIPE_PATH] = path;
+        recipeJson[FIRESTORE_FIELDS.NAME] = id;
         return recipeJson;
     }
 
@@ -60,11 +61,11 @@ function App() {
         setRunTime(0);
         let firebaseRecipe = "firebase:recipes/" + selectedRecipe;
         const firebaseConfig = "firebase:configs/" + selectedConfig;
-        let recipeChanged: boolean = await recipeHasChanged();
+        const recipeChanged: boolean = await recipeHasChanged();
         if (recipeChanged) {
             const recipeId = uuidv4();
             firebaseRecipe = "firebase:recipes_edited/" + recipeId;
-            const recipeJson = recipeToFirebase(recipeStr, firebaseRecipe);
+            const recipeJson = recipeToFirebase(recipeStr, firebaseRecipe, recipeId);
             try {
                 await updateRecipe(recipeId, recipeJson);
             } catch(e) {

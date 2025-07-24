@@ -119,7 +119,8 @@ const stripFirebaseFields = <T extends { name: string; id: string; dedup_hash: s
     obj: T
 ): Omit<T, "name" | "id" | "dedup_hash"> => {
     const { name, id, dedup_hash, ...viewable } = obj;
-    return viewable;
+    void name; void id; void dedup_hash; // Tell linter these are intentionally unused, we are "using" them by excluding them
+    return viewable as Omit<T, "name" | "id" | "dedup_hash">;
 };
 
 // reusable function for converting a collection of Firebase objects to a viewable format)
