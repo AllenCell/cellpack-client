@@ -11,9 +11,9 @@ export default function LandingPage(): ReactElement {
                 You can navigate to the viewer to see recipes in action.
             </p>
             <Link 
-                to={PageRoutes.VIEWER}
+                to={PageRoutes.PACKING_PAGE}
             >
-                Go to Viewer →
+                Go to Packing Page →
             </Link>
         </div>
     );

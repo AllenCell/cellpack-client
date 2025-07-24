@@ -13,7 +13,7 @@ const router = createBrowserRouter(
       element: <LandingPage />,
     },
     {
-      path: PageRoutes.VIEWER,
+      path: PageRoutes.PACKING_PAGE,
       element: <App/>,
     },
   ],
