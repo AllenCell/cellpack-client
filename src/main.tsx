@@ -32,6 +32,19 @@ const router = createBrowserRouter(
   { basename: import.meta.env.BASE_URL }
 );
 
+const router = createBrowserRouter(
+  [
+    {
+      path: PageRoutes.LANDING_PAGE,
+      element: <LandingPage />,
+    },
+    {
+      path: PageRoutes.VIEWER,
+      element: <App/>,
+    },
+  ],
+);
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <RouterProvider router={router} />
