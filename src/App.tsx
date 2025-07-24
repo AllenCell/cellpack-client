@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import "./App.css";
-import { getResultPath, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, updateRecipe } from "./firebase";
+import { getResultPath, getDocById, getFirebaseRecipe, getJobStatus, updateRecipe } from "./firebase";
 import {
     getSubmitPackingUrl,
     JobStatus,
@@ -11,25 +11,16 @@ import {
     FIRESTORE_FIELDS,
 } from "./constants/firebaseConstants";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
-import {
-    FirebaseDict,
-} from "./types";
 import { Link } from "react-router-dom";
 import { PageRoutes } from "./constants/routes";
+import PackingInput from "./components/PackingInput";
+import Viewer from "./components/Viewer";
 
 function App() {
-    const [recipes, setRecipes] = useState<FirebaseDict>({});
-    const [configs, setConfigs] = useState<FirebaseDict>({});
-    const [selectedRecipe, setSelectedRecipe] = useState("");
-    const [selectedConfig, setSelectedConfig] = useState("");
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
     const [resultUrl, setResultUrl] = useState<string>("");
-    const [recipeStr, setRecipeStr] = useState<string>("");
-    const [configStr, setConfigStr] = useState<string>("");
-    const [viewRecipe, setViewRecipe] = useState<boolean>(true);
-    const [viewConfig, setViewConfig] = useState<boolean>(true);
     const [viewResults, setViewResults] = useState<boolean>(false);
     const [viewLogs, setViewLogs] = useState<boolean>(true);
     const [runTime, setRunTime] = useState<number>(0);
@@ -40,9 +31,9 @@ function App() {
         return new Promise((resolve) => setTimeout(resolve, ms));
     };
 
-    const recipeHasChanged = async (): Promise<boolean> => {
-        const originalRecipe = await getFirebaseRecipe(selectedRecipe);
-        return !(originalRecipe == recipeStr);
+    const recipeHasChanged = async (recipeId: string, recipeString: string): Promise<boolean> => {
+        const originalRecipe = await getFirebaseRecipe(recipeId);
+        return !(originalRecipe == recipeString);
     }
 
     const recipeToFirebase = (recipe: string, path: string, id: string): object => {
@@ -56,16 +47,16 @@ function App() {
         return recipeJson;
     }
 
-    const submitRecipe = async () => {
+    const submitRecipe = async (recipeId: string, configId: string, recipeString: string) => {
         setResultUrl("");
         setRunTime(0);
-        let firebaseRecipe = "firebase:recipes/" + selectedRecipe;
-        const firebaseConfig = "firebase:configs/" + selectedConfig;
-        const recipeChanged: boolean = await recipeHasChanged();
+        let firebaseRecipe = "firebase:recipes/" + recipeId;
+        const firebaseConfig = "firebase:configs/" + configId;
+        const recipeChanged: boolean = await recipeHasChanged(recipeId, recipeString);
         if (recipeChanged) {
             const recipeId = uuidv4();
             firebaseRecipe = "firebase:recipes_edited/" + recipeId;
-            const recipeJson = recipeToFirebase(recipeStr, firebaseRecipe, recipeId);
+            const recipeJson = recipeToFirebase(recipeString, firebaseRecipe, recipeId);
             try {
                 await updateRecipe(recipeId, recipeJson);
             } catch(e) {
@@ -91,32 +82,9 @@ function App() {
         }
     };
 
-    const getRecipes = async () => {
-        const recipeDict = await getLocationDict(FIRESTORE_COLLECTIONS.RECIPES);
-        return recipeDict;
-    };
-
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            const recipeDict = await getRecipes();
-            setRecipes(recipeDict);
-        };
-        fetchRecipes();
-    }, []);
-
-
-    const getConfigs = async () => {
-        const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
-        return configDict;
-    };
-
-    useEffect(() => {
-        const fetchConfigs = async () => {
-            const configDict = await getConfigs();
-            setConfigs(configDict);
-        };
-        fetchConfigs();
-    }, []);
+    const startPacking = async (recipeId: string, configId: string, recipeString: string) => {
+        submitRecipe(recipeId, configId, recipeString).then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
+    }
 
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
@@ -150,32 +118,6 @@ function App() {
         setJobLogs(logStr);
     };
 
-    const runPackingECS = async () => {
-        setViewConfig(false);
-        setViewRecipe(false);
-        submitRecipe().then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
-    };
-
-    const selectRecipe = async (recipe: string) => {
-        setSelectedRecipe(recipe);
-        const recStr = await getFirebaseRecipe(recipe);
-        setRecipeStr(recStr);
-    }
-
-    const selectConfig = async (config: string) => {
-        setSelectedConfig(config);
-        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, config);
-        setConfigStr(confStr);
-    }
-
-    const toggleRecipe = () => {
-        setViewRecipe(!viewRecipe);
-    }
-
-    const toggleConfig = () => {
-        setViewConfig(!viewConfig);
-    }
-
     const toggleResults = () => {
         if (resultUrl == "") {
             fetchResultUrl();
@@ -198,59 +140,7 @@ function App() {
     return (
         <div className="app">
             <h1>Welcome to cellPACK</h1>
-            <div className="input-container">
-                <select
-                    value={selectedRecipe}
-                    onChange={(e) => selectRecipe(e.target.value)}
-                >
-                    <option value="" disabled>
-                        Select a recipe
-                    </option>
-                    {Object.entries(recipes).map(([key, value]) => (
-                        <option key={key} value={value["firebaseId"]}>
-                            {key}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    value={selectedConfig}
-                    onChange={(e) => selectConfig(e.target.value)}
-                >
-                    <option value="" disabled>
-                        Select a config
-                    </option>
-                    {Object.entries(configs).map(([key, value]) => (
-                        <option key={key} value={value["firebaseId"]}>
-                            {key}
-                        </option>
-                    ))}
-                </select>
-                <button onClick={runPackingECS} disabled={!selectedRecipe}>
-                    Pack
-                </button>
-            </div>
-            <div className="box">
-                {recipeStr.length > 0 && (
-                    <div className="recipeBox">
-                        <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe</button>
-                        <div className="recipeJSON">
-                            {viewRecipe && (
-                                <textarea value={recipeStr} onChange={e => setRecipeStr(e.target.value)}/>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {configStr.length > 0 && (
-                    <div className="configBox">
-                        <button type="button" className="collapsible" onClick={toggleConfig}>Config</button>
-                        <div className="configJSON">
-                            {viewConfig && (
-                                <pre>{configStr}</pre>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
+            <PackingInput startPacking={startPacking} />
             <h3>Job Status: {jobStatus}</h3>
             {jobSucceeded && (
                 <div>
@@ -258,20 +148,7 @@ function App() {
                     <button onClick={toggleResults}>Results</button>
                 </div>
             )}
-            {
-                showResults && (
-                    <div>
-                        <iframe
-                            src={resultUrl}
-                            style={{
-                                width: "1000px",
-                                height: "600px",
-                                border: "1px solid black",
-                            }}
-                        ></iframe>
-                    </div>
-                )
-            }
+            {showResults && <Viewer resultUrl={resultUrl} />}
             {showLogButton && (
                 <div>
                     <button className="collapsible" onClick={toggleLogs}>Logs</button>
