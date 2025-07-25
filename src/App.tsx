@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { PageRoutes } from "./constants/routes";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
+import ErrorReport from "./components/ErrorReport";
 
 function App() {
     const [jobId, setJobId] = useState("");
@@ -22,7 +23,6 @@ function App() {
     const [jobLogs, setJobLogs] = useState<string>("");
     const [resultUrl, setResultUrl] = useState<string>("");
     const [viewResults, setViewResults] = useState<boolean>(false);
-    const [viewLogs, setViewLogs] = useState<boolean>(true);
     const [runTime, setRunTime] = useState<number>(0);
 
     let start = 0;
@@ -125,14 +125,6 @@ function App() {
         setViewResults(!viewResults);
     }
 
-    const toggleLogs = async () => {
-        if (jobLogs.length == 0) {
-            await getLogs();
-        } else {
-            setViewLogs(!viewLogs);
-        }
-    }
-
     const jobSucceeded = jobStatus == JobStatus.DONE;
     const showLogButton = jobStatus == JobStatus.FAILED;
     const showResults = resultUrl && viewResults;
@@ -149,16 +141,7 @@ function App() {
                 </div>
             )}
             {showResults && <Viewer resultUrl={resultUrl} />}
-            {showLogButton && (
-                <div>
-                    <button className="collapsible" onClick={toggleLogs}>Logs</button>
-                    {viewLogs && jobLogs.length > 0 && (
-                        <div className="logBox">
-                            <pre>{jobLogs}</pre>
-                        </div>
-                    )}
-                </div>
-            )}
+            {showLogButton && <ErrorReport errorLogs={jobLogs} getLogs={getLogs} />}
             <div>
                 <Link 
                     to={PageRoutes.LANDING_PAGE}
