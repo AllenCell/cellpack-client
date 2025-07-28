@@ -2,13 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { PageRoutes } from './constants/routes'
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
 const router = createBrowserRouter(
   [
     {
-      path: PageRoutes.LANDING_PAGE,
+      path: "/",
       element: <App/>,
     },
   ],
