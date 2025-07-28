@@ -2,7 +2,7 @@ import {ReactElement} from 'react';
 import { Link } from 'react-router-dom';
 import { PageRoutes } from '../constants/routes';
 
-export default function LandingPage(): ReactElement {
+function LandingPage(): ReactElement {
     return (
         <div>
             <h1>Welcome to cellPACK</h1>
@@ -18,3 +18,5 @@ export default function LandingPage(): ReactElement {
         </div>
     );
 }
+
+export default LandingPage;

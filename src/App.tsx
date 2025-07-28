@@ -195,7 +195,7 @@ function App() {
 
     return (
         <div className="app">
-            <h1>Welcome to cellPACK!</h1>
+            <h1>Welcome to cellPACK</h1>
             <div className="input-container">
                 <select
                     value={selectedRecipe}
