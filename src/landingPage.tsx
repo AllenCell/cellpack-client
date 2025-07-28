@@ -1,6 +1,4 @@
 import {ReactElement} from 'react';
-import { Link } from 'react-router-dom';
-import { PageRoutes } from './constants/routes';
 
 function LandingPage(): ReactElement {
     return (
@@ -10,11 +8,6 @@ function LandingPage(): ReactElement {
                 This is a simple landing page for the cellPACK client. 
                 You can navigate to the viewer to see recipes in action.
             </p>
-            <Link 
-                to={PageRoutes.LANDING_PAGE}
-            >
-                Go to Packing Page →
-            </Link>
         </div>
     );
 }
