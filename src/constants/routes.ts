@@ -1,4 +1,4 @@
 export enum PageRoutes {
-    LANDING_PAGE = "pack",
-    PACKING_PAGE = "/",
+    LANDING_PAGE = "/",
+    PACKING_PAGE = "pack",
 } 
