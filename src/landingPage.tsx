@@ -1,6 +1,6 @@
 import {ReactElement} from 'react';
 import { Link } from 'react-router-dom';
-import { PageRoutes } from '../constants/routes';
+import { PageRoutes } from './constants/routes';
 
 function LandingPage(): ReactElement {
     return (
@@ -11,7 +11,7 @@ function LandingPage(): ReactElement {
                 You can navigate to the viewer to see recipes in action.
             </p>
             <Link 
-                to={PageRoutes.PACKING_PAGE}
+                to={PageRoutes.LANDING_PAGE}
             >
                 Go to Packing Page →
             </Link>
