@@ -11,7 +11,7 @@ const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
     const [viewErrorLogs, setViewErrorLogs] = useState<boolean>(true);
 
     const toggleLogs = async () => {
-        if (errorLogs.length == 0) {
+        if (errorLogs.length === 0) {
             await getLogs();
         } else {
             setViewErrorLogs(!viewErrorLogs);
