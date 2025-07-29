@@ -10,11 +10,14 @@ import {
     DocumentData,
     setDoc,
     doc,
+    Timestamp,
+    deleteDoc,
 } from "firebase/firestore";
 import {
     FIREBASE_CONFIG,
     FIRESTORE_COLLECTIONS,
     FIRESTORE_FIELDS,
+    RETENTION_POLICY,
 } from "./constants/firebaseConstants";
 import {
     Dictionary,
@@ -71,6 +74,14 @@ const queryDocumentsByField = async (collectionName: string, field: string, valu
 
 const queryAllDocuments = async (collectionName: string) => {
     const q = query(collection(db, collectionName));
+    return await getDocs(q);
+};
+
+const queryDocumentsByTime = async (collectionName: string, field: string, operator: "<" | "<=" | "==" | "!=" | ">=" | ">" , value: Timestamp) => {
+    const q = query(
+        collection(db, collectionName),
+        where(field, operator, value)
+    );
     return await getDocs(q);
 };
 
@@ -274,4 +285,30 @@ const updateRecipe = async (id: string, data: object) => {
     await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
 }
 
-export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe };
+const cleanupOldDocuments = async () => {
+    const now = Date.now();
+    const collectionsToClean = [
+        { name: FIRESTORE_COLLECTIONS.EDITED_RECIPES, retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED },
+        { name: FIRESTORE_COLLECTIONS.JOB_STATUS, retention: RETENTION_POLICY.RETENTION_PERIODS.JOB_STATUS }
+    ];
+
+    for (const collectionConfig of collectionsToClean) {
+        const cutoffTime = Timestamp.fromMillis(now - collectionConfig.retention);
+        const querySnapshot = await queryDocumentsByTime(
+            collectionConfig.name,
+            RETENTION_POLICY.TIMESTAMP_FIELD,
+            "<",
+            cutoffTime
+        );
+        
+        const deletePromises: Promise<void>[] = [];
+        
+        querySnapshot.forEach((document) => {
+            deletePromises.push(deleteDoc(doc(db, collectionConfig.name, document.id)));
+        });
+        
+        await Promise.all(deletePromises);
+        console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
+    }
+}
+export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe, cleanupOldDocuments, queryDocumentsByTime };
