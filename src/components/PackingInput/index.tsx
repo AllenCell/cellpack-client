@@ -106,9 +106,9 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
             </div>
             <div className="box">
                 {recipeStr.length > 0 && (
-                    <div className="recipeBox">
+                    <div className="recipe-box">
                         <button type="button" className="collapsible" onClick={toggleRecipe}>Recipe</button>
-                        <div className="recipeJSON">
+                        <div className="recipe-json">
                             {viewRecipe && (
                                 <textarea value={recipeStr} onChange={e => setRecipeStr(e.target.value)}/>
                             )}
@@ -116,9 +116,9 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     </div>
                 )}
                 {configStr.length > 0 && (
-                    <div className="configBox">
+                    <div className="config-box">
                         <button type="button" className="collapsible" onClick={toggleConfig}>Config</button>
-                        <div className="configJSON">
+                        <div className="config-json">
                             {viewConfig && (
                                 <pre>{configStr}</pre>
                             )}

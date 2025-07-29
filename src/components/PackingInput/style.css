@@ -1,20 +1,20 @@
-.recipeBox {
+.recipe-box {
   width: 45%;
   float: left;
 }
 
-.configBox {
+.config-box {
   width: 45%;
   float: right;
 }
 
-.recipeJSON {
+.recipe-json {
   max-height: 300px;
   width: 450px;
   overflow-y: auto;
 }
 
-.configJSON {
+.config-json {
   max-height: 300px;
   width: 450px;
   overflow-y: auto;

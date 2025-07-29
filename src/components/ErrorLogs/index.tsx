@@ -21,7 +21,7 @@ const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
         <div>
             <button className="collapsible" onClick={toggleLogs}>Logs</button>
             {viewErrorLogs && errorLogs.length > 0 && (
-                <div className="logBox">
+                <div className="log-box">
                     <pre>{errorLogs}</pre>
                 </div>
             )}
