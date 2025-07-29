@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { PageRoutes } from "./constants/routes";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
-import ErrorReport from "./components/ErrorReport";
+import ErrorLogs from "./components/ErrorLogs";
 
 function App() {
     const [jobId, setJobId] = useState("");
@@ -141,7 +141,7 @@ function App() {
                 </div>
             )}
             {showResults && <Viewer resultUrl={resultUrl} />}
-            {showLogButton && <ErrorReport errorLogs={jobLogs} getLogs={getLogs} />}
+            {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             <div>
                 <Link 
                     to={PageRoutes.LANDING_PAGE}

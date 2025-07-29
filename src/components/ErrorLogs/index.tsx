@@ -1,12 +1,12 @@
 import { useState } from "react";
 import "./style.css";
 
-interface ErrorReportProps {
+interface ErrorLogsProps {
     errorLogs: string;
     getLogs: () => Promise<void>;
 }
 
-const ErrorReport = (props: ErrorReportProps): JSX.Element => {
+const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
     const { errorLogs, getLogs } = props;
     const [viewErrorLogs, setViewErrorLogs] = useState<boolean>(true);
 
@@ -29,4 +29,4 @@ const ErrorReport = (props: ErrorReportProps): JSX.Element => {
     );
 };
 
-export default ErrorReport;
+export default ErrorLogs;
