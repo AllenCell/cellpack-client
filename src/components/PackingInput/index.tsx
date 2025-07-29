@@ -19,30 +19,14 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const [viewRecipe, setViewRecipe] = useState<boolean>(true);
     const [viewConfig, setViewConfig] = useState<boolean>(true);
 
-    const getRecipes = async () => {
-        const recipeDict = await getLocationDict(FIRESTORE_COLLECTIONS.RECIPES);
-        return recipeDict;
-    };
-
     useEffect(() => {
-        const fetchRecipes = async () => {
-            const recipeDict = await getRecipes();
+        const fetchData = async () => {
+            const recipeDict = await getLocationDict(FIRESTORE_COLLECTIONS.RECIPES);
+            const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
             setRecipes(recipeDict);
-        };
-        fetchRecipes();
-    }, []);
-
-    const getConfigs = async () => {
-        const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
-        return configDict;
-    };
-
-    useEffect(() => {
-        const fetchConfigs = async () => {
-            const configDict = await getConfigs();
             setConfigs(configDict);
         };
-        fetchConfigs();
+        fetchData();
     }, []);
 
     const selectRecipe = async (recipe: string) => {
