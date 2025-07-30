@@ -33,14 +33,26 @@ import {
 } from "./types";
 import { resolveRefs, isFirebaseRef, isInRefsByCollection, addRef } from "./recipeLoader";
 
+const getEnvVar = (key: string): string => {
+    // check if we're in a browser environment (Vite)
+    if (typeof window !== "undefined" && import.meta.env) {
+        return import.meta.env[key] || "";
+    }
+    // check if we're in Node.js environment (GitHub Actions)
+    if (typeof process !== "undefined" && process.env) {
+        return process.env[key] || "";
+    }
+    return "";
+};
+
 const firebaseConfig = {
-    apiKey: import.meta.env.API_KEY,
+    apiKey: getEnvVar("API_KEY"),
     authDomain: FIREBASE_CONFIG.AUTH_DOMAIN,
     projectId: FIREBASE_CONFIG.PROJECT_ID,
     storageBucket: FIREBASE_CONFIG.STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.MESSAGING_SENDER_ID,
-    appId: import.meta.env.APP_ID,
-    measurementId: import.meta.env.MEASUREMENT_ID,
+    messagingSenderId: getEnvVar("MESSAGING_SENDER_ID"),
+    appId: getEnvVar("APP_ID"),
+    measurementId: getEnvVar("MEASUREMENT_ID"),
 };
 
 // Initialize Firebase
@@ -285,7 +297,7 @@ const updateRecipe = async (id: string, data: object) => {
     await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
 }
 
-const cleanupOldDocuments = async () => {
+const docCleanup = async () => {
     const now = Date.now();
     const collectionsToClean = [
         { name: FIRESTORE_COLLECTIONS.EDITED_RECIPES, retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED },
@@ -311,4 +323,4 @@ const cleanupOldDocuments = async () => {
         console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
     }
 }
-export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe, cleanupOldDocuments, queryDocumentsByTime };
+export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe, docCleanup };
