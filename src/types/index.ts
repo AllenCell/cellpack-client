@@ -123,7 +123,7 @@ export interface FirebaseRecipe {
     gradients?: Dictionary<FirebaseGradient>;
 };
 
-export type Viewable<T extends { name: string; id: string; dedup_hash: string }> = Omit<T, "name" | "id" | "dedup_hash">;
+export type Viewable<T extends { id: string; dedup_hash: string }> = Omit<T, "id" | "dedup_hash">;
 
 export type ViewableComposition = Viewable<FirebaseComposition>;
 export type ViewableObject = Viewable<FirebaseObject>;
