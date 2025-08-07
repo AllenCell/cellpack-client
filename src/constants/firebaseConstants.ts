@@ -30,4 +30,14 @@ export const FIRESTORE_FIELDS = {
     REGIONS: "regions",
     INTERIOR: "interior",
     GRADIENT: "gradient",
+    TIMESTAMP: "timestamp",
+} as const;
+
+export const RETENTION_POLICY = {
+    RETENTION_PERIODS: {
+        RECIPES_EDITED: 24 * 60 * 60 * 1000, // 24 hours
+        JOB_STATUS: 24 * 60 * 60 * 1000, // 24 hours
+    },
+
+    TIMESTAMP_FIELD: "timestamp",
 } as const;
