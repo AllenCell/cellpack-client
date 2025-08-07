@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FirebaseDict } from "../../types";
-import { FIRESTORE_COLLECTIONS } from "../../constants/firebaseConstants";
+import { FIRESTORE_COLLECTIONS } from "../../constants/firebase";
 import { getFirebaseRecipe, getDocById, getLocationDict } from "../../firebase";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
