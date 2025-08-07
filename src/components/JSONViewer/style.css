@@ -20,6 +20,11 @@
   overflow-y: auto;
 }
 
+.collapsible {
+  width: 450px;
+  margin-top: 5%;
+}
+
 textarea {
   width: 450px;
   height: 300px;
