@@ -1,3 +1,5 @@
+import "./style.css";
+
 interface JSONViewerProps {
     title: string;
     content: string;
