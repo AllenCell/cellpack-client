@@ -1,4 +1,5 @@
 import { FirebaseDict } from "../../types";
+import { FIRESTORE_FIELDS } from "../../constants/firebaseConstants";
 
 interface DropdownProps {
     value: string;
@@ -19,7 +20,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
                 {placeholder}
             </option>
             {Object.entries(options).map(([key, value]) => (
-                <option key={key} value={value["firebaseId"]}>
+                <option key={key} value={value[FIRESTORE_FIELDS.FIREBASE_ID]}>
                     {key}
                 </option>
             ))}

@@ -92,12 +92,12 @@ const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, f
 // Query functions for our use case using generic functions
 const getResultPath = async (jobId: string) => {
     const querySnapshot = await queryDocumentsByField(FIRESTORE_COLLECTIONS.RESULTS, FIRESTORE_FIELDS.BATCH_JOB_ID, jobId);
-    return extractSingleDocumentData(querySnapshot, "url");
+    return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.URL);
 };
 
 const getJobStatus = async (jobId: string) => {
     const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
-    return extractSingleDocumentData(querySnapshot, "status");
+    return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.STATUS);
 }
 
 const getAllDocsFromCollection = async (collectionName: string) => {
@@ -115,7 +115,7 @@ const getLocationDict = async (collectionName: string) => {
         const id = doc.id;
         if (name) {
             locationDict[name] = {
-                "firebaseId": id,
+                [FIRESTORE_FIELDS.FIREBASE_ID]: id,
             };
         } 
         return locationDict;
