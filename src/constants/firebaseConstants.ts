@@ -30,6 +30,9 @@ export const FIRESTORE_FIELDS = {
     REGIONS: "regions",
     INTERIOR: "interior",
     GRADIENT: "gradient",
+    FIREBASE_ID: "firebaseId",
+    URL: "url",
+    STATUS: "status",
     TIMESTAMP: "timestamp",
 } as const;
 
