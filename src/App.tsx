@@ -51,7 +51,7 @@ function App() {
         setResultUrl("");
         setRunTime(0);
         let firebaseRecipe = "firebase:recipes/" + recipeId;
-        const firebaseConfig = "firebase:configs/" + configId;
+        const firebaseConfig = configId ? "firebase:configs/" + configId : undefined;
         const recipeChanged: boolean = await recipeHasChanged(recipeId, recipeString);
         if (recipeChanged) {
             const recipeId = uuidv4();
