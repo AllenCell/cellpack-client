@@ -197,16 +197,17 @@ const searchForRefs = async (
     const refsToGetByCollection: Dictionary<Array<string>> = {};
     refs.forEach((ref) => {
         const splitRef: string[] = ref.split((/:|\//));
+        // firebase:collection/doc -> [firebase, collection, doc]
         const collectionName = splitRef[1];
+        const docId = splitRef[2];
         // Only need to search if we don't already have the object for this reference
         if (!isInRefsByCollection(ref, collectionName, refsToObj)) {
-            // firebase:collection/doc -> [firebase, collection, doc]
             if (!(collectionName in refsToGetByCollection)) {
                 refsToGetByCollection[collectionName] = [];
             }
-            if (!(splitRef[2] in refsToGetByCollection[collectionName])) {
+            if (!refsToGetByCollection[collectionName].includes(docId)) {
                 // Only need to search for each ref once
-                refsToGetByCollection[collectionName].push(splitRef[2]);
+                refsToGetByCollection[collectionName].push(docId);
             }
         }
     });
