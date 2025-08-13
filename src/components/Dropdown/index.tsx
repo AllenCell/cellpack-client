@@ -1,5 +1,5 @@
 import { FirebaseDict } from "../../types";
-import { FIRESTORE_FIELDS } from "../../constants/firebaseConstants";
+import { FIRESTORE_FIELDS } from "../../constants/firebase";
 
 interface DropdownProps {
     value: string;
