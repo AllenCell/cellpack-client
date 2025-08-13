@@ -10,11 +10,14 @@ import {
     DocumentData,
     setDoc,
     doc,
+    Timestamp,
+    deleteDoc,
 } from "firebase/firestore";
 import {
     FIREBASE_CONFIG,
     FIRESTORE_COLLECTIONS,
     FIRESTORE_FIELDS,
+    RETENTION_POLICY,
 } from "./constants/firebaseConstants";
 import {
     Dictionary,
@@ -30,14 +33,26 @@ import {
 } from "./types";
 import { resolveRefs, isFirebaseRef, isInRefsByCollection, addRef } from "./recipeLoader";
 
+const getEnvVar = (key: string): string => {
+    // check if we're in a browser environment (Vite)
+    if (typeof window !== "undefined" && import.meta.env) {
+        return import.meta.env[key] || "";
+    }
+    // check if we're in Node.js environment (GitHub Actions)
+    if (typeof process !== "undefined" && process.env) {
+        return process.env[key] || "";
+    }
+    return "";
+};
+
 const firebaseConfig = {
-    apiKey: import.meta.env.API_KEY,
+    apiKey: getEnvVar("API_KEY"),
     authDomain: FIREBASE_CONFIG.AUTH_DOMAIN,
     projectId: FIREBASE_CONFIG.PROJECT_ID,
     storageBucket: FIREBASE_CONFIG.STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.MESSAGING_SENDER_ID,
-    appId: import.meta.env.APP_ID,
-    measurementId: import.meta.env.MEASUREMENT_ID,
+    messagingSenderId: getEnvVar("MESSAGING_SENDER_ID"),
+    appId: getEnvVar("APP_ID"),
+    measurementId: getEnvVar("MEASUREMENT_ID"),
 };
 
 // Initialize Firebase
@@ -74,6 +89,14 @@ const queryAllDocuments = async (collectionName: string) => {
     return await getDocs(q);
 };
 
+const queryDocumentsByTime = async (collectionName: string, field: string, operator: "<" | "<=" | "==" | "!=" | ">=" | ">" , value: Timestamp) => {
+    const q = query(
+        collection(db, collectionName),
+        where(field, operator, value)
+    );
+    return await getDocs(q);
+};
+
 const mapQuerySnapshotToDocs = (querySnapshot: QuerySnapshot<DocumentData>) => {
     return querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -92,12 +115,12 @@ const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, f
 // Query functions for our use case using generic functions
 const getResultPath = async (jobId: string) => {
     const querySnapshot = await queryDocumentsByField(FIRESTORE_COLLECTIONS.RESULTS, FIRESTORE_FIELDS.BATCH_JOB_ID, jobId);
-    return extractSingleDocumentData(querySnapshot, "url");
+    return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.URL);
 };
 
 const getJobStatus = async (jobId: string) => {
     const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
-    return extractSingleDocumentData(querySnapshot, "status");
+    return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.STATUS);
 }
 
 const getAllDocsFromCollection = async (collectionName: string) => {
@@ -115,7 +138,7 @@ const getLocationDict = async (collectionName: string) => {
         const id = doc.id;
         if (name) {
             locationDict[name] = {
-                "firebaseId": id,
+                [FIRESTORE_FIELDS.FIREBASE_ID]: id,
             };
         } 
         return locationDict;
@@ -274,4 +297,30 @@ const updateRecipe = async (id: string, data: object) => {
     await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
 }
 
-export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe };
+const docCleanup = async () => {
+    const now = Date.now();
+    const collectionsToClean = [
+        { name: FIRESTORE_COLLECTIONS.EDITED_RECIPES, retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED },
+        { name: FIRESTORE_COLLECTIONS.JOB_STATUS, retention: RETENTION_POLICY.RETENTION_PERIODS.JOB_STATUS }
+    ];
+
+    for (const collectionConfig of collectionsToClean) {
+        const cutoffTime = Timestamp.fromMillis(now - collectionConfig.retention);
+        const querySnapshot = await queryDocumentsByTime(
+            collectionConfig.name,
+            RETENTION_POLICY.TIMESTAMP_FIELD,
+            "<",
+            cutoffTime
+        );
+        
+        const deletePromises: Promise<void>[] = [];
+        
+        querySnapshot.forEach((document) => {
+            deletePromises.push(deleteDoc(doc(db, collectionConfig.name, document.id)));
+        });
+        
+        await Promise.all(deletePromises);
+        console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
+    }
+}
+export { db, getLocationDict, getDocById, getFirebaseRecipe, getJobStatus, getResultPath, updateRecipe, docCleanup };
