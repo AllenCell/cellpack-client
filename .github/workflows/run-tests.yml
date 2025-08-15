@@ -1,4 +1,4 @@
-name: run-static-checks
+name: run-tests
 run-name: ✅ Checking '${{'#'}}${{github.ref_name}}' on branch '${{github.head_ref}}'
 on: pull_request
 jobs:
@@ -20,4 +20,4 @@ jobs:
       - name: Run Tests
         # Run test even if the previous step(s) failed
         if: success() || failure()
-        run: bun run test --coverage
+        run: bun test
