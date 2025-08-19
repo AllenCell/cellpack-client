@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "antd";
+import { Collapse } from "antd";
 import "./style.css";
 
 interface ErrorLogsProps {
@@ -18,14 +18,23 @@ const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
             setViewErrorLogs(!viewErrorLogs);
         }
     }
+    const items = [{
+        key: "1",
+        label: "Logs",
+        children: (
+            <div className="log-box">
+                <pre>{errorLogs}</pre>
+            </div>
+        )
+    }];
+
     return (
         <div>
-            <Button className="collapsible" onClick={toggleLogs}>Logs</Button>
-            {viewErrorLogs && errorLogs.length > 0 && (
-                <div className="log-box">
-                    <pre>{errorLogs}</pre>
-                </div>
-            )}
+            <Collapse 
+                items={items}
+                activeKey={viewErrorLogs && errorLogs.length > 0 ? ["1"] : []}
+                onChange={toggleLogs}
+            />
         </div>
     );
 };
