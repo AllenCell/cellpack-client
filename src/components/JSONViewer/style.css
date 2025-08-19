@@ -7,3 +7,12 @@
   width: 45%;
   float: right;
 }
+
+.json-content {
+  height: 300px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  overflow: auto;
+  font-size: 14px;
+  resize: vertical;
+}

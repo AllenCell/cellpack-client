@@ -26,7 +26,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
                 rows={14}
             />
         ) : (
-            <pre>{content}</pre>
+            <pre className="json-content">{content}</pre>
         )
     }];
     
