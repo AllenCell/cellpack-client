@@ -1,3 +1,4 @@
+import { Button } from "antd";
 import "./style.css";
 
 interface JSONViewerProps {
@@ -16,9 +17,9 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
     }
     return (
         <div className={`${title.toLowerCase()}-box`}>
-            <button type="button" className="collapsible" onClick={onToggle}>
+            <Button className="collapsible" onClick={onToggle}>
                 {title}
-            </button>
+            </Button>
             <div className={`${title.toLowerCase()}-json`}>
                 {isVisible && (
                     isEditable ? (

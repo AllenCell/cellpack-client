@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dictionary, PackingInputs } from "../../types";
 import { getPackingInputsDict } from "../../utils/firebase";
+import { Button } from "antd";
 import { getFirebaseRecipe } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -59,9 +60,9 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     options={inputOptions}
                     onChange={selectInput}
                 />
-                <button onClick={runPacking} disabled={!selectedInputId}>
+                <Button onClick={runPacking} disabled={!selectedRecipeId}>
                     Pack
-                </button>
+                </Button>
             </div>
             <div className="box">
                 <JSONViewer

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "antd";
 import "./style.css";
 
 interface ErrorLogsProps {
@@ -19,7 +20,7 @@ const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
     }
     return (
         <div>
-            <button className="collapsible" onClick={toggleLogs}>Logs</button>
+            <Button className="collapsible" onClick={toggleLogs}>Logs</Button>
             {viewErrorLogs && errorLogs.length > 0 && (
                 <div className="log-box">
                     <pre>{errorLogs}</pre>
