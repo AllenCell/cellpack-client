@@ -7,6 +7,8 @@ test('isFirebaseRef detects Firebase references correctly', () => {
     expect(isFirebaseRef('firebase:configs/some_id')).toBe(true);
     expect(isFirebaseRef('not_a_firebase_ref')).toBe(false);
     expect(isFirebaseRef('local/file/path')).toBe(false);
+    expect(isFirebaseRef(undefined)).toBe(false);
+    expect(isFirebaseRef(null)).toBe(false);
 });
 
 test('getFirebaseRecipe works as expected for ER_peroxisome_v_struct_gradient_370574', async () => {
