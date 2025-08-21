@@ -20,7 +20,6 @@ import {
     RETENTION_POLICY,
 } from "../constants/firebase";
 import {
-    FirebaseDict,
     FirestoreDoc,
     PackingInputs,
     Dictionary,
