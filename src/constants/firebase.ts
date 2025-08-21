@@ -16,6 +16,7 @@ export const FIRESTORE_COLLECTIONS = {
     EXAMPLE_RECIPES: "example_recipes",
     EDITED_RECIPES: "recipes_edited",
     JOB_STATUS: "job_status",
+    PACKING_INPUTS: "example_packings",
 };
 
 //firestore field names
@@ -34,6 +35,8 @@ export const FIRESTORE_FIELDS = {
     URL: "url",
     STATUS: "status",
     TIMESTAMP: "timestamp",
+    RECIPE: "recipe",
+    CONFIG: "config",
 } as const;
 
 export const RETENTION_POLICY = {

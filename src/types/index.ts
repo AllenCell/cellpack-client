@@ -2,6 +2,8 @@ export interface Document {
     name?: string;
     original_location?: string;
     recipe_path?: string;
+    recipe?: string;
+    config?: string;
 }
 
 export type FirestoreDoc = Document & {
@@ -29,6 +31,11 @@ export type FirebaseDict = {
 
 export interface Dictionary<T> {
     [Key: string]: T;
+}
+
+export type PackingInputs = {
+    config: string;
+    recipe: string;
 }
 
 export interface RefsByCollection {
