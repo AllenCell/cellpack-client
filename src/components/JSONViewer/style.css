@@ -1,7 +1,8 @@
 .recipe-json {
   max-height: 300px;
   width: 450px;
-  overflow-y: auto;}
+  overflow-y: auto;
+}
 
 .collapsible {
   width: 450px;
