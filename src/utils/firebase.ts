@@ -122,9 +122,6 @@ const getAllDocsFromCollection = async (collectionName: string) => {
 
 const getPackingInputsDict = async () => {
     const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
-    // docs is an array of objects, each with an id, a name, and other fields
-    // we want to create a dictionary with the name as the key and the original_location as the value
-    // `reduce` is a method that takes an array and reduces it to a single value
     const inputsDict: Dictionary<PackingInputs> = docs.reduce((inputsDict: Dictionary<PackingInputs>, doc: FirestoreDoc) => {
         const name = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
@@ -136,7 +133,7 @@ const getPackingInputsDict = async () => {
             };
         }
         return inputsDict;
-    }, {} as Dictionary<PackingInputs>);
+    }, {});
     return inputsDict;
 }
 
