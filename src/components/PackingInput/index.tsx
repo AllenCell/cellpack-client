@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { FirebaseDict } from "../../types";
-import { FIRESTORE_COLLECTIONS } from "../../constants/firebase";
-import { getDocById, getLocationDict } from "../../utils/firebase";
+import { Dictionary, PackingInputs } from "../../types";
+import { getPackingInputsDict } from "../../utils/firebase";
 import { getFirebaseRecipe } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -15,37 +14,34 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const { startPacking } = props;
     const [selectedRecipeId, setSelectedRecipeId] = useState("");
     const [selectedConfigId, setSelectedConfigId] = useState("");
-    const [recipes, setRecipes] = useState<FirebaseDict>({});
-    const [configs, setConfigs] = useState<FirebaseDict>({});
+    const [selectedInputId, setSelectedInputId] = useState("");
+    const [inputOptions, setInputOptions] = useState<Dictionary<PackingInputs>>({});
     const [recipeStr, setRecipeStr] = useState<string>("");
-    const [configStr, setConfigStr] = useState<string>("");
     const [viewRecipe, setViewRecipe] = useState<boolean>(true);
-    const [viewConfig, setViewConfig] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            const recipeDict = await getLocationDict(FIRESTORE_COLLECTIONS.RECIPES);
-            const configDict = await getLocationDict(FIRESTORE_COLLECTIONS.CONFIGS);
-            setRecipes(recipeDict);
-            setConfigs(configDict);
+            const inputDict = await getPackingInputsDict();
+            setInputOptions(inputDict);
         };
         fetchData();
     }, []);
 
-    const selectRecipe = async (recipe: string) => {
-        setSelectedRecipeId(recipe);
-        const recStr = await getFirebaseRecipe(recipe);
+    const selectInput = async (inputName: string) => {
+        setSelectedInputId(inputName);
+        const recipeId: string = inputOptions[inputName]?.recipe || "";
+        const configId: string = inputOptions[inputName]?.config || "";
+        await selectRecipe(recipeId);
+        setSelectedConfigId(configId);
+    }
+
+    const selectRecipe = async (recipeId: string) => {
+        setSelectedRecipeId(recipeId);
+        const recStr = await getFirebaseRecipe(recipeId);
         setRecipeStr(recStr);
     }
 
-    const selectConfig = async (config: string) => {
-        setSelectedConfigId(config);
-        const confStr = await getDocById(FIRESTORE_COLLECTIONS.CONFIGS, config);
-        setConfigStr(confStr);
-    }
-
     const runPacking = async () => {
-        setViewConfig(false);
         setViewRecipe(false);
         startPacking(selectedRecipeId, selectedConfigId, recipeStr);
     };
@@ -54,26 +50,16 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         setViewRecipe(!viewRecipe);
     }
 
-    const toggleConfig = () => {
-        setViewConfig(!viewConfig);
-    }
-
     return (
         <div>
             <div className="input-container">
                 <Dropdown
-                    value={selectedRecipeId}
+                    value={selectedInputId}
                     placeholder="Select a recipe"
-                    options={recipes}
-                    onChange={selectRecipe}
+                    options={inputOptions}
+                    onChange={selectInput}
                 />
-                <Dropdown
-                    value={selectedConfigId}
-                    placeholder="Select a config"
-                    options={configs}
-                    onChange={selectConfig}
-                />
-                <button onClick={runPacking} disabled={!selectedRecipeId}>
+                <button onClick={runPacking} disabled={!selectedInputId}>
                     Pack
                 </button>
             </div>
@@ -85,13 +71,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     isEditable={true}
                     onToggle={toggleRecipe}
                     onChange={setRecipeStr}
-                />
-                <JSONViewer
-                    title="Config"
-                    content={configStr}
-                    isVisible={viewConfig}
-                    isEditable={false}
-                    onToggle={toggleConfig}
                 />
             </div>
         </div>

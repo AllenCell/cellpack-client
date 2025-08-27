@@ -20,8 +20,9 @@ import {
     RETENTION_POLICY,
 } from "../constants/firebase";
 import {
-    FirebaseDict,
     FirestoreDoc,
+    PackingInputs,
+    Dictionary,
 } from "../types";
 
 const getEnvVar = (key: string): string => {
@@ -119,22 +120,21 @@ const getAllDocsFromCollection = async (collectionName: string) => {
     return mapQuerySnapshotToDocs(querySnapshot);
 };
 
-const getLocationDict = async (collectionName: string) => {
-    const docs = await getAllDocsFromCollection(collectionName);
-    // docs is an array of objects, each with an id, a name, and other fields
-    // we want to create a dictionary with the name as the key and the original_location as the value
-    // `reduce` is a method that takes an array and reduces it to a single value
-    const locationDict = docs.reduce((locationDict: FirebaseDict, doc: FirestoreDoc) => {
+const getPackingInputsDict = async () => {
+    const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
+    const inputsDict: Dictionary<PackingInputs> = docs.reduce((inputsDict: Dictionary<PackingInputs>, doc: FirestoreDoc) => {
         const name = doc[FIRESTORE_FIELDS.NAME];
-        const id = doc.id;
-        if (name) {
-            locationDict[name] = {
-                [FIRESTORE_FIELDS.FIREBASE_ID]: id,
+        const config = doc[FIRESTORE_FIELDS.CONFIG];
+        const recipe = doc[FIRESTORE_FIELDS.RECIPE];
+        if (name && config && recipe) {
+            inputsDict[name] = {
+                [FIRESTORE_FIELDS.CONFIG]: config,
+                [FIRESTORE_FIELDS.RECIPE]: recipe,
             };
-        } 
-        return locationDict;
-    }, {} as FirebaseDict);
-    return locationDict;
+        }
+        return inputsDict;
+    }, {});
+    return inputsDict;
 }
 
 const getDocById = async (coll: string, id: string) => {
@@ -184,4 +184,4 @@ const docCleanup = async () => {
         console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
     }
 }
-export { db, queryDocumentById, getLocationDict, getDocById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup };
+export { db, queryDocumentById, getDocById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup, getPackingInputsDict };

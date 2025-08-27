@@ -1,6 +1,5 @@
 .box {
   display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  text-align: start;
+  justify-content: center;
+  align-items: center;
 }
