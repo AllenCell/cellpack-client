@@ -1,11 +1,6 @@
 .recipe-box {
-  width: 45%;
-  float: left;
-}
-
-.config-box {
-  width: 45%;
-  float: right;
+  width: 600px;
+  margin-top: 10px;
 }
 
 .json-content {
