@@ -4,6 +4,7 @@ export interface Document {
     recipe_path?: string;
     recipe?: string;
     config?: string;
+    editable_fields?: string[];
 }
 
 export type FirestoreDoc = Document & {
@@ -36,6 +37,7 @@ export interface Dictionary<T> {
 export type PackingInputs = {
     config: string;
     recipe: string;
+    editable_fields?: Dictionary<any>[];
 }
 
 export interface RefsByCollection {

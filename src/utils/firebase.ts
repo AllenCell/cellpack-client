@@ -120,20 +120,34 @@ const getAllDocsFromCollection = async (collectionName: string) => {
     return mapQuerySnapshotToDocs(querySnapshot);
 };
 
-const getPackingInputsDict = async () => {
+const getEditableFieldsDict = async (editable_field_ids: string[]): Promise<Dictionary<any>[]> => {
+    if (editable_field_ids.length === 0) {
+        return [];
+    }
+    const querySnapshot = await queryDocumentsByIds(FIRESTORE_COLLECTIONS.EDITABLE_FIELDS, editable_field_ids);
+    const docs = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    }));
+    return docs;
+};
+
+const getPackingInputsDict = async (): Promise<Dictionary<PackingInputs>> => {
     const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
-    const inputsDict: Dictionary<PackingInputs> = docs.reduce((inputsDict: Dictionary<PackingInputs>, doc: FirestoreDoc) => {
+    const inputsDict: Dictionary<PackingInputs> = {};
+    for (const doc of docs) {
         const name = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
         const recipe = doc[FIRESTORE_FIELDS.RECIPE];
+        const editableFields = await getEditableFieldsDict(doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []);
         if (name && config && recipe) {
             inputsDict[name] = {
                 [FIRESTORE_FIELDS.CONFIG]: config,
                 [FIRESTORE_FIELDS.RECIPE]: recipe,
+                [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields
             };
         }
-        return inputsDict;
-    }, {});
+    }
     return inputsDict;
 }
 
