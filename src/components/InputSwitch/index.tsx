@@ -12,17 +12,18 @@ interface InputSwitchProps {
     min?: number;
     max?: number;
     options?: string[];
-    changeHandler: (id: string, value: string | number) => void;
+    linkedFields?: string[];
+    changeHandler: (id: string, value: string | number, linkedFields?: string[]) => void;
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id } = props;
+    const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id, linkedFields } = props;
     const [sliderValue, setSliderValue] = useState(defaultValue);
 
     const handleSliderChange = (value: number | null) => {
         if (value === null) return;
         setSliderValue(value);
-        changeHandler(id, value);
+        changeHandler(id, value, linkedFields);
     };
 
     switch (inputType) {
@@ -71,7 +72,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <Select
                         options={selectOptions}
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler(id, e)}
+                        onChange={(e) => changeHandler(id, e, linkedFields)}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
@@ -87,7 +88,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     </div>
                     <Input
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler(id, e.target.value)}
+                        onChange={(e) => changeHandler(id, e.target.value, linkedFields)}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>

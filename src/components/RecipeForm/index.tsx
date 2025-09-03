@@ -4,7 +4,7 @@ import "./style.css";
 
 interface RecipeFormProps {
     editableFields: Dictionary<any>[];
-    handleChange: (id: string, value: string | number) => void;
+    handleChange: (id: string, value: string | number, linkedFields?: string[]) => void;
 }
 
 const RecipeForm = (props: RecipeFormProps): JSX.Element => {
@@ -25,6 +25,7 @@ const RecipeForm = (props: RecipeFormProps): JSX.Element => {
                         max={field.max}
                         options={field.options}
                         id={field.path}
+                        linkedFields={field.linked_fields}
                         changeHandler={handleChange}
                     />
                 ))}

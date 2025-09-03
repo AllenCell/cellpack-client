@@ -174,6 +174,16 @@ const resolveRefs = (
             doc.composition[compName] = resolveRefsInComposition(compositionObj, refsDict, doc);
         }
     }
+    // Handle Optional Gradients
+    if (doc.optional_gradients) {
+        for (const gradient of doc.optional_gradients) {
+            if (isFirebaseRef(gradient)) {
+                const gradientObj: FirebaseGradient = refsDict.gradients[gradient];
+                doc.gradients ??= {};
+                doc.gradients[gradientObj.name] = gradientObj;
+            }
+        }
+    }
     return recipeToViewable(doc);
 }
 
@@ -235,6 +245,14 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<ViewableRecipe> =>
         for (const ref of Object.values(compositions)) {
             if (isFirebaseRef(ref.inherit) && typeof ref.inherit == 'string') {
                 refsToGet.push(ref.inherit);
+            }
+        }
+    }
+    if (doc.optional_gradients) {
+        const gradients: any[] = doc.optional_gradients;
+        for (const ref of gradients) {
+            if (isFirebaseRef(ref) && typeof ref == 'string') {
+                refsToGet.push(ref);
             }
         }
     }
