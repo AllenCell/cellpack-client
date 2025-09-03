@@ -15,16 +15,16 @@ const RecipeForm = (props: RecipeFormProps): JSX.Element => {
             <div className="input-container">
                 {editableFields.map((field) => (
                     <InputSwitch
-                        key={field.filePath}
-                        displayName={field.displayName}
-                        inputType={field.inputType}
-                        dataType={field.dataType}
+                        key={field.path}
+                        displayName={field.name}
+                        inputType={field.input_type}
+                        dataType={field.data_type}
                         description={field.description}
-                        defaultValue={field.defaultValue}
+                        defaultValue={field.default}
                         min={field.min}
                         max={field.max}
                         options={field.options}
-                        id={field.filePath}
+                        id={field.path}
                         changeHandler={handleChange}
                     />
                 ))}

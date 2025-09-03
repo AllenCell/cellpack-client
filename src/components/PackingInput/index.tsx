@@ -6,10 +6,8 @@ import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
-import * as editableFields from '../../editable-fields.json';
 import "./style.css";
 
-const editableFieldsDict: Dictionary<any[]> = JSON.parse(JSON.stringify(editableFields.default));
 
 interface PackingInputProps {
     startPacking: (recipeId: string, configId: string, recipeString: string) => Promise<void>;
@@ -35,6 +33,8 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const selectInput = async (inputName: string) => {
         const recipeId: string = inputOptions[inputName]?.recipe || "";
         const configId: string = inputOptions[inputName]?.config || "";
+        const editableFields = inputOptions[inputName]?.editable_fields || [];
+        setFieldsToDisplay(editableFields.length > 0 ? editableFields : undefined);
         await selectRecipe(recipeId);
         setSelectedConfigId(configId);
     }
@@ -43,7 +43,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         setSelectedRecipeId(recipeId);
         const recJson = await getFirebaseRecipe(recipeId);
         const recStr = jsonToString(recJson);
-        setFieldsToDisplay(editableFieldsDict[recipeId] || undefined);
         setRecipeStr(recStr);
     }
 

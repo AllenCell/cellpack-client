@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Input, InputNumber, Select, Slider } from 'antd';
 import "./style.css";
 
 interface InputSwitchProps {
@@ -18,8 +19,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id } = props;
     const [sliderValue, setSliderValue] = useState(defaultValue);
 
-    const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = dataType === "integer" ? parseInt(e.target.value) : parseFloat(e.target.value);
+    const handleSliderChange = (value: number | null) => {
+        if (value === null) return;
         setSliderValue(value);
         changeHandler(id, value);
     };
@@ -28,58 +29,66 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         case "slider":
             return (
                 <div className="input-switch">
-                    <div >
+                    <div>
                         <strong>{displayName} </strong>
                         <br />
                         <small>{description}</small>
                         <br />
                     </div>
-                    <input
-                        type="range"
+                    <Slider
                         min={min}
                         max={max}
                         step={dataType === "integer" ? 1 : 0.01}
+                        onChange={handleSliderChange}
+                        defaultValue={defaultValue as number}
+                        value={typeof sliderValue === 'number' ? sliderValue : 0}
+                        style={{ width: 100 }}
+                    />
+                    <InputNumber
+                        min={min}
+                        max={max}
+                        step={dataType === "integer" ? 1 : 0.01}
+                        style={{ margin: '0 16px' }}
+                        value={sliderValue as number}
                         defaultValue={defaultValue as number}
                         onChange={handleSliderChange}
                     />
-                    <span>{sliderValue}</span>
-                    <br />
                 </div>
             );
         case "dropdown":
+            const selectOptions = options?.map((option) => ({
+                label: option,
+                value: option,
+            })) || [];
             return (
                 <div className="input-switch">
-                    <div className="input-label">
+                    <div>
                         <strong>{displayName} </strong>
                         <br />
                         <small>{description}</small>
                         <br />
                     </div>
-                    <select
+                    <Select
+                        options={selectOptions}
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler(id, e.target.value)}
-                    >
-                        {options?.map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
+                        onChange={(e) => changeHandler(id, e)}
+                        style={{ width: 200, marginLeft: 10 }}
+                    />
                 </div>
             );
         default:
             return (
                 <div className="input-switch">
-                    <div className="input-label">
+                    <div>
                         <strong>{displayName} </strong>
                         <br />
                         <small>{description}</small>
                         <br />
                     </div>
-                    <input
-                        type="text"
+                    <Input
                         defaultValue={defaultValue as string}
                         onChange={(e) => changeHandler(id, e.target.value)}
+                        style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
             );
