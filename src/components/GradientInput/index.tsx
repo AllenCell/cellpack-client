@@ -70,27 +70,23 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
     }));
     return (
         <div>
-            <div  className="gradient-input-switch">
-                <div>
+            <div className="input-switch">
+                <div className="input-label">
                     <strong>{displayName} </strong>
-                    <br />
                     <small>{description}</small>
-                    <br />
                 </div>
                 <Select
                     options={selectOptions}
                     defaultValue={defaultValue}
                     onChange={(e) => gradientSelected(e)}
-                    style={{ width: 200, marginLeft: 10 }}
+                    style={{ width: 200, margin: '0 16px' }}
                 />
             </div>
             {displayGradientStrength && gradientStrengthData && (
-                <div className="gradient-strength-slider">
-                    <div>
+                <div className="input-switch">
+                    <div className="input-label">
                         <strong>{gradientStrengthData.displayName}</strong>
-                        <br />
                         <small>{gradientStrengthData.description}</small>
-                        <br />
                     </div>
                     <Slider
                         min={gradientStrengthData.min}

@@ -51,7 +51,6 @@ export type EditableField = {
     max?: number;
     options?: string[];
     gradient_options?: GradientOption[];
-    linked_fields?: string[];
 }
 
 export type GradientOption = {

@@ -77,14 +77,9 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         return obj;
     }
 
-    const handleFormChange = (id: string, value: string | number, linkedFields?: string[]) => {
+    const handleFormChange = (id: string, value: string | number) => {
         const recipeObj = JSON.parse(recipeStr);
         const updatedRecipe = setDeepValue(recipeObj, id, value);
-        if (linkedFields) {
-            for (const field of linkedFields) {
-                setDeepValue(updatedRecipe, field, value);
-            }
-        }
         const updatedRecipeStr = JSON.stringify(updatedRecipe, null, 2);
         setRecipeStr(updatedRecipeStr);
     };
@@ -115,7 +110,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                             max={field.max}
                             options={field.options}
                             id={field.path}
-                            linkedFields={field.linked_fields}
                             gradientOptions={field.gradient_options}
                             changeHandler={handleFormChange}
                         />

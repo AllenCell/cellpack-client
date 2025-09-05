@@ -1,7 +1,0 @@
-.gradient-input-switch, .gradient-strength-slider {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-}

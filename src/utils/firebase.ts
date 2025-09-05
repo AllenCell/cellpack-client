@@ -137,7 +137,6 @@ const getEditableFieldsList = async (editable_field_ids: string[]): Promise<Edit
         max: doc.data().max,
         options: doc.data().options,
         gradient_options: doc.data().gradient_options,
-        linked_fields: doc.data().linked_fields,
         path: doc.data().path,
     }));
     return docs;
