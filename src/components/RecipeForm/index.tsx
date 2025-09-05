@@ -1,9 +1,9 @@
-import { Dictionary } from "../../types";
+import { EditableField } from "../../types";
 import InputSwitch from "../InputSwitch";
 import "./style.css";
 
 interface RecipeFormProps {
-    editableFields: Dictionary<any>[];
+    editableFields: EditableField[];
     handleChange: (id: string, value: string | number, linkedFields?: string[]) => void;
 }
 
@@ -26,6 +26,7 @@ const RecipeForm = (props: RecipeFormProps): JSX.Element => {
                         options={field.options}
                         id={field.path}
                         linkedFields={field.linked_fields}
+                        gradientOptions={field.gradient_options}
                         changeHandler={handleChange}
                     />
                 ))}

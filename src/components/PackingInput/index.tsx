@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dictionary, PackingInputs } from "../../types";
+import { Dictionary, EditableField, PackingInputs } from "../../types";
 import { getPackingInputsDict } from "../../utils/firebase";
 import { Button } from "antd";
 import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
@@ -20,7 +20,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const [inputOptions, setInputOptions] = useState<Dictionary<PackingInputs>>({});
     const [recipeStr, setRecipeStr] = useState<string>("");
     const [viewRecipe, setViewRecipe] = useState<boolean>(true);
-    const [fieldsToDisplay, setFieldsToDisplay] = useState<Dictionary<any>[] | undefined>(undefined);
+    const [fieldsToDisplay, setFieldsToDisplay] = useState<EditableField[] | undefined>(undefined);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,8 +33,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const selectInput = async (inputName: string) => {
         const recipeId: string = inputOptions[inputName]?.recipe || "";
         const configId: string = inputOptions[inputName]?.config || "";
-        const editableFields = inputOptions[inputName]?.editable_fields || [];
-        setFieldsToDisplay(editableFields.length > 0 ? editableFields : undefined);
+        setFieldsToDisplay(inputOptions[inputName]?.editable_fields || undefined);
         await selectRecipe(recipeId);
         setSelectedConfigId(configId);
     }
@@ -55,7 +54,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         setViewRecipe(!viewRecipe);
     }
 
-    const setDeepValue = (obj: any, path: string, value: any): any => {
+    const setDeepValue = (obj: object, path: string, value: string | number): object => {
         const keys = path.split('.');
         let current: any = obj;
 

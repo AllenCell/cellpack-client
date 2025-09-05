@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Input, InputNumber, Select, Slider } from 'antd';
+import GradientInput from "../GradientInput";
 import "./style.css";
+import { GradientOption } from "../../types";
 
 interface InputSwitchProps {
     displayName: string;
@@ -12,12 +14,13 @@ interface InputSwitchProps {
     min?: number;
     max?: number;
     options?: string[];
+    gradientOptions?: GradientOption[];
     linkedFields?: string[];
     changeHandler: (id: string, value: string | number, linkedFields?: string[]) => void;
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id, linkedFields } = props;
+    const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id, linkedFields, gradientOptions } = props;
     const [sliderValue, setSliderValue] = useState(defaultValue);
 
     const handleSliderChange = (value: number | null) => {
@@ -27,7 +30,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     };
 
     switch (inputType) {
-        case "slider":
+        case "slider": {
             return (
                 <div className="input-switch">
                     <div>
@@ -56,7 +59,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     />
                 </div>
             );
-        case "dropdown":
+        }
+        case "dropdown": {
             const selectOptions = options?.map((option) => ({
                 label: option,
                 value: option,
@@ -77,7 +81,21 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     />
                 </div>
             );
-        default:
+        }
+        case "gradient": {
+            return (
+                gradientOptions && gradientOptions.length > 0 && (
+                    <GradientInput
+                        displayName={displayName}
+                        description={description}
+                        gradientOptions={gradientOptions}
+                        defaultValue={defaultValue as string}
+                        changeHandler={changeHandler}
+                    />
+                ) || <div>Issue reading gradient options</div>
+            );
+        }
+        default: {
             return (
                 <div className="input-switch">
                     <div>
@@ -93,6 +111,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     />
                 </div>
             );
+        }
     }
 };
 

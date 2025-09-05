@@ -37,7 +37,33 @@ export interface Dictionary<T> {
 export type PackingInputs = {
     config: string;
     recipe: string;
-    editable_fields?: Dictionary<any>[];
+    editable_fields?: EditableField[];
+}
+
+export type EditableField = {
+    name: string;
+    data_type: string;
+    input_type: string;
+    description: string;
+    default: string | number;
+    path: string;
+    min?: number;
+    max?: number;
+    options?: string[];
+    gradient_options?: GradientOption[];
+    linked_fields?: string[];
+}
+
+export type GradientOption = {
+    display_name: string;
+    value: string;
+    path: string;
+    strength_path?: string;
+    strength_default?: number;
+    strength_min?: number;
+    strength_max?: number;
+    strength_description?: string;
+    strength_display_name?: string;
 }
 
 export interface RefsByCollection {

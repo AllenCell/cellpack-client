@@ -249,7 +249,7 @@ const unpackReferences = async (doc: FirebaseRecipe): Promise<ViewableRecipe> =>
         }
     }
     if (doc.optional_gradients) {
-        const gradients: any[] = doc.optional_gradients;
+        const gradients: string[] = doc.optional_gradients;
         for (const ref of gradients) {
             if (isFirebaseRef(ref) && typeof ref == 'string') {
                 refsToGet.push(ref);
