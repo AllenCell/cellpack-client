@@ -18,10 +18,11 @@ interface GradientInputProps {
     gradientOptions: GradientOption[];
     defaultValue: string;
     changeHandler: (id: string, value: string | number) => void;
+    getCurrentValue: (path: string) => string | number | undefined;
 }
 
 const GradientInput = (props: GradientInputProps): JSX.Element => {
-    const { displayName, description, gradientOptions, defaultValue, changeHandler } = props;
+    const { displayName, description, gradientOptions, defaultValue, changeHandler, getCurrentValue } = props;
     const [displayGradientStrength, setDisplayGradientStrength] = useState<boolean>(true);
     const initialOption = gradientOptions.find(option => option.value === defaultValue);
     const initialGradientStrength: GradientStrength | undefined = initialOption && initialOption.strength_path ? {
@@ -41,11 +42,12 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         changeHandler(selectedOption.path, value); // update JSON with gradient choice
         if (selectedOption.strength_path) {
             setDisplayGradientStrength(true);
+            const currVal = getCurrentValue(selectedOption.strength_path) as number | undefined || selectedOption.strength_default || 0.01;
             const strengthData: GradientStrength = {
                 displayName: selectedOption.strength_display_name || selectedOption.display_name + " Strength",
                 description: selectedOption.strength_description || "",
                 path: selectedOption.strength_path,
-                default: selectedOption.strength_default || 0.01,
+                default: currVal,
                 min: selectedOption.strength_min || 0,
                 max: selectedOption.strength_max || 1,
             };

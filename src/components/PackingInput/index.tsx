@@ -54,9 +54,10 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         setViewRecipe(!viewRecipe);
     }
 
-    const setDeepValue = (obj: object, path: string, value: string | number): object => {
-        const keys = path.split('.');
-        let current: any = obj;
+    const handleFormChange = (id: string, value: string | number) => {
+        const recipeObj = JSON.parse(recipeStr);
+        const keys = id.split('.');
+        let current = recipeObj;
 
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
@@ -68,21 +69,29 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 // Not the last key, ensure the intermediate object exists
                 if (typeof current[key] !== 'object' || current[key] === null) {
                     // Doesn't exist, return original object without changes
-                    console.warn(`Path "${path}" is invalid. Cannot set value.`);
-                    return obj;
+                    console.warn(`Path "${id}" is invalid. Cannot set value.`);
+                    return;
                 }
-                current = current[key]; // Move deeper into the object
+                current = current[key];
             }
         }
-        return obj;
-    }
-
-    const handleFormChange = (id: string, value: string | number) => {
-        const recipeObj = JSON.parse(recipeStr);
-        const updatedRecipe = setDeepValue(recipeObj, id, value);
-        const updatedRecipeStr = JSON.stringify(updatedRecipe, null, 2);
+        const updatedRecipeStr = JSON.stringify(recipeObj, null, 2);
         setRecipeStr(updatedRecipeStr);
     };
+
+    const getCurrentValue = (path: string): string | number | undefined => {
+        const recipeObj = JSON.parse(recipeStr);
+        const keys = path.split('.');
+        let current = recipeObj;
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (current[key] === undefined) {
+                return undefined;
+            }
+            current = current[key];
+        }
+        return current;
+    }
 
     return (
         <div>
@@ -112,6 +121,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                             id={field.path}
                             gradientOptions={field.gradient_options}
                             changeHandler={handleFormChange}
+                            getCurrentValue={getCurrentValue}
                         />
                     ))}
                 </div>
