@@ -5,7 +5,7 @@ import { Button } from "antd";
 import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
-import RecipeForm from "../RecipeForm";
+import InputSwitch from "../InputSwitch";
 import "./style.css";
 
 
@@ -102,7 +102,25 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 </Button>
             </div>
             {fieldsToDisplay && (
-                <RecipeForm editableFields={fieldsToDisplay} handleChange={handleFormChange} />
+                <div className="input-container">
+                    {fieldsToDisplay.map((field) => (
+                        <InputSwitch
+                            key={field.path}
+                            displayName={field.name}
+                            inputType={field.input_type}
+                            dataType={field.data_type}
+                            description={field.description}
+                            defaultValue={field.default}
+                            min={field.min}
+                            max={field.max}
+                            options={field.options}
+                            id={field.path}
+                            linkedFields={field.linked_fields}
+                            gradientOptions={field.gradient_options}
+                            changeHandler={handleFormChange}
+                        />
+                    ))}
+                </div>
             )}
             <div className="box">
                 <JSONViewer
