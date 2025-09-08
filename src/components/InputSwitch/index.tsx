@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input, InputNumber, Select, Slider } from 'antd';
 import GradientInput from "../GradientInput";
 import "./style.css";
-import { GradientOption } from "../../types";
+import { Dictionary, GradientOption } from "../../types";
 
 interface InputSwitchProps {
     displayName: string;
@@ -15,7 +15,7 @@ interface InputSwitchProps {
     max?: number;
     options?: string[];
     gradientOptions?: GradientOption[];
-    changeHandler: (id: string, value: string | number) => void;
+    changeHandler: (changes: Dictionary<string | number>) => void;
     getCurrentValue: (path: string) => string | number | undefined;
 }
 
@@ -26,7 +26,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const handleSliderChange = (value: number | null) => {
         if (value === null) return;
         setSliderValue(value);
-        changeHandler(id, value);
+        changeHandler({[id]: value});
     };
 
     switch (inputType) {
@@ -72,7 +72,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <Select
                         options={selectOptions}
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler(id, e)}
+                        onChange={(e) => changeHandler({[id]: e})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
@@ -101,7 +101,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     </div>
                     <Input
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler(id, e.target.value)}
+                        onChange={(e) => changeHandler({[id]: e.target.value})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>

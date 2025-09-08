@@ -54,25 +54,26 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         setViewRecipe(!viewRecipe);
     }
 
-    const handleFormChange = (id: string, value: string | number) => {
+    const handleFormChange = (changes: Dictionary<string | number>) => {
         const recipeObj = JSON.parse(recipeStr);
-        const keys = id.split('.');
-        let current = recipeObj;
+        for (const [id, value] of Object.entries(changes)) {
+            const keys = id.split('.');
+            let current = recipeObj;
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
 
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-
-            if (i === keys.length - 1) {
-                // Last key in the path, assign the value
-                current[key] = value;
-            } else {
-                // Not the last key, ensure the intermediate object exists
-                if (typeof current[key] !== 'object' || current[key] === null) {
-                    // Doesn't exist, return original object without changes
-                    console.warn(`Path "${id}" is invalid. Cannot set value.`);
-                    return;
+                if (i === keys.length - 1) {
+                    // Last key in the path, assign the value
+                    current[key] = value;
+                } else {
+                    // Not the last key, ensure the intermediate object exists
+                    if (typeof current[key] !== 'object' || current[key] === null) {
+                        // Doesn't exist, return original object without changes
+                        console.warn(`Path "${id}" is invalid. Cannot set value.`);
+                        return;
+                    }
+                    current = current[key];
                 }
-                current = current[key];
             }
         }
         const updatedRecipeStr = JSON.stringify(recipeObj, null, 2);

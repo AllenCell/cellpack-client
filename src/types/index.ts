@@ -61,6 +61,8 @@ export type GradientOption = {
     strength_default?: number;
     strength_min?: number;
     strength_max?: number;
+    packing_mode?: string;
+    packing_mode_path?: string;
     strength_description?: string;
     strength_display_name?: string;
 }
