@@ -144,6 +144,13 @@ function App() {
             )}
             {showResults && <Viewer resultUrl={resultUrl} />}
             {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
+            <div>
+                <Link 
+                    to={PageRoutes.LANDING_PAGE}
+                >
+                    ← Back to Home
+                </Link>
+            </div>
         </div>
     );
 }
