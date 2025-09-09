@@ -70,8 +70,9 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
 
     const handleStrengthChange = (value: number | null, path: string) => {
         if (value === null) return;
-        setSliderValue(value);
-        changeHandler({[path]: (1 - value)});
+        const roundedValue = Number(value.toFixed(2));
+        setSliderValue(roundedValue);
+        changeHandler({[path]: (1 - roundedValue)});
     };
     
     const selectOptions = gradientOptions.map((option) => ({
@@ -101,7 +102,6 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                     <Slider
                         min={gradientStrengthData.min}
                         max={gradientStrengthData.max}
-                        defaultValue={gradientStrengthData.default}
                         onChange={(value) => handleStrengthChange(value, gradientStrengthData.path)}
                         value={sliderValue}
                         step={0.01}
@@ -111,7 +111,6 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         min={gradientStrengthData.min}
                         max={gradientStrengthData.max}
                         value={sliderValue}
-                        defaultValue={gradientStrengthData.default}
                         onChange={(value) => handleStrengthChange(value, gradientStrengthData.path)}
                         step={0.01}
                         style={{ margin: '0 16px' }}

@@ -52,7 +52,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         step={dataType === "integer" ? 1 : 0.01}
                         style={{ margin: '0 16px' }}
                         value={sliderValue as number}
-                        defaultValue={defaultValue as number}
                         onChange={handleSliderChange}
                     />
                 </div>
