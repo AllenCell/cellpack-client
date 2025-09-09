@@ -84,9 +84,9 @@
       },
       "type": "mesh",
       "color": [
-        0.75,
-        0.75,
-        0.75
+        0.96,
+        0.63,
+        0.96
       ]
     },
     "peroxisome": {
@@ -114,9 +114,9 @@
     "nucleus_mesh": {
       "name": "nucleus_mesh",
       "color": [
-        0.25,
-        0.25,
-        0.25
+        0.24,
+        0.56,
+        0.56
       ],
       "partners": {
         "all_partners": []
