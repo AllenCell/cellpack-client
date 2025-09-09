@@ -72,7 +72,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         if (value === null) return;
         const roundedValue = Number(value.toFixed(2));
         setSliderValue(roundedValue);
-        changeHandler({[path]: (1 - roundedValue)});
+        changeHandler({[path]: Number((1 - roundedValue).toFixed(2))});
     };
     
     const selectOptions = gradientOptions.map((option) => ({
