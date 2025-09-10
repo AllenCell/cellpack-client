@@ -11,10 +11,11 @@ import "./style.css";
 
 interface PackingInputProps {
     startPacking: (recipeId: string, configId: string, recipeString: string) => Promise<void>;
+    submitEnabled: boolean;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
-    const { startPacking } = props;
+    const { startPacking, submitEnabled } = props;
     const [selectedRecipeId, setSelectedRecipeId] = useState("");
     const [selectedConfigId, setSelectedConfigId] = useState("");
     const [inputOptions, setInputOptions] = useState<Dictionary<PackingInputs>>({});
@@ -138,7 +139,15 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                         </div>
                     )}
                     {selectedRecipeId && (
-                        <Button onClick={runPacking} color="primary" variant="filled" style={{ width: '100%' }}>Pack!</Button>
+                        <Button
+                            onClick={runPacking}
+                            color="primary"
+                            variant="filled"
+                            disabled={!submitEnabled}
+                            style={{ width: '100%' }}
+                        >
+                            Pack!
+                        </Button>
                     )}
                 </div>
             </div>

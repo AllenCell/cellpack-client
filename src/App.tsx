@@ -122,6 +122,7 @@ function App() {
 
     const jobSucceeded = jobStatus == JOB_STATUS.DONE;
     const showLogs = jobStatus == JOB_STATUS.FAILED;
+    const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
 
     return (
         <div className="app-container">
@@ -130,7 +131,7 @@ function App() {
                 <Link href="https://github.com/mesoscope/cellpack" className="header-link">GitHub</Link>
             </Header>
             <Content className="content-container">
-                <PackingInput startPacking={startPacking} />
+                <PackingInput startPacking={startPacking} submitEnabled={submitEnabled} />
                 {jobStatus && <div className="status-container">
                     <b>Job Status: {jobStatus}</b>
                     {jobSucceeded && runTime > 0 && (<div>Time to Run: {runTime} sec</div>)}
