@@ -4,8 +4,11 @@
 }
 
 .app-container {
+  display: flex;
+  flex-direction: column;
   justify-self: flex-start;
   align-self: flex-start;
+  align-items: center;
 }
 
 .header {
