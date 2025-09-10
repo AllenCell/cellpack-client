@@ -201,7 +201,7 @@ function App() {
         console.log(`Downloaded zip with ${filesAdded} files`);
     };
 
-    const downloadOutputs = async (jobIdFromDownload?: string) => {
+    const downloadOutputs = async () => {
         const id = "take3"; // jobIdFromDownload || jobId;
         setIsDownloading(true);
         
