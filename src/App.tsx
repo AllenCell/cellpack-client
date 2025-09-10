@@ -13,8 +13,6 @@ import {
     FIRESTORE_FIELDS,
 } from "./constants/firebase";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
-import { Link } from "react-router-dom";
-import { PageRoutes } from "./constants/routes";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import ErrorLogs from "./components/ErrorLogs";
@@ -144,13 +142,6 @@ function App() {
             )}
             {showResults && <Viewer resultUrl={resultUrl} />}
             {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
-            <div>
-                <Link 
-                    to={PageRoutes.LANDING_PAGE}
-                >
-                    ← Back to Home
-                </Link>
-            </div>
         </div>
     );
 }
