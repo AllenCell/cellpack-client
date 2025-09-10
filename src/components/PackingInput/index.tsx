@@ -138,7 +138,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                         </div>
                     )}
                     {selectedRecipeId && (
-                        <Button onClick={runPacking} type="primary" style={{ width: '100%' }}>Pack!</Button>
+                        <Button onClick={runPacking} color="primary" variant="filled" style={{ width: '100%' }}>Pack!</Button>
                     )}
                 </div>
             </div>
