@@ -151,7 +151,7 @@ function App() {
         // convert firebase console URL to S3 API format
         // from: "https://us-west-2.console.aws.amazon.com/s3/buckets/cellpack-results/runs/test_single_sphere/id/"
         // to bucket: "cellpack-results" and path: "runs/test_single_sphere/id"
-        const match = outputsDir.match(/s3\/buckets\/([^\/]+)\/(.+)\/?$/);
+        const match = outputsDir.match(/s3\/buckets\/([^/]+)\/(.+)\/?$/);
         if (!match) {
             throw new Error("Invalid S3 URL format");
         }
