@@ -133,8 +133,8 @@ function App() {
             <Content className="content-container">
                 <PackingInput startPacking={startPacking} submitEnabled={submitEnabled} />
                 {jobStatus && <div className="status-container">
-                    <b>Job Status: {jobStatus}</b>
-                    {jobSucceeded && runTime > 0 && (<div>Time to Run: {runTime} sec</div>)}
+                    <div><b>Status</b> {jobStatus}</div>
+                    {jobSucceeded && runTime > 0 && (<div><b>Run time</b> {runTime} sec</div>)}
                 </div>}
                 {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             </Content>
