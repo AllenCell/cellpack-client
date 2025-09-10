@@ -18,11 +18,13 @@
   white-space: nowrap;
   gap: 10px;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .recipe-content {
   display: flex;
   margin-top: 10px;
+  margin-bottom: 10px;
   justify-content: space-between;
   align-content: center;
 }
