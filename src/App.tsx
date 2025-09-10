@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { Button } from "antd";
-import "./App.css";
+import { Layout, Typography } from "antd";
 import { getResultPath, getDocById, getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import {
@@ -16,13 +15,16 @@ import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import ErrorLogs from "./components/ErrorLogs";
+import "./App.css";
+
+const { Header, Content } = Layout;
+const { Link } = Typography;
 
 function App() {
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
     const [resultUrl, setResultUrl] = useState<string>("");
-    const [viewResults, setViewResults] = useState<boolean>(false);
     const [runTime, setRunTime] = useState<number>(0);
 
     let start = 0;
@@ -118,30 +120,24 @@ function App() {
         setJobLogs(logStr);
     };
 
-    const toggleResults = () => {
-        if (resultUrl == "") {
-            fetchResultUrl();
-        }
-        setViewResults(!viewResults);
-    }
-
     const jobSucceeded = jobStatus == JOB_STATUS.DONE;
-    const showLogButton = jobStatus == JOB_STATUS.FAILED;
-    const showResults = resultUrl && viewResults;
+    const showLogs = jobStatus == JOB_STATUS.FAILED;
 
     return (
-        <div className="app">
-            <h1>Welcome to cellPACK</h1>
-            <PackingInput startPacking={startPacking} />
-            <h3>Job Status: {jobStatus}</h3>
-            {jobSucceeded && (
-                <div>
-                    {runTime > 0 && (<h4>Time to Run: {runTime} sec</h4>)}
-                    <Button onClick={toggleResults}>Results</Button>
-                </div>
-            )}
-            {showResults && <Viewer resultUrl={resultUrl} />}
-            {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
+        <div className="app-container">
+            <Header className="header" style={{justifyContent: "space-between"}}>
+                <h2 className="header-title">cellPACK demo</h2>
+                <Link href="https://github.com/mesoscope/cellpack" className="header-link">GitHub</Link>
+            </Header>
+            <Content className="content-container">
+                <PackingInput startPacking={startPacking} />
+                {jobStatus && <div className="status-container">
+                    <b>Job Status: {jobStatus}</b>
+                    {jobSucceeded && runTime > 0 && (<div>Time to Run: {runTime} sec</div>)}
+                </div>}
+                {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
+            </Content>
+            {resultUrl && <Viewer resultUrl={resultUrl} />}
         </div>
     );
 }

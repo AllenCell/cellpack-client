@@ -9,8 +9,6 @@
 .input-label {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 300px;
+    justify-content: left;
+    width: 60%;
 }

@@ -22,7 +22,7 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
             onChange={onChange}
             placeholder={placeholder}
             options={selectOptions}
-            style={{ width: 200 }}
+            style={{ width: "100%", paddingLeft: 5 }}
         />
     );
 };
