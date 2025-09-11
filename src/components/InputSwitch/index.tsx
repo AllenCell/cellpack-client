@@ -65,7 +65,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName} </strong>
+                        <strong>{displayName}</strong>
                         <small>{description}</small>
                     </div>
                     <Select
@@ -95,7 +95,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName} </strong>
+                        <strong>{displayName}</strong>
                         <small>{description}</small>
                     </div>
                     <Input

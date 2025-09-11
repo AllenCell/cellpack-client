@@ -31,7 +31,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         path: initialOption.strength_path,
         default: 1 - (initialOption.strength_default || 0.01),
         min: initialOption.strength_min || 0,
-        max: initialOption.strength_max || 1,
+        max: initialOption.strength_max || 0.99,
     } : undefined;
     const [gradientStrengthData, setGradientStrengthData] = useState<GradientStrength | undefined>(initialGradientStrength);
     const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength ? initialGradientStrength.default : 0);
@@ -57,7 +57,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                 path: selectedOption.strength_path,
                 default: (1 - currVal),
                 min: selectedOption.strength_min || 0,
-                max: selectedOption.strength_max || 1,
+                max: selectedOption.strength_max || 0.99,
             };
             setGradientStrengthData(strengthData);
             setSliderValue(strengthData.default);

@@ -1,5 +1,30 @@
-.box {
+.recipe-json {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 48%;
+}
+
+.recipe-form {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.recipe-select {
+  display: flex;
+  white-space: nowrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.recipe-content {
+  display: flex;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  justify-content: space-between;
+  align-content: center;
 }
