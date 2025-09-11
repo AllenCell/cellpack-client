@@ -5,7 +5,7 @@ import { Button } from "antd";
 import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
-import InputSwitch from "../InputSwitch";
+import RecipeForm from "../RecipeForm";
 import "./style.css";
 
 
@@ -116,28 +116,11 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     />
                 </div>
                 <div className="recipe-form">
-                    {fieldsToDisplay && (
-                        <div className="input-container">
-                            <h3>Options</h3>
-                            {fieldsToDisplay.map((field) => (
-                                <InputSwitch
-                                    key={field.path}
-                                    displayName={field.name}
-                                    inputType={field.input_type}
-                                    dataType={field.data_type}
-                                    description={field.description}
-                                    defaultValue={field.default}
-                                    min={field.min}
-                                    max={field.max}
-                                    options={field.options}
-                                    id={field.path}
-                                    gradientOptions={field.gradient_options}
-                                    changeHandler={handleFormChange}
-                                    getCurrentValue={getCurrentValue}
-                                />
-                            ))}
-                        </div>
-                    )}
+                    <RecipeForm
+                        fieldsToDisplay={fieldsToDisplay}
+                        handleFormChange={handleFormChange}
+                        getCurrentValue={getCurrentValue}
+                    />
                     {selectedRecipeId && (
                         <Button
                             onClick={runPacking}
