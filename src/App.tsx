@@ -2,6 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { Layout, Typography, Button } from "antd";
 import JSZip from "jszip";
+import "./App.css";
 import { getResultPath, getDocById, getJobStatus, addRecipe, getOutputsDirectory } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import {
@@ -27,7 +28,10 @@ function App() {
     const [resultUrl, setResultUrl] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
+<<<<<<< HEAD
     const [viewResults, setViewResults] = useState<boolean>(false);
+=======
+>>>>>>> 75d4c0cb3649d7c8ab91937167e3543beb08dec5
 
     let start = 0;
 
@@ -215,6 +219,10 @@ function App() {
         setIsDownloading(false);
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 75d4c0cb3649d7c8ab91937167e3543beb08dec5
     const jobSucceeded = jobStatus == JOB_STATUS.DONE;
     const showLogs = jobStatus == JOB_STATUS.FAILED;
     const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
