@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { Button } from "antd";
 import { Dictionary, EditableField, PackingInputs } from "../../types";
 import { getPackingInputsDict } from "../../utils/firebase";
-import { Button } from "antd";
 import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -27,24 +27,29 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         const fetchData = async () => {
             const inputDict = await getPackingInputsDict();
             setInputOptions(inputDict);
+            for (const key in inputDict) {
+                const recipeJson = await getFirebaseRecipe(inputDict[key].recipe);
+                const recipeString = jsonToString(recipeJson);
+                inputDict[key].recipe_string = recipeString;
+            }
+            setInputOptions(inputDict);
         };
         fetchData();
     }, []);
 
     const selectInput = async (inputName: string) => {
-        const recipeId: string = inputOptions[inputName]?.recipe || "";
-        const configId: string = inputOptions[inputName]?.config || "";
-        setFieldsToDisplay(inputOptions[inputName]?.editable_fields || undefined);
-        await selectRecipe(recipeId);
-        setSelectedConfigId(configId);
-    }
-
-    const selectRecipe = async (recipeId: string) => {
-        setSelectedRecipeId(recipeId);
-        const recJson = await getFirebaseRecipe(recipeId);
-        const recStr = jsonToString(recJson);
-        setRecipeStr(recStr);
-    }
+        if (inputName in inputOptions) {
+            if (inputOptions[inputName].recipe_string === undefined) {
+                const recipeJson = await getFirebaseRecipe(inputOptions[inputName].recipe);
+                const recipeString = jsonToString(recipeJson);
+                inputOptions[inputName].recipe_string = recipeString;
+            }
+            setFieldsToDisplay(inputOptions[inputName].editable_fields || undefined);
+            setRecipeStr(inputOptions[inputName].recipe_string);
+            setSelectedRecipeId(inputOptions[inputName].recipe);
+            setSelectedConfigId(inputOptions[inputName].config);
+        }
+    };
 
     const runPacking = async () => {
         startPacking(selectedRecipeId, selectedConfigId, recipeStr);
@@ -52,7 +57,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     const toggleRecipe = () => {
         setViewRecipe(!viewRecipe);
-    }
+    };
 
     const handleFormChange = (changes: Dictionary<string | number>) => {
         const recipeObj = JSON.parse(recipeStr);

@@ -38,6 +38,7 @@ export type PackingInputs = {
     config: string;
     recipe: string;
     editable_fields?: EditableField[];
+    recipe_string?: string;
 }
 
 export type EditableField = {
