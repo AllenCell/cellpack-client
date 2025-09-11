@@ -116,6 +116,11 @@ const getJobStatus = async (jobId: string) => {
     return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.STATUS);
 }
 
+const getOutputsDirectory = async (jobId: string) => {
+    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
+    return extractSingleDocumentData(querySnapshot, "outputs_directory");
+}
+
 const getAllDocsFromCollection = async (collectionName: string) => {
     const querySnapshot = await queryAllDocuments(collectionName);
     return mapQuerySnapshotToDocs(querySnapshot);
@@ -208,4 +213,4 @@ const docCleanup = async () => {
         console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
     }
 }
-export { db, queryDocumentById, getDocById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup, getPackingInputsDict };
+export { db, queryDocumentById, getDocById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup, getPackingInputsDict, getOutputsDirectory };
