@@ -78,7 +78,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             );
         }
         case "gradient": {
-            console.log("Gradient default value: ", defaultValue);
             return (
                 gradientOptions && gradientOptions.length > 0 && (
                     <GradientInput

@@ -9,15 +9,13 @@ interface RecipeFormProps {
 
 const RecipeForm = (props: RecipeFormProps) => {
     const { fieldsToDisplay, handleFormChange, getCurrentValue } = props;
-    console.log("RecipeForm props: ", props);
-    console.log("Rendering RecipeForm with fields: ", fieldsToDisplay);
     return (
         fieldsToDisplay !== undefined && (
             <div className="input-container">
                 <h3>Options</h3>
                 {fieldsToDisplay.map((field) => (
                     <InputSwitch
-                        key={field.path}
+                        key={field.id}
                         displayName={field.name}
                         inputType={field.input_type}
                         dataType={field.data_type}

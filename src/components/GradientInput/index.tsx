@@ -88,8 +88,8 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                 </div>
                 <Select
                     options={selectOptions}
-                    value={defaultValue}
-                    onChange={(e) => {console.log("---> ", e); gradientSelected(e)}}
+                    defaultValue={defaultValue}
+                    onChange={gradientSelected}
                     style={{ width: 200, margin: '0 16px' }}
                 />
             </div>

@@ -42,6 +42,7 @@ export type PackingInputs = {
 
 export type EditableField = {
     name: string;
+    id: string;
     data_type: string;
     input_type: string;
     description: string;
