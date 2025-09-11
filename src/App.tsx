@@ -28,10 +28,6 @@ function App() {
     const [resultUrl, setResultUrl] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
-<<<<<<< HEAD
-    const [viewResults, setViewResults] = useState<boolean>(false);
-=======
->>>>>>> 75d4c0cb3649d7c8ab91937167e3543beb08dec5
 
     let start = 0;
 
@@ -125,13 +121,9 @@ function App() {
         const logStr: string = await getDocById(FIRESTORE_COLLECTIONS.JOB_STATUS, id);
         setJobLogs(logStr);
     };
-
-    const toggleResults = () => {
-        if (resultUrl == "") {
-            fetchResultUrl();
-        }
-        setViewResults(!viewResults);
-    }
+    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
+    const showLogs = jobStatus == JOB_STATUS.FAILED;
+    const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
 
     const parseS3ListResponse = (xmlText: string): string[] => {
         const parser = new DOMParser();
@@ -219,56 +211,37 @@ function App() {
         setIsDownloading(false);
     }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 75d4c0cb3649d7c8ab91937167e3543beb08dec5
-    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
-    const showLogs = jobStatus == JOB_STATUS.FAILED;
-    const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
-
     return (
-<<<<<<< HEAD
         <div className="app-container">
-            <Header className="header" style={{justifyContent: "space-between"}}>
+            <Header className="header" style={{ justifyContent: "space-between" }}>
                 <h2 className="header-title">cellPACK demo</h2>
                 <Link href="https://github.com/mesoscope/cellpack" className="header-link">GitHub</Link>
             </Header>
             <Content className="content-container">
                 <PackingInput startPacking={startPacking} submitEnabled={submitEnabled} />
-                {jobStatus && <div className="status-container">
-                    <div><b>Status</b> {jobStatus}</div>
-                    {jobSucceeded && runTime > 0 && (<div><b>Run time</b> {runTime} sec</div>)}
-                    {jobSucceeded && (
-                        <div>
-                            <Button onClick={toggleResults}>Results</Button>
-                            <Button onClick={() => downloadOutputs(jobId)} loading={isDownloading}>
-                                Download Results
-                            </Button>
+                {jobStatus && (
+                    <div className="status-row">
+                        <div className="status-container status-bar">
+                            <div><b>Status</b> {jobStatus}</div>
+                            {jobSucceeded && runTime > 0 && (<div><b>Run time</b> {runTime} sec</div>)}
                         </div>
-                    )}
-                </div>}
+                        {jobSucceeded && (
+                            <Button 
+                                onClick={() => downloadOutputs(jobId)} 
+                                loading={isDownloading}
+                                color="primary"
+                                variant="filled"
+                                className="download-button"
+                            >
+                                Download Packing Result
+                            </Button>
+                        )}
+                    </div>
+                )}
                 {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             </Content>
-            {viewResults && resultUrl && <Viewer resultUrl={resultUrl} />}
+            {resultUrl && <Viewer resultUrl={resultUrl} />}
             <Footer className="footer" />
-=======
-        <div className="app">
-            <h1>Welcome to cellPACK</h1>
-            <PackingInput startPacking={startPacking} />
-            <h3>Job Status: {jobStatus}</h3>
-            {jobSucceeded && (
-                <div>
-                    {runTime > 0 && (<h4>Time to Run: {runTime} sec</h4>)}
-                    <Button onClick={toggleResults}>Results</Button>
-                    <Button onClick={() => downloadOutputs(jobId)} loading={isDownloading}>
-                        Download Results
-                    </Button>
-                </div>
-            )}
-            {showResults && <Viewer resultUrl={resultUrl} />}
-            {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
->>>>>>> 75d4c0c (remove hardcoded id)
         </div>
     );
 }

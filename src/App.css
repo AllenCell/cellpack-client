@@ -40,6 +40,24 @@
   padding-left: 20px;
 }
 
+.status-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.status-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.download-button {
+  height: auto;
+  min-height: 48px;
+}
+
 .footer {
   height: 128px;
   background-color: #ffffff;
