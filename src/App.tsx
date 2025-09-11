@@ -189,22 +189,25 @@ function App() {
             }
         }
         
+        // raw zip file data
         const zipBlob = await zip.generateAsync({ type: "blob" });
-        
+        // create a temporary download link and trigger it
         const downloadUrl = window.URL.createObjectURL(zipBlob);
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = `cellpack-outputs-${jobId}.zip`;
+        // append link to the body, simulate a click, and remove the link
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        // cleanup url and memory
         window.URL.revokeObjectURL(downloadUrl);
         
         console.log(`Downloaded zip with ${filesAdded} files`);
     };
 
-    const downloadOutputs = async () => {
-        const id = "take3"; // jobId;
+    const downloadOutputs = async (jobId: string) => {
+        const id = jobId;
         setIsDownloading(true);
         
         const outputsDir = await getOutputsDirectory(id);
@@ -217,6 +220,7 @@ function App() {
     const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
 
     return (
+<<<<<<< HEAD
         <div className="app-container">
             <Header className="header" style={{justifyContent: "space-between"}}>
                 <h2 className="header-title">cellPACK demo</h2>
@@ -230,7 +234,7 @@ function App() {
                     {jobSucceeded && (
                         <div>
                             <Button onClick={toggleResults}>Results</Button>
-                            <Button onClick={() => downloadOutputs()} loading={isDownloading}>
+                            <Button onClick={() => downloadOutputs(jobId)} loading={isDownloading}>
                                 Download Results
                             </Button>
                         </div>
@@ -240,6 +244,23 @@ function App() {
             </Content>
             {viewResults && resultUrl && <Viewer resultUrl={resultUrl} />}
             <Footer className="footer" />
+=======
+        <div className="app">
+            <h1>Welcome to cellPACK</h1>
+            <PackingInput startPacking={startPacking} />
+            <h3>Job Status: {jobStatus}</h3>
+            {jobSucceeded && (
+                <div>
+                    {runTime > 0 && (<h4>Time to Run: {runTime} sec</h4>)}
+                    <Button onClick={toggleResults}>Results</Button>
+                    <Button onClick={() => downloadOutputs(jobId)} loading={isDownloading}>
+                        Download Results
+                    </Button>
+                </div>
+            )}
+            {showResults && <Viewer resultUrl={resultUrl} />}
+            {showLogButton && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
+>>>>>>> 75d4c0c (remove hardcoded id)
         </div>
     );
 }
