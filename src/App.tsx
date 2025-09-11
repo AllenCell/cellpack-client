@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { Layout, Typography, Button } from "antd";
-import JSZip from "jszip";
 import "./App.css";
-import { getResultPath, getDocById, getJobStatus, addRecipe, getOutputsDirectory } from "./utils/firebase";
+import { getResultPath, getDocById, getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import {
     getSubmitPackingUrl,
@@ -14,6 +13,7 @@ import {
     FIRESTORE_FIELDS,
 } from "./constants/firebase";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
+import { downloadOutputs } from "./utils/aws";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import ErrorLogs from "./components/ErrorLogs";
@@ -33,7 +33,7 @@ function App() {
 
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    };
+    }
 
     const recipeHasChanged = async (recipeId: string, recipeString: string): Promise<boolean> => {
         const originalRecipe = await getFirebaseRecipe(recipeId);
@@ -125,89 +125,9 @@ function App() {
     const showLogs = jobStatus == JOB_STATUS.FAILED;
     const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
 
-    const parseS3ListResponse = (xmlText: string): string[] => {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-        const contents = xmlDoc.getElementsByTagName("Contents");
-        const fileNames: string[] = [];
-        
-        for (let i = 0; i < contents.length; i++) {
-            const keyElement = contents[i].getElementsByTagName("Key")[0];
-            if (keyElement) {
-                const fullPath = keyElement.textContent || "";
-                const fileName = fullPath.split("/").pop();
-                if (fileName && fileName.length > 0) {
-                    fileNames.push(fileName);
-                }
-            }
-        }
-        
-        return fileNames;
-    };
-
-    const downloadOutputsFromS3 = async (outputsDir: string, jobId: string) => {
-        // convert firebase console URL to S3 API format
-        // from: "https://us-west-2.console.aws.amazon.com/s3/buckets/cellpack-results/runs/test_single_sphere/id/"
-        // to bucket: "cellpack-results" and path: "runs/test_single_sphere/id"
-        const match = outputsDir.match(/s3\/buckets\/([^/]+)\/(.+)\/?$/);
-        if (!match) {
-            throw new Error("Invalid S3 URL format");
-        }
-        
-        const bucketName = match[1];
-        const folderPath = match[2].replace(/\/$/, "");
-        // temp note: list-type=2 is for version 2 of the API, provides object's name and metadata
-        const listUrl = `https://s3.us-west-2.amazonaws.com/${bucketName}?prefix=${folderPath}/&list-type=2`;
-        
-        console.log("Attempting to list S3 directory:", listUrl);
-        
-        const listResponse = await fetch(listUrl);
-        const xmlText = await listResponse.text();
-        const fileNames = parseS3ListResponse(xmlText);
-        
-        console.log(`Found ${fileNames.length} files:`, fileNames);
-        
-        const zip = new JSZip();
-        let filesAdded = 0;
-        
-        for (const fileName of fileNames) {
-            const fileUrl = `https://s3.us-west-2.amazonaws.com/${bucketName}/${folderPath}/${fileName}`;
-            console.log(`Downloading: ${fileUrl}`);
-            
-            const response = await fetch(fileUrl);
-            if (response.ok) {
-                const blob = await response.blob();
-                zip.file(fileName, blob);
-                filesAdded++;
-                console.log(`Added ${fileName} to zip`);
-            } else {
-                console.log(`Failed to download ${fileName}: ${response.status}`);
-            }
-        }
-        
-        // raw zip file data
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-        // create a temporary download link and trigger it
-        const downloadUrl = window.URL.createObjectURL(zipBlob);
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = `cellpack-outputs-${jobId}.zip`;
-        // append link to the body, simulate a click, and remove the link
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        // cleanup url and memory
-        window.URL.revokeObjectURL(downloadUrl);
-        
-        console.log(`Downloaded zip with ${filesAdded} files`);
-    };
-
-    const downloadOutputs = async (jobId: string) => {
-        const id = jobId;
+    const downloadResults = async (jobId: string) => {
         setIsDownloading(true);
-        
-        const outputsDir = await getOutputsDirectory(id);
-        await downloadOutputsFromS3(outputsDir, id);
+        await downloadOutputs(jobId);
         setIsDownloading(false);
     }
 
@@ -227,7 +147,7 @@ function App() {
                         </div>
                         {jobSucceeded && (
                             <Button 
-                                onClick={() => downloadOutputs(jobId)} 
+                                onClick={() => downloadResults(jobId)} 
                                 loading={isDownloading}
                                 color="primary"
                                 variant="filled"
