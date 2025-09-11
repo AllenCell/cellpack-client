@@ -39,3 +39,9 @@
   border-radius: 10px;
   padding-left: 20px;
 }
+
+.footer {
+  height: 128px;
+  background-color: #ffffff;
+  width: 100%;
+}

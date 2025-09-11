@@ -17,7 +17,7 @@ import Viewer from "./components/Viewer";
 import ErrorLogs from "./components/ErrorLogs";
 import "./App.css";
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {
@@ -139,6 +139,7 @@ function App() {
                 {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             </Content>
             {resultUrl && <Viewer resultUrl={resultUrl} />}
+            <Footer className="footer" />
         </div>
     );
 }
