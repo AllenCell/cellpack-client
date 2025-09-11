@@ -187,22 +187,25 @@ function App() {
             }
         }
         
+        // raw zip file data
         const zipBlob = await zip.generateAsync({ type: "blob" });
-        
+        // create a temporary download link and trigger it
         const downloadUrl = window.URL.createObjectURL(zipBlob);
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = `cellpack-outputs-${jobId}.zip`;
+        // append link to the body, simulate a click, and remove the link
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        // cleanup url and memory
         window.URL.revokeObjectURL(downloadUrl);
         
         console.log(`Downloaded zip with ${filesAdded} files`);
     };
 
-    const downloadOutputs = async () => {
-        const id = "take3"; // jobIdFromDownload || jobId;
+    const downloadOutputs = async (jobId: string) => {
+        const id = jobId;
         setIsDownloading(true);
         
         const outputsDir = await getOutputsDirectory(id);
@@ -224,7 +227,7 @@ function App() {
                 <div>
                     {runTime > 0 && (<h4>Time to Run: {runTime} sec</h4>)}
                     <Button onClick={toggleResults}>Results</Button>
-                    <Button onClick={() => downloadOutputs()} loading={isDownloading}>
+                    <Button onClick={() => downloadOutputs(jobId)} loading={isDownloading}>
                         Download Results
                     </Button>
                 </div>
