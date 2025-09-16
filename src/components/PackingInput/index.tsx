@@ -70,12 +70,14 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 />
             </div>
             <div className="recipe-content">
-                <RecipeForm onStartPacking={handleStartPacking} />
                 <JSONViewer
                     title="Recipe"
                     content={recipeString}
                     isEditable={fieldsToDisplay === undefined}
                     onChange={handleRecipeStringChange}
+                />
+                <RecipeForm
+                    onStartPacking={handleStartPacking}
                 />
             </div>
         </div>
