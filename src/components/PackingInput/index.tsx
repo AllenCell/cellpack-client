@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
+import { PackingContext } from "../../context";
 import { Dictionary, EditableField, PackingInputs } from "../../types";
 import { getPackingInputsDict } from "../../utils/firebase";
-import { Button } from "antd";
 import { getFirebaseRecipe, jsonToString } from "../../utils/recipeLoader";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
-import InputSwitch from "../InputSwitch";
+import RecipeForm from "../RecipeForm";
 import "./style.css";
 
 
@@ -20,7 +20,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const [selectedConfigId, setSelectedConfigId] = useState("");
     const [inputOptions, setInputOptions] = useState<Dictionary<PackingInputs>>({});
     const [recipeStr, setRecipeStr] = useState<string>("");
-    const [viewRecipe, setViewRecipe] = useState<boolean>(true);
     const [fieldsToDisplay, setFieldsToDisplay] = useState<EditableField[] | undefined>(undefined);
 
     useEffect(() => {
@@ -49,10 +48,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const runPacking = async () => {
         startPacking(selectedRecipeId, selectedConfigId, recipeStr);
     };
-
-    const toggleRecipe = () => {
-        setViewRecipe(!viewRecipe);
-    }
 
     const handleFormChange = (changes: Dictionary<string | number>) => {
         const recipeObj = JSON.parse(recipeStr);
@@ -96,61 +91,37 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     return (
         <div>
-            <div className="recipe-select">
-                <div>Packing Recipe</div>
-                <Dropdown
-                    placeholder="Select an option"
-                    options={inputOptions}
-                    onChange={selectInput}
-                />
-            </div>
-            <div className="recipe-content">
-                <div className="recipe-json">
+            <PackingContext.Provider value={{
+                recipeId: selectedRecipeId,
+                configId: selectedConfigId,
+                recipeString: recipeStr,
+                fieldsToDisplay: fieldsToDisplay,
+                submitPacking: runPacking,
+                updateRecipeObj: handleFormChange,
+                getCurrentValue: getCurrentValue
+            }}>
+                <div className="recipe-select">
+                    <div>Packing Recipe</div>
+                    <Dropdown
+                        placeholder="Select an option"
+                        options={inputOptions}
+                        onChange={selectInput}
+                    />
+                </div>
+                <div className="recipe-content">
                     <JSONViewer
                         title="Recipe"
                         content={recipeStr}
-                        isVisible={viewRecipe}
                         isEditable={fieldsToDisplay === undefined}
-                        onToggle={toggleRecipe}
                         onChange={setRecipeStr}
                     />
+                    <RecipeForm
+                        submitEnabled={submitEnabled}
+                        handleFormChange={handleFormChange}
+                        getCurrentValue={getCurrentValue}
+                    />
                 </div>
-                <div className="recipe-form">
-                    {fieldsToDisplay && (
-                        <div className="input-container">
-                            <h3>Options</h3>
-                            {fieldsToDisplay.map((field) => (
-                                <InputSwitch
-                                    key={field.id}
-                                    displayName={field.name}
-                                    inputType={field.input_type}
-                                    dataType={field.data_type}
-                                    description={field.description}
-                                    defaultValue={field.default}
-                                    min={field.min}
-                                    max={field.max}
-                                    options={field.options}
-                                    id={field.path}
-                                    gradientOptions={field.gradient_options}
-                                    changeHandler={handleFormChange}
-                                    getCurrentValue={getCurrentValue}
-                                />
-                            ))}
-                        </div>
-                    )}
-                    {selectedRecipeId && (
-                        <Button
-                            onClick={runPacking}
-                            color="primary"
-                            variant="filled"
-                            disabled={!submitEnabled}
-                            style={{ width: '100%' }}
-                        >
-                            Pack!
-                        </Button>
-                    )}
-                </div>
-            </div>
+            </PackingContext.Provider>
         </div>
     );
 };
