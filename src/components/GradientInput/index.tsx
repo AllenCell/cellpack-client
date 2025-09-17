@@ -20,44 +20,6 @@ interface GradientInputProps {
     defaultValue: string;
 };
 
-const GradientStrength = (props: GradientStrength) => {
-    const { displayName, description, path, defaultValue, min, max } = props;
-    const { updateRecipeObj } = useContext(PackingContext);
-    const [sliderValue, setSliderValue] = useState<number>(defaultValue);
-
-    const handleStrengthChange = (value: number | null, path: string) => {
-        if (value === null) return;
-        const roundedValue = Number(value.toFixed(2));
-        setSliderValue(roundedValue);
-        updateRecipeObj({[path]: Number((1 - roundedValue).toFixed(2))});
-    };
-
-    return (
-        <div className="input-switch">
-            <div className="input-label">
-                <strong>{displayName}</strong>
-                <small>{description}</small>
-            </div>
-            <Slider
-                min={min}
-                max={max}
-                onChange={(value) => handleStrengthChange(value, path)}
-                value={sliderValue}
-                step={0.01}
-                style={{ width: 100 }}
-            />
-            <InputNumber
-                min={min}
-                max={max}
-                value={sliderValue}
-                onChange={(value) => handleStrengthChange(value, path)}
-                step={0.01}
-                style={{ margin: '0 16px' }}
-            />
-        </div>
-    )
-}
-
 const GradientInput = (props: GradientInputProps): JSX.Element => {
     const { displayName, description, gradientOptions, defaultValue } = props;
     const { updateRecipeObj, getCurrentValue } = useContext(PackingContext);
@@ -71,6 +33,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         max: initialOption?.strength_max || 0.99,
     };
     const [gradientStrengthData, setGradientStrengthData] = useState<GradientStrength | undefined>(initialGradientStrength);
+    const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength.defaultValue);
 
     const gradientSelected = (value: string) => {
         const selectedOption = gradientOptions.find(option => option.value === value);
@@ -95,11 +58,18 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                 max: selectedOption.strength_max || 0.99,
             };
             setGradientStrengthData(strengthData);
+            setSliderValue(strengthData.defaultValue);
         } else {
             setGradientStrengthData(undefined);
         }
-
     }
+
+    const handleStrengthChange = (value: number | null, path: string) => {
+        if (value === null) return;
+        const roundedValue = Number(value.toFixed(2));
+        setSliderValue(roundedValue);
+        updateRecipeObj({[path]: Number((1 - roundedValue).toFixed(2))});
+    };
 
     const selectOptions = gradientOptions.map((option) => ({
         label: option.display_name,
@@ -120,7 +90,32 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                     style={{ width: 200, margin: '0 16px' }}
                 />
             </div>
-            {gradientStrengthData && <GradientStrength {...gradientStrengthData} />}
+            {gradientStrengthData && (
+                <div className="input-switch">
+                    <div className="input-label">
+                        <strong>{gradientStrengthData.displayName}</strong>
+                        <small>{gradientStrengthData.description}</small>
+                    </div>
+                    <Slider
+                        id={gradientStrengthData.displayName}
+                        min={gradientStrengthData.min}
+                        max={gradientStrengthData.max}
+                        onChange={(value) => handleStrengthChange(value, gradientStrengthData.path)}
+                        value={sliderValue}
+                        step={0.01}
+                        style={{ width: 100 }}
+                    />
+                    <InputNumber
+                        id={gradientStrengthData.displayName + " Input"}
+                        min={gradientStrengthData.min}
+                        max={gradientStrengthData.max}
+                        value={sliderValue}
+                        onChange={(value) => handleStrengthChange(value, gradientStrengthData.path)}
+                        step={0.01}
+                        style={{ margin: '0 16px' }}
+                    />
+                </div>
+            )}
         </div>
     );
 };
