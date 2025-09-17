@@ -4,7 +4,7 @@ import { Dictionary, EditableField } from "./types";
 interface PackingContextType {
     recipeId: string;
     configId: string;
-    recipeString?: string;
+    recipeString: string;
     fieldsToDisplay?: EditableField[];
     updateRecipeObj: (updates: Dictionary<string | number>) => void;
     getCurrentValue: (path: string) => string | number | undefined;
