@@ -115,11 +115,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                         isEditable={fieldsToDisplay === undefined}
                         onChange={setRecipeStr}
                     />
-                    <RecipeForm
-                        submitEnabled={submitEnabled}
-                        handleFormChange={handleFormChange}
-                        getCurrentValue={getCurrentValue}
-                    />
+                    <RecipeForm submitEnabled={submitEnabled} />
                 </div>
             </PackingContext.Provider>
         </div>
