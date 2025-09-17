@@ -110,7 +110,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         <div>
             <div className="input-switch">
                 <div className="input-label">
-                    <strong>{displayName} </strong>
+                    <strong>{displayName}</strong>
                     <small>{description}</small>
                 </div>
                 <Select
@@ -120,9 +120,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                     style={{ width: 200, margin: '0 16px' }}
                 />
             </div>
-            {gradientStrengthData && (
-                <GradientStrength {...gradientStrengthData} />
-            )}
+            {gradientStrengthData && <GradientStrength {...gradientStrengthData} />}
         </div>
     );
 };
