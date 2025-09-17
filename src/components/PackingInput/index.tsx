@@ -97,7 +97,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 recipeString: recipeStr,
                 fieldsToDisplay: fieldsToDisplay,
                 submitPacking: runPacking,
-                updateRecipeObj: handleFormChange,
+                changeHandler: handleFormChange,
                 getCurrentValue: getCurrentValue
             }}>
                 <div className="recipe-select">

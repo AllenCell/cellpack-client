@@ -8,7 +8,7 @@ interface GradientStrength {
     displayName: string;
     description: string;
     path: string;
-    defaultValue: number;
+    default: number;
     min: number;
     max: number;
 };
@@ -22,18 +22,18 @@ interface GradientInputProps {
 
 const GradientInput = (props: GradientInputProps): JSX.Element => {
     const { displayName, description, gradientOptions, defaultValue } = props;
-    const { updateRecipeObj, getCurrentValue } = useContext(PackingContext);
+    const { changeHandler, getCurrentValue } = useContext(PackingContext);
     const initialOption = gradientOptions.find(option => option.value === defaultValue);
     const initialGradientStrength: GradientStrength = {
         displayName: initialOption?.strength_display_name || initialOption?.display_name + " Strength",
         description: initialOption?.strength_description || "",
         path: initialOption?.strength_path || "",
-        defaultValue: 1 - (initialOption?.strength_default || 0.01),
+        default: 1 - (initialOption?.strength_default || 0.01),
         min: initialOption?.strength_min || 0,
         max: initialOption?.strength_max || 0.99,
     };
     const [gradientStrengthData, setGradientStrengthData] = useState<GradientStrength | undefined>(initialGradientStrength);
-    const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength.defaultValue);
+    const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength.default);
 
     const gradientSelected = (value: string) => {
         const selectedOption = gradientOptions.find(option => option.value === value);
@@ -44,21 +44,21 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         if (selectedOption.packing_mode && selectedOption.packing_mode_path) {
             changes[selectedOption.packing_mode_path] = selectedOption.packing_mode;
         }
-        updateRecipeObj(changes);
+        changeHandler(changes);
 
         // Display relevant strength slider if applicable
         if (selectedOption.strength_path) {
             const currVal = getCurrentValue(selectedOption.strength_path) as number | undefined || selectedOption.strength_default || 0.01;
-            const strengthData: GradientStrength = {
+            const strengthData: GradientStrength | undefined = initialOption && initialOption.strength_path && {
                 displayName: selectedOption.strength_display_name || selectedOption.display_name + " Strength",
                 description: selectedOption.strength_description || "",
                 path: selectedOption.strength_path,
-                defaultValue: (1 - currVal),
+                default: (1 - currVal),
                 min: selectedOption.strength_min || 0,
                 max: selectedOption.strength_max || 0.99,
-            };
+            } || undefined;
             setGradientStrengthData(strengthData);
-            setSliderValue(strengthData.defaultValue);
+            setSliderValue(strengthData?.default || 0);
         } else {
             setGradientStrengthData(undefined);
         }
@@ -68,7 +68,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         if (value === null) return;
         const roundedValue = Number(value.toFixed(2));
         setSliderValue(roundedValue);
-        updateRecipeObj({[path]: Number((1 - roundedValue).toFixed(2))});
+        changeHandler({[path]: Number((1 - roundedValue).toFixed(2))});
     };
 
     const selectOptions = gradientOptions.map((option) => ({

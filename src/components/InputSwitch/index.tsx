@@ -20,13 +20,13 @@ interface InputSwitchProps {
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions } = props;
-    const { updateRecipeObj } = useContext(PackingContext);
+    const { changeHandler } = useContext(PackingContext);
     const [sliderValue, setSliderValue] = useState(defaultValue);
 
     const handleSliderChange = (value: number | null) => {
         if (value === null) return;
         setSliderValue(value);
-        updateRecipeObj({[id]: value});
+        changeHandler({[id]: value});
     };
 
     switch (inputType) {
@@ -71,7 +71,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <Select
                         options={selectOptions}
                         defaultValue={defaultValue as string}
-                        onChange={(e) => updateRecipeObj({[id]: e})}
+                        onChange={(e) => changeHandler({[id]: e})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
@@ -98,7 +98,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     </div>
                     <Input
                         defaultValue={defaultValue as string}
-                        onChange={(e) => updateRecipeObj({[id]: e.target.value})}
+                        onChange={(e) => changeHandler({[id]: e.target.value})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
