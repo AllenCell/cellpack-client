@@ -38,7 +38,7 @@ const RecipeForm = (props: RecipeFormProps): JSX.Element => {
                     ))}
                 </div>
             )}
-            { recipeId && (
+            {recipeId && (
                 <Button
                     onClick={submitPacking}
                     color="primary"
