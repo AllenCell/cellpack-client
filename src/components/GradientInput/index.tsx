@@ -24,14 +24,14 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
     const { displayName, description, gradientOptions, defaultValue } = props;
     const { changeHandler, getCurrentValue } = useContext(PackingContext);
     const initialOption = gradientOptions.find(option => option.value === defaultValue);
-    const initialGradientStrength: GradientStrength | undefined = initialOption && initialOption.strength_path && {
+    const initialGradientStrength: GradientStrength | undefined = initialOption && initialOption.strength_path ? {
         displayName: initialOption?.strength_display_name || initialOption?.display_name + " Strength",
         description: initialOption?.strength_description || "",
         path: initialOption?.strength_path || "",
         default: 1 - (initialOption?.strength_default || 0.01),
         min: initialOption?.strength_min || 0,
         max: initialOption?.strength_max || 0.99,
-    } || undefined;
+    } : undefined;
     const [gradientStrengthData, setGradientStrengthData] = useState<GradientStrength | undefined>(initialGradientStrength);
     const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength?.default || 0);
 
@@ -49,7 +49,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         // Display relevant strength slider if applicable
         if (selectedOption.strength_path) {
             const currVal = getCurrentValue(selectedOption.strength_path) as number | undefined || selectedOption.strength_default || 0.01;
-            const strengthData: GradientStrength =  {
+            const strengthData: GradientStrength = {
                 displayName: selectedOption.strength_display_name || selectedOption.display_name + " Strength",
                 description: selectedOption.strength_description || "",
                 path: selectedOption.strength_path,
