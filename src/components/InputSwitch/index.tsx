@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Input, InputNumber, Select, Slider } from 'antd';
-import { Dictionary, GradientOption } from "../../types";
+import { GradientOption } from "../../types";
+import { PackingContext } from "../../context";
 import GradientInput from "../GradientInput";
 import "./style.css";
 
@@ -15,18 +16,17 @@ interface InputSwitchProps {
     max?: number;
     options?: string[];
     gradientOptions?: GradientOption[];
-    changeHandler: (changes: Dictionary<string | number>) => void;
-    getCurrentValue: (path: string) => string | number | undefined;
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, changeHandler, id, gradientOptions, getCurrentValue } = props;
+    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions } = props;
+    const { updateRecipeObj } = useContext(PackingContext);
     const [sliderValue, setSliderValue] = useState(defaultValue);
 
     const handleSliderChange = (value: number | null) => {
         if (value === null) return;
         setSliderValue(value);
-        changeHandler({[id]: value});
+        updateRecipeObj({[id]: value});
     };
 
     switch (inputType) {
@@ -71,7 +71,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <Select
                         options={selectOptions}
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler({[id]: e})}
+                        onChange={(e) => updateRecipeObj({[id]: e})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
@@ -85,8 +85,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         description={description}
                         gradientOptions={gradientOptions}
                         defaultValue={defaultValue as string}
-                        changeHandler={changeHandler}
-                        getCurrentValue={getCurrentValue}
                     />
                 ) || <div>Issue reading gradient options</div>
             );
@@ -100,7 +98,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     </div>
                     <Input
                         defaultValue={defaultValue as string}
-                        onChange={(e) => changeHandler({[id]: e.target.value})}
+                        onChange={(e) => updateRecipeObj({[id]: e.target.value})}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
