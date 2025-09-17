@@ -24,16 +24,16 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
     const { displayName, description, gradientOptions, defaultValue } = props;
     const { changeHandler, getCurrentValue } = useContext(PackingContext);
     const initialOption = gradientOptions.find(option => option.value === defaultValue);
-    const initialGradientStrength: GradientStrength = {
+    const initialGradientStrength: GradientStrength | undefined = initialOption && initialOption.strength_path && {
         displayName: initialOption?.strength_display_name || initialOption?.display_name + " Strength",
         description: initialOption?.strength_description || "",
         path: initialOption?.strength_path || "",
         default: 1 - (initialOption?.strength_default || 0.01),
         min: initialOption?.strength_min || 0,
         max: initialOption?.strength_max || 0.99,
-    };
+    } || undefined;
     const [gradientStrengthData, setGradientStrengthData] = useState<GradientStrength | undefined>(initialGradientStrength);
-    const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength.default);
+    const [sliderValue, setSliderValue] = useState<number>(initialGradientStrength?.default || 0);
 
     const gradientSelected = (value: string) => {
         const selectedOption = gradientOptions.find(option => option.value === value);
@@ -49,16 +49,16 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         // Display relevant strength slider if applicable
         if (selectedOption.strength_path) {
             const currVal = getCurrentValue(selectedOption.strength_path) as number | undefined || selectedOption.strength_default || 0.01;
-            const strengthData: GradientStrength | undefined = initialOption && initialOption.strength_path && {
+            const strengthData: GradientStrength =  {
                 displayName: selectedOption.strength_display_name || selectedOption.display_name + " Strength",
                 description: selectedOption.strength_description || "",
                 path: selectedOption.strength_path,
                 default: (1 - currVal),
                 min: selectedOption.strength_min || 0,
                 max: selectedOption.strength_max || 0.99,
-            } || undefined;
+            };
             setGradientStrengthData(strengthData);
-            setSliderValue(strengthData?.default || 0);
+            setSliderValue(strengthData.default);
         } else {
             setGradientStrengthData(undefined);
         }
