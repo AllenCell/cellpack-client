@@ -55,7 +55,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const handleFormChange = (changes: Dictionary<string | number>) => {
         if (!selectedInput) return;
 
-        const recObj = selectedInput.currentRecipeObj;
+        const recObj: any = selectedInput.currentRecipeObj;
         for (const [id, value] of Object.entries(changes)) {
             const keys = id.split('.');
             let current = recObj;
@@ -84,7 +84,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         if (!selectedInput) return undefined;
 
         const keys = path.split('.');
-        let current = selectedInput.currentRecipeObj;
+        let current: any = selectedInput.currentRecipeObj;
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
             if (current[key] === undefined) {
