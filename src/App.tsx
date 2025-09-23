@@ -18,7 +18,7 @@ import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import ErrorLogs from "./components/ErrorLogs";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 const { Link } = Typography;
 
 function App() {
@@ -161,7 +161,6 @@ function App() {
                 {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             </Content>
             {resultUrl && <Viewer resultUrl={resultUrl} />}
-            <Footer className="footer" />
         </div>
     );
 }
