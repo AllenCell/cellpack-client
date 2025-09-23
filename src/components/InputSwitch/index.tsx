@@ -15,7 +15,7 @@ interface InputSwitchProps {
     inputType: string;
     dataType: string;
     description: string;
-    id: string;
+    id: string; // JSON path (supports dot + bracket notation)
     defaultValue: string | number;
     min?: number;
     max?: number;
@@ -65,6 +65,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         updateRecipeObj(selectedRecipeId, { [id]: value });
     };
 
+
+    // UI
     switch (inputType) {
         case "slider": {
             const numericValue =
@@ -77,6 +79,11 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
+                        {changed && (
+                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
+                                default: {String(original)}
+                            </small>
+                        )}
                     </div>
                     <div className="input-content">
                         <Slider
@@ -111,6 +118,11 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
+                        {changed && (
+                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
+                                default: {String(original)}
+                            </small>
+                        )}
                     </div>
                     <div className="input-content">
                         <Select
@@ -143,6 +155,11 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
+                        {changed && (
+                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
+                                default: {String(original)}
+                            </small>
+                        )}
                     </div>
                     <Input
                         value={String(value)}
