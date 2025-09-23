@@ -1,16 +1,26 @@
 import { Button } from "antd";
-import { useContext } from "react";
-import { PackingContext } from "../../context";
 import InputSwitch from "../InputSwitch";
 import "./style.css";
+import {
+    useSelectedRecipeId,
+    useFieldsToDisplay,
+    useIsCurrentRecipeModified,
+    useRestoreRecipeDefault,
+    useIsPacking,
+} from "../../state/store";
 
 interface RecipeFormProps {
     submitEnabled: boolean;
+    onStartPacking: () => Promise<void>;
 }
 
-const RecipeForm = (props: RecipeFormProps): JSX.Element => {
-    const { submitEnabled } = props;
-    const { recipeId, fieldsToDisplay, submitPacking } = useContext(PackingContext);
+const RecipeForm = ({ submitEnabled, onStartPacking }: RecipeFormProps) => {
+    const recipeId = useSelectedRecipeId();
+    const fieldsToDisplay = useFieldsToDisplay();
+    const isModified = useIsCurrentRecipeModified();
+    const restoreRecipeDefault = useRestoreRecipeDefault();
+    const isPacking = useIsPacking();
+
     return (
         <div className="recipe-form">
             {fieldsToDisplay && (
@@ -33,13 +43,22 @@ const RecipeForm = (props: RecipeFormProps): JSX.Element => {
                     ))}
                 </div>
             )}
-            { recipeId && (
+            {recipeId && isModified && (
                 <Button
-                    onClick={submitPacking}
+                    onClick={() => restoreRecipeDefault(recipeId)}
+                    variant="outlined"
+                    style={{ width: "100%", marginBottom: "8px" }}
+                >
+                    Restore Default Recipe Options
+                </Button>
+            )}
+            {recipeId && (
+                <Button
+                    onClick={onStartPacking}
                     color="primary"
                     variant="filled"
-                    disabled={!submitEnabled}
-                    style={{ width: '100%' }}
+                    disabled={isPacking || !submitEnabled}
+                    style={{ width: "100%" }}
                 >
                     Pack!
                 </Button>
