@@ -17,7 +17,15 @@ jobs:
       - name: Run Linter
         run: bun run lint
 
+      - name: Run Typechecker
+        # Run type check even if the previous linter step failed
+        if: success() || failure()
+        run: bun run typeCheck
+
       - name: Run Tests
         # Run test even if the previous step(s) failed
         if: success() || failure()
-        run: bun test
+        run: bun test --coverage
+
+      - name: Vitest Coverage Report
+        uses: davelosert/vitest-coverage-report-action@v2.1.1
