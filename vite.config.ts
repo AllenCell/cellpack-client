@@ -1,7 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path';
 
+// https://vite.dev/config/
 export default defineConfig({
   build: {
     rollupOptions: {
@@ -12,9 +13,4 @@ export default defineConfig({
     }
   },
   plugins: [react()],
-  test: {
-    coverage: {
-      reporter: ['text', 'json-summary', 'json']
-    }
-  }
 })
