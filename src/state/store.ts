@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { get as lodashGet, set as lodashSet } from 'lodash-es';
 import { PackingInputs } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
-import { JSONValue, setAtPath, getAtPath } from "../utils/jsonPath";
 
 export interface RecipeData {
     id: string;
@@ -136,16 +136,12 @@ export const useRecipeStore = create<RecipeStore>()(
             if (!rec) return;
 
             try {
-                const obj: JSONValue = JSON.parse(rec.currentString);
-                let mutated = false;
+                const obj = JSON.parse(rec.currentString);
 
                 for (const [path, value] of Object.entries(updates)) {
-                    mutated = setAtPath(obj, path, value as JSONValue) || mutated;
+                    lodashSet(obj, path, value);
                 }
-
-                if (mutated) {
-                    get().updateRecipeString(recipeId, JSON.stringify(obj, null, 2));
-                }
+                get().updateRecipeString(recipeId, JSON.stringify(obj, null, 2));
             } catch {
                 /* ignore */
             }
@@ -162,9 +158,8 @@ export const useRecipeStore = create<RecipeStore>()(
             const str = recipes[selectedRecipeId]?.currentString;
             if (!str) return undefined;
             try {
-                const obj: JSONValue = JSON.parse(str);
-                const v = getAtPath(obj, path);
-                return typeof v === "string" || typeof v === "number" ? v : undefined;
+                const obj = JSON.parse(str);
+                return lodashGet(obj, path);
             } catch {
                 return undefined;
             }
@@ -190,8 +185,8 @@ export const useRecipeStore = create<RecipeStore>()(
             const str = recipes[selectedRecipeId]?.originalString;
             if (!str) return undefined;
             try {
-                const obj: JSONValue = JSON.parse(str);
-                const v = getAtPath(obj, path);
+                const obj = JSON.parse(str);
+                const v = lodashGet(obj, path);
                 return typeof v === "string" || typeof v === "number" ? v : undefined;
             } catch {
                 return undefined;
