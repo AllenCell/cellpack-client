@@ -4,8 +4,6 @@ import "./style.css";
 import {
     useSelectedRecipeId,
     useFieldsToDisplay,
-    useIsCurrentRecipeModified,
-    useRestoreRecipeDefault,
     useIsPacking,
 } from "../../state/store";
 
@@ -17,8 +15,6 @@ interface RecipeFormProps {
 const RecipeForm = ({ submitEnabled, onStartPacking }: RecipeFormProps) => {
     const recipeId = useSelectedRecipeId();
     const fieldsToDisplay = useFieldsToDisplay();
-    const isModified = useIsCurrentRecipeModified();
-    const restoreRecipeDefault = useRestoreRecipeDefault();
     const isPacking = useIsPacking();
 
     return (
@@ -42,15 +38,6 @@ const RecipeForm = ({ submitEnabled, onStartPacking }: RecipeFormProps) => {
                         />
                     ))}
                 </div>
-            )}
-            {recipeId && isModified && (
-                <Button
-                    onClick={() => restoreRecipeDefault(recipeId)}
-                    variant="outlined"
-                    style={{ width: "100%", marginBottom: "8px" }}
-                >
-                    Restore Default Recipe Options
-                </Button>
             )}
             {recipeId && (
                 <Button

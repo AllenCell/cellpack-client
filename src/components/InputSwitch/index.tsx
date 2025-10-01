@@ -5,7 +5,6 @@ import {
     useSelectedRecipeId,
     useUpdateRecipeObj,
     useGetCurrentValue,
-    useGetOriginalValue,
     useCurrentRecipeString,
 } from "../../state/store";
 import GradientInput from "../GradientInput";
@@ -30,7 +29,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const selectedRecipeId = useSelectedRecipeId();
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
-    const getOriginalValue = useGetOriginalValue();
     const recipeVersion = useCurrentRecipeString();
 
     // Stable getter for current value, with default fallback
@@ -47,13 +45,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         setValue(getCurrentValueMemo());
     }, [getCurrentValueMemo, recipeVersion]);
 
-    // Default vs current display logic
-    const original = getOriginalValue(id);
-    const changed =
-        original !== undefined &&
-        String(original) !== String(getCurrentValue(id));
-
-    // Handlers
     const handleSliderChange = (n: number | null) => {
         if (n == null || !selectedRecipeId) return;
         setValue(n);
@@ -72,7 +63,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         updateRecipeObj(selectedRecipeId, { [id]: s });
     };
 
-    // UI
     switch (inputType) {
         case "slider": {
             const numericValue =
@@ -84,11 +74,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
-                        {changed && (
-                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
-                                default: {String(original)}
-                            </small>
-                        )}
                     </div>
                     <Slider
                         min={min}
@@ -120,11 +105,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
-                        {changed && (
-                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
-                                default: {String(original)}
-                            </small>
-                        )}
                     </div>
                     <Select
                         options={selectOptions}
@@ -155,11 +135,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
-                        {changed && (
-                            <small style={{ marginLeft: 8, opacity: 0.7 }}>
-                                default: {String(original)}
-                            </small>
-                        )}
                     </div>
                     <Input
                         value={String(value)}
