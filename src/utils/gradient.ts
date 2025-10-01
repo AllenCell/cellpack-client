@@ -25,9 +25,6 @@ export const round2 = (n: number) => Number(n.toFixed(2));
  *   the *current* value at that path every render (not just defaultValue).
  * - We then match that value against gradientOptions to get the full
  *   option object, which contains strength settings, etc.
- *
- * This replaces the old local-state approach, ensuring that Restore /
- * navigation stay in sync with the store.
  */
 export function getSelectedGradient(
     gradientOptions: GradientOption[],
