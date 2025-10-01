@@ -15,7 +15,7 @@ interface InputSwitchProps {
     inputType: string;
     dataType: string;
     description: string;
-    id: string; // JSON path (supports dot + bracket notation)
+    id: string;
     defaultValue: string | number;
     min?: number;
     max?: number;
