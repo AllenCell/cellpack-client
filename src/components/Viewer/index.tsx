@@ -7,7 +7,7 @@ interface ViewerProps {
 const Viewer = (props: ViewerProps): JSX.Element => {
     const { resultUrl } = props;
     return (
-        <div>
+        <div className="viewer-container">
             <iframe className="simularium-embed" src={resultUrl} />
         </div>
     );
