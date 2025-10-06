@@ -8,11 +8,10 @@ import {
 } from "../../state/store";
 
 interface RecipeFormProps {
-    submitEnabled: boolean;
     onStartPacking: () => Promise<void>;
 }
 
-const RecipeForm = ({ submitEnabled, onStartPacking }: RecipeFormProps) => {
+const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
     const recipeId = useSelectedRecipeId();
     const fieldsToDisplay = useFieldsToDisplay();
     const isPacking = useIsPacking();
@@ -44,7 +43,7 @@ const RecipeForm = ({ submitEnabled, onStartPacking }: RecipeFormProps) => {
                     onClick={onStartPacking}
                     color="primary"
                     variant="filled"
-                    disabled={isPacking || !submitEnabled}
+                    disabled={isPacking}
                     style={{ width: "100%" }}
                 >
                     Pack!

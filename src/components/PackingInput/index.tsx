@@ -19,11 +19,10 @@ import "./style.css";
 
 interface PackingInputProps {
     startPacking: (recipeId: string, configId: string, recipeString: string) => Promise<void>;
-    submitEnabled: boolean;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
-    const { startPacking, submitEnabled } = props;
+    const { startPacking } = props;
     const selectedRecipeId = useSelectedRecipeId();
     const recipeString = useCurrentRecipeString();
     const fieldsToDisplay = useFieldsToDisplay();
@@ -78,7 +77,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     onChange={handleRecipeStringChange}
                 />
                 <RecipeForm
-                    submitEnabled={submitEnabled}
                     onStartPacking={handleStartPacking}
                 />
             </div>

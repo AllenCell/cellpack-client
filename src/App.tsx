@@ -115,7 +115,6 @@ function App() {
         setJobLogs(logStr);
     };
     const showLogs = jobStatus == JOB_STATUS.FAILED;
-    const submitEnabled = (jobStatus == "" || jobStatus == JOB_STATUS.DONE || jobStatus == JOB_STATUS.FAILED);
 
     return (
         <div className="app-container">
@@ -124,7 +123,7 @@ function App() {
                 <Link href="https://github.com/mesoscope/cellpack" className="header-link">GitHub</Link>
             </Header>
             <Content className="content-container">
-                <PackingInput startPacking={startPacking} submitEnabled={submitEnabled} />
+                <PackingInput startPacking={startPacking} />
                 {jobStatus && <StatusBar jobStatus={jobStatus} runTime={runTime} jobId={jobId} />}
                 {showLogs && <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />}
             </Content>
