@@ -143,7 +143,8 @@ export const useRecipeStore = create<RecipeStore>()(
                 }
                 get().updateRecipeString(recipeId, JSON.stringify(obj, null, 2));
             } catch {
-                /* ignore */
+                // TODO: better error handling
+                console.warn("Failed to update recipe object")
             }
         },
 
@@ -161,6 +162,7 @@ export const useRecipeStore = create<RecipeStore>()(
                 const obj = JSON.parse(str);
                 return lodashGet(obj, path);
             } catch {
+                console.warn("Failed to retrieve value.")
                 return undefined;
             }
         },
@@ -189,6 +191,7 @@ export const useRecipeStore = create<RecipeStore>()(
                 const v = lodashGet(obj, path);
                 return typeof v === "string" || typeof v === "number" ? v : undefined;
             } catch {
+                console.warn("Failed to retrieve default value.")
                 return undefined;
             }
         },
