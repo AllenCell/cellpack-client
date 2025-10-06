@@ -39,14 +39,14 @@ export function getSelectedGradient(
         return { currentGradient: defaultValue, selectedOption: { value: defaultValue, display_name: defaultValue, path: "" } as GradientOption };
     }
 
-    // 2) Shared selector path (all options for this control share it)
+    // Shared selector path (all options for this control share it)
     const selectorPath = gradientOptions[0].path ?? "";
 
-    // 3) Current gradient string from store, or fallback to default
+    // Current gradient string from store, or fallback to default
     const raw = selectorPath ? getCurrentValue(selectorPath) : undefined;
     const currentGradient = (typeof raw === "string" ? raw : defaultValue) ?? defaultValue;
 
-    // 4) The full option object for that value, or first as fallback
+    // The full option object for that value, or first as fallback
     const selectedOption =
         gradientOptions.find(o => o.value === currentGradient) ?? gradientOptions[0];
 
