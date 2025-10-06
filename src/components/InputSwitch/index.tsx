@@ -45,22 +45,10 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         setValue(getCurrentValueMemo());
     }, [getCurrentValueMemo, recipeVersion]);
 
-    const handleSliderChange = (n: number | null) => {
-        if (n == null || !selectedRecipeId) return;
-        setValue(n);
-        updateRecipeObj(selectedRecipeId, { [id]: n });
-    };
-
-    const handleSelectChange = (s: string) => {
-        if (!selectedRecipeId) return;
-        setValue(s);
-        updateRecipeObj(selectedRecipeId, { [id]: s });
-    };
-
-    const handleInputChange = (s: string) => {
-        if (!selectedRecipeId) return;
-        setValue(s);
-        updateRecipeObj(selectedRecipeId, { [id]: s });
+    const handleInputChange = (value: string | number | null) => {
+        if (value == null || !selectedRecipeId) return;
+        setValue(value);
+        updateRecipeObj(selectedRecipeId, { [id]: value });
     };
 
     switch (inputType) {
@@ -79,7 +67,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         min={min}
                         max={max}
                         step={step}
-                        onChange={handleSliderChange}
+                        onChange={handleInputChange}
                         value={numericValue}
                         style={{ width: 100 }}
                     />
@@ -89,7 +77,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         step={step}
                         style={{ margin: "0 16px" }}
                         value={numericValue}
-                        onChange={handleSliderChange}
+                        onChange={handleInputChange}
                     />
                 </div>
             );
@@ -109,7 +97,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <Select
                         options={selectOptions}
                         value={String(value)}
-                        onChange={handleSelectChange}
+                        onChange={handleInputChange}
                         style={{ width: 200, marginLeft: 10 }}
                     />
                 </div>
