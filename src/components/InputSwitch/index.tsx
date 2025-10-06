@@ -51,7 +51,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         updateRecipeObj(selectedRecipeId, { [id]: value });
     };
 
-
     switch (inputType) {
         case "slider": {
             const numericValue =
