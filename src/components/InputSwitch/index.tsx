@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Input, InputNumber, Select, Slider } from "antd";
+import { Input, InputNumber, Select, Slider, Tooltip } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
@@ -19,23 +19,27 @@ interface InputSwitchProps {
     defaultValue: string | number;
     min?: number;
     max?: number;
+    scaleFactor?: number;
+    unit?: string;
     options?: string[];
     gradientOptions?: GradientOption[];
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions } = props;
+    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions, scaleFactor, unit } = props;
 
     const selectedRecipeId = useSelectedRecipeId();
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
     const recipeVersion = useCurrentRecipeString();
+    const scale = scaleFactor ?? 1;
 
     // Stable getter for current value, with default fallback
     const getCurrentValueMemo = useCallback(() => {
         const v = getCurrentValue(id);
-        return v ?? defaultValue;
-    }, [getCurrentValue, id, defaultValue]);
+        const value = v ?? defaultValue;
+        return typeof value === "number" ? value * scale : value;
+    }, [getCurrentValue, id, defaultValue, scale]);
 
     // Local controlled state for the input UI
     const [value, setValue] = useState<string | number>(getCurrentValueMemo());
@@ -60,25 +64,29 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>{" "}
-                        <small>{description}</small>
+                        <Tooltip title={description} placement="right">
+                            <strong>{displayName}</strong>{" "}
+                        </Tooltip>
                     </div>
-                    <Slider
-                        min={min}
-                        max={max}
-                        step={step}
-                        onChange={handleInputChange}
-                        value={numericValue}
-                        style={{ width: 100 }}
-                    />
-                    <InputNumber
-                        min={min}
-                        max={max}
-                        step={step}
-                        style={{ margin: "0 16px" }}
-                        value={numericValue}
-                        onChange={handleInputChange}
-                    />
+                    <div className="input-content">
+                        <Slider
+                            min={min}
+                            max={(max ?? 1) * scale}
+                            step={step}
+                            onChange={handleInputChange}
+                            value={numericValue}
+                            style={{ width: "60%" }}
+                        />
+                        <InputNumber
+                            min={min}
+                            max={(max ?? 1) * scale}
+                            step={step}
+                            style={{ margin: "0 6px" }}
+                            value={numericValue}
+                            onChange={handleInputChange}
+                        />
+                        {unit && <span>{unit}</span>}
+                    </div>
                 </div>
             );
         }
@@ -91,15 +99,18 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>{" "}
-                        <small>{description}</small>
+                        <Tooltip title={description} placement="right">
+                            <strong>{displayName}</strong>{" "}
+                        </Tooltip>
                     </div>
-                    <Select
-                        options={selectOptions}
-                        value={String(value)}
-                        onChange={handleInputChange}
-                        style={{ width: 200, marginLeft: 10 }}
-                    />
+                    <div className="input-content">
+                        <Select
+                            options={selectOptions}
+                            value={String(value)}
+                            onChange={handleInputChange}
+                            style={{ width: 200, marginLeft: 10 }}
+                        />
+                    </div>
                 </div>
             );
         }
@@ -121,8 +132,9 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>{" "}
-                        <small>{description}</small>
+                        <Tooltip title={description} placement="right">
+                            <strong>{displayName}</strong>{" "}
+                        </Tooltip>
                     </div>
                     <Input
                         value={String(value)}
