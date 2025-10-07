@@ -51,11 +51,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
 
     const handleInputChange = (value: string | number | null) => {
         if (value == null || !selectedRecipeId) return;
-        if (typeof value === "number") {
-            value = value / scale;
-        }
         setValue(value);
-        updateRecipeObj(selectedRecipeId, { [id]: value });
+        updateRecipeObj(selectedRecipeId, { [id]: typeof value === "number" ? value / scale : value });
     };
 
     switch (inputType) {
