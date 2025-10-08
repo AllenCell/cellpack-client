@@ -52,7 +52,7 @@ export type EditableField = {
     max?: number;
     options?: string[];
     gradient_options?: GradientOption[];
-    scale_factor?: number;
+    conversion_factor?: number;
     unit?: string;
 }
 

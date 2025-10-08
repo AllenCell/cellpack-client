@@ -19,20 +19,20 @@ interface InputSwitchProps {
     defaultValue: string | number;
     min?: number;
     max?: number;
-    scaleFactor?: number;
+    conversionFactor?: number;
     unit?: string;
     options?: string[];
     gradientOptions?: GradientOption[];
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions, scaleFactor, unit } = props;
+    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions, conversionFactor, unit } = props;
 
     const selectedRecipeId = useSelectedRecipeId();
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
     const recipeVersion = useCurrentRecipeString();
-    const scale = scaleFactor ?? 1;
+    const conversion = conversionFactor ?? 1;
 
     // Conversion factor for numeric inputs where we want to display a
     // different unit in the UI than is stored in the recipe
@@ -42,8 +42,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const getCurrentValueMemo = useCallback(() => {
         const v = getCurrentValue(id);
         const value = v ?? defaultValue;
-        return typeof value === "number" ? value * scale : value;
-    }, [getCurrentValue, id, defaultValue, scale]);
+        return typeof value === "number" ? value * conversion : value;
+    }, [getCurrentValue, id, defaultValue, conversion]);
 
     // Local controlled state for the input UI
     const [value, setValue] = useState<string | number>(getCurrentValueMemo());
@@ -56,7 +56,10 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const handleInputChange = (value: string | number | null) => {
         if (value == null || !selectedRecipeId) return;
         setValue(value);
-        updateRecipeObj(selectedRecipeId, { [id]: typeof value === "number" ? value / scale : value });
+        updateRecipeObj(
+            selectedRecipeId,
+            { [id]: typeof value === "number" ? value / conversion : value }
+        );
     };
 
     switch (inputType) {
@@ -69,13 +72,13 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>
+                        <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
                     </div>
                     <div className="input-content">
                         <Slider
                             min={min}
-                            max={(max ?? 1) * scale}
+                            max={(max ?? 1) * conversion}
                             step={step}
                             onChange={handleInputChange}
                             value={numericValue}
@@ -83,7 +86,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         />
                         <InputNumber
                             min={min}
-                            max={(max ?? 1) * scale}
+                            max={(max ?? 1) * conversion}
                             step={step}
                             style={{ margin: "0 6px" }}
                             value={numericValue}
@@ -103,7 +106,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>
+                        <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
                     </div>
                     <div className="input-content">
@@ -135,7 +138,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>
+                        <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
                     </div>
                     <Input

@@ -34,7 +34,7 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
                             options={field.options}
                             id={field.path}
                             gradientOptions={field.gradient_options}
-                            scaleFactor={field.scale_factor}
+                            conversionFactor={field.conversion_factor}
                             unit={field.unit}
                         />
                     ))}
