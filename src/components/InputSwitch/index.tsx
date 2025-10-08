@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Input, InputNumber, Select, Slider, Tooltip } from "antd";
+import { Input, InputNumber, Select, Slider } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
@@ -64,9 +64,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <Tooltip title={description} placement="right">
-                            <strong>{displayName}</strong>{" "}
-                        </Tooltip>
+                        <strong>{displayName}</strong>
+                        <small>{description}</small>
                     </div>
                     <div className="input-content">
                         <Slider
@@ -99,9 +98,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <Tooltip title={description} placement="right">
-                            <strong>{displayName}</strong>{" "}
-                        </Tooltip>
+                        <strong>{displayName}</strong>
+                        <small>{description}</small>
                     </div>
                     <div className="input-content">
                         <Select
@@ -132,9 +130,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <Tooltip title={description} placement="right">
-                            <strong>{displayName}</strong>{" "}
-                        </Tooltip>
+                        <strong>{displayName}</strong>
+                        <small>{description}</small>
                     </div>
                     <Input
                         value={String(value)}

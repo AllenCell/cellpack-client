@@ -1,4 +1,4 @@
-import { Select, Slider, InputNumber, Tooltip } from "antd";
+import { Select, Slider, InputNumber } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
@@ -61,9 +61,8 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         <div>
             <div className="input-switch">
                 <div className="input-label">
-                    <Tooltip title={description} placement="right">
-                        <strong>{displayName}</strong>
-                    </Tooltip>
+                    <strong>{displayName}</strong>
+                    <small>{description}</small>
                 </div>
                 <div className="input-content">
                     <Select
@@ -77,9 +76,8 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
             {gradientStrengthData && (
                 <div className="input-switch">
                     <div className="input-label">
-                        <Tooltip title={gradientStrengthData.description} placement="right">
-                            <strong>{gradientStrengthData.displayName}</strong>
-                        </Tooltip>
+                        <strong>{gradientStrengthData.displayName}</strong>
+                        <small>{gradientStrengthData.description}</small>
                     </div>
                     <div className="input-content">
                         <Slider
