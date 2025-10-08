@@ -32,7 +32,7 @@ type Actions = {
     updateRecipeString: (recipeId: string, newString: string) => void;
     updateRecipeObj: (recipeId: string, updates: Record<string, string | number>) => void;
     restoreRecipeDefault: (recipeId: string) => void;
-    getCurrentValue: (path: string) => string | number | undefined; // STABLE
+    getCurrentValue: (path: string) => string | number | undefined;
     getOriginalValue: (path: string) => string | number | undefined;
     startPacking: (
         callback: (recipeId: string, configId: string, recipeString: string) => Promise<void>
@@ -160,7 +160,8 @@ export const useRecipeStore = create<RecipeStore>()(
             if (!str) return undefined;
             try {
                 const obj = JSON.parse(str);
-                return lodashGet(obj, path);
+                const v = lodashGet(obj, path);
+                return typeof v === "string" || typeof v === "number" ? v : undefined;
             } catch {
                 console.warn("Failed to retrieve value.")
                 return undefined;
