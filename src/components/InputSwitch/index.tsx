@@ -32,13 +32,19 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
     const recipeVersion = useCurrentRecipeString();
+
+    // Conversion factor for numeric inputs where we want to display a
+    // different unit in the UI than is stored in the recipe
     const conversion = conversionFactor ?? 1;
 
     // Stable getter for current value, with default fallback
     const getCurrentValueMemo = useCallback(() => {
         const v = getCurrentValue(id);
-        const value = v ?? defaultValue;
-        return typeof value === "number" ? value * conversion : value;
+        let value = v ?? defaultValue;
+        if (typeof value == "number") {
+            value = value * conversion;
+        }
+        return value;
     }, [getCurrentValue, id, defaultValue, conversion]);
 
     // Local controlled state for the input UI
@@ -52,9 +58,13 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const handleInputChange = (value: string | number | null) => {
         if (value == null || !selectedRecipeId) return;
         setValue(value);
+        if (typeof value === "number") {
+            // Convert back to original units for updating recipe object
+            value = value / conversion;
+        }
         updateRecipeObj(
             selectedRecipeId,
-            { [id]: typeof value === "number" ? value / conversion : value }
+            { [id]: value }
         );
     };
 
@@ -63,6 +73,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             const numericValue =
                 typeof value === "number" ? value : Number(value) || 0;
             const step = dataType === "integer" ? 1 : 0.01;
+            const maxValue = (max ?? 1) * conversion;
 
             return (
                 <div className="input-switch">
@@ -73,7 +84,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                     <div className="input-content">
                         <Slider
                             min={min}
-                            max={(max ?? 1) * conversion}
+                            max={maxValue}
                             step={step}
                             onChange={handleInputChange}
                             value={numericValue}
@@ -81,7 +92,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         />
                         <InputNumber
                             min={min}
-                            max={(max ?? 1) * conversion}
+                            max={maxValue}
                             step={step}
                             style={{ margin: "0 6px" }}
                             value={numericValue}
