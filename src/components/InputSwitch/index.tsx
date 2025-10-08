@@ -62,10 +62,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             // Convert back to original units for updating recipe object
             value = value / conversion;
         }
-        updateRecipeObj(
-            selectedRecipeId,
-            { [id]: value }
-        );
+        updateRecipeObj(selectedRecipeId, { [id]: value });
     };
 
     switch (inputType) {
