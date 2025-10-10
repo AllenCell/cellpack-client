@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { Layout, Typography } from "antd";
-import { addRecipe, getJobStatus } from "./utils/firebase";
+import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
