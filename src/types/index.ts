@@ -5,40 +5,28 @@ export interface Document {
     recipe?: string;
     config?: string;
     editable_fields?: string[];
-}
+};
 
 export type FirestoreDoc = Document & {
     id: string;
 };
 
-export interface AWSBatchJobsResponse {
-    jobs: Array<{
-        status: string;
-        container: {
-            logStreamName: string;
-        };
-    }>;
-}
-
-export interface CloudWatchLogsResponse {
-    events: Array<{
-        message: string;
-    }>;
-}
-
-export type FirebaseDict = {
-    [key: string]: Dictionary<string>;
-};
-
 export interface Dictionary<T> {
     [Key: string]: T;
-}
+};
 
 export type PackingInputs = {
     config: string;
     recipe: string;
     editable_fields?: EditableField[];
-}
+};
+
+export type JobStatusObject = {
+    status: string;
+    error_message?: string;
+    outputs_directory?: string;
+    result_path?: string;
+};
 
 export type EditableField = {
     id: string;
@@ -67,14 +55,14 @@ export type GradientOption = {
     packing_mode_path?: string;
     strength_description?: string;
     strength_display_name?: string;
-}
+};
 
 export interface RefsByCollection {
     recipes: Dictionary<FirebaseRecipe>;
     composition: Dictionary<FirebaseComposition>;
     objects: Dictionary<FirebaseObject>;
     gradients: Dictionary<FirebaseGradient>;
-}
+};
 
 export interface FirebaseObject {
     name: string;
@@ -110,7 +98,7 @@ export interface FirebaseObject {
     rejection_threshold?: number;
     rotation_axis?: Array<number>;
     rotation_range?: number;
-}
+};
 
 export interface FirebaseGradient {
     name: string;
@@ -124,12 +112,12 @@ export interface FirebaseGradient {
     pick_mode?: string;
     reversed?: boolean;
     invert?: string;
-}
+};
 
 export type RegionObject = {
     count: number;
     object: string;
-}
+};
 
 export interface FirebaseComposition {
     name: string;
@@ -177,4 +165,4 @@ export type ViewableRecipe = {
     composition?: Dictionary<ViewableComposition>;
     objects?: Dictionary<ViewableObject>;
     gradients?: Dictionary<ViewableGradient>;
-}
+};
