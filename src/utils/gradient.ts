@@ -10,9 +10,17 @@ interface GradientStrength {
 };
 
 // Helpers: store <-> UI mapping
-// Store: "smaller = stronger" (e.g., decay length). UI: "bigger = stronger" (0..1).
-export const toUi = (storeVal: number) => Number((1 - storeVal).toFixed(2));
-export const toStore = (uiVal: number) => Number((1 - uiVal).toFixed(2));
+// Store: "smaller = stronger" (e.g., decay length). UI: "bigger = stronger" (0.01-100). decay_length = 1 / gradient strength
+const MAX_GRADIENT_STRENGTH = 100;
+
+export const toUi = (storeVal: number) => {
+    if (storeVal <= 0) return MAX_GRADIENT_STRENGTH;
+    return Number((1 / storeVal).toFixed(2));
+};
+export const toStore = (uiVal: number) => {
+    if (uiVal <= 0) return MAX_GRADIENT_STRENGTH;
+    return Number((1 / uiVal).toFixed(2));
+};
 export const round2 = (n: number) => Number(n.toFixed(2));
 
 
@@ -60,8 +68,8 @@ export function deriveGradientStrength(
 ): GradientStrength | undefined {
     if (!opt?.strength_path) return undefined;
 
-    const storeMin = opt.strength_min ?? 0;
-    const storeMax = opt.strength_max ?? 0.99;
+    const storeMin = opt.strength_min ?? 0.01;
+    const storeMax = opt.strength_max ?? 100;
 
     const uiMin = toUi(storeMax);
     const uiMax = toUi(storeMin);
