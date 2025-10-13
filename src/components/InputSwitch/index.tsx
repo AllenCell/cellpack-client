@@ -51,7 +51,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             value = value * conversion;
         }
         return value;
-    }, [getCurrentValue, id, conversion, dataType, min]);
+    }, [getCurrentValue, id, min, conversion, dataType]);
 
     // Local controlled state for the input UI
     const [value, setValue] = useState<string | number>(getCurrentValueMemo());
