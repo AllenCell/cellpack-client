@@ -20,7 +20,7 @@ export const toUi = (storeVal: number) => {
 };
 export const toStore = (uiVal: number) => {
     if (uiVal <= 0) return MAX_GRADIENT_STRENGTH;
-    return Number((1 / uiVal).toFixed(2));
+    return Number((1 / uiVal).toFixed(4));
 };
 export const round2 = (n: number) => Number(n.toFixed(2));
 
