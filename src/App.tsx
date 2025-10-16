@@ -81,7 +81,8 @@ function App() {
     };
 
     const startPacking = async (recipeId: string, configId: string, recipeString: string) => {
-        submitRecipe(recipeId, configId, recipeString).then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
+        await submitRecipe(recipeId, configId, recipeString)
+            .then((jobIdFromSubmit) => checkStatus(jobIdFromSubmit));
     }
 
     const checkStatus = async (jobIdFromSubmit: string) => {
