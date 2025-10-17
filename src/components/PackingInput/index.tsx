@@ -1,4 +1,6 @@
 import { useCallback, useEffect } from "react";
+import { Tabs } from "antd";
+
 import {
     useSelectedRecipeId,
     useCurrentRecipeString,
@@ -15,7 +17,6 @@ import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import "./style.css";
-import { Tabs } from "antd";
 
 interface PackingInputProps {
     startPacking: (
