@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from "react";
 import {
     useSelectedRecipeId,
     useCurrentRecipeString,
@@ -10,12 +10,12 @@ import {
     useUpdateRecipeString,
     useStartPacking,
     useLoadAllRecipes,
-} from '../../state/store';
-import Dropdown from '../Dropdown';
-import JSONViewer from '../JSONViewer';
-import RecipeForm from '../RecipeForm';
-import './style.css';
-import { Tabs } from 'antd';
+} from "../../state/store";
+import Dropdown from "../Dropdown";
+import JSONViewer from "../JSONViewer";
+import RecipeForm from "../RecipeForm";
+import "./style.css";
+import { Tabs } from "antd";
 
 interface PackingInputProps {
     startPacking: (
@@ -65,21 +65,21 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     return (
         <>
-            <div className='recipe-select'>
+            <div className="recipe-select">
                 <div>Choose Recipe</div>
                 <Dropdown
-                    placeholder='Select an option'
+                    placeholder="Select an option"
                     options={inputOptions}
                     onChange={selectInput}
                 />
             </div>
-            <Tabs defaultActiveKey='1' className='recipe-content'>
-                <Tabs.TabPane tab='Edit' key='1'>
+            <Tabs defaultActiveKey="1" className="recipe-content">
+                <Tabs.TabPane tab="Edit" key="1">
                     <RecipeForm onStartPacking={handleStartPacking} />
                 </Tabs.TabPane>
-                <Tabs.TabPane tab='Full Recipe' key='2'>
+                <Tabs.TabPane tab="Full Recipe" key="2">
                     <JSONViewer
-                        title='Recipe'
+                        title="Recipe"
                         content={recipeString}
                         isEditable={fieldsToDisplay === undefined}
                         onChange={handleRecipeStringChange}

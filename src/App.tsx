@@ -1,29 +1,29 @@
-import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { Layout, Typography } from 'antd';
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { Layout, Typography } from "antd";
 import {
     getResultPath,
     getDocById,
     getJobStatus,
     addRecipe,
-} from './utils/firebase';
-import { getFirebaseRecipe, jsonToString } from './utils/recipeLoader';
-import { getSubmitPackingUrl, JOB_STATUS } from './constants/aws';
-import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from './constants/firebase';
-import { SIMULARIUM_EMBED_URL } from './constants/urls';
-import PackingInput from './components/PackingInput';
-import Viewer from './components/Viewer';
-import StatusBar from './components/StatusBar';
-import './App.css';
+} from "./utils/firebase";
+import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
+import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
+import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "./constants/firebase";
+import { SIMULARIUM_EMBED_URL } from "./constants/urls";
+import PackingInput from "./components/PackingInput";
+import Viewer from "./components/Viewer";
+import StatusBar from "./components/StatusBar";
+import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {
-    const [jobId, setJobId] = useState('');
-    const [jobStatus, setJobStatus] = useState('');
-    const [jobLogs, setJobLogs] = useState<string>('');
-    const [resultUrl, setResultUrl] = useState<string>('');
+    const [jobId, setJobId] = useState("");
+    const [jobStatus, setJobStatus] = useState("");
+    const [jobLogs, setJobLogs] = useState<string>("");
+    const [resultUrl, setResultUrl] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
 
     let start = 0;
@@ -33,10 +33,10 @@ function App() {
     }
 
     const resetState = () => {
-        setJobId('');
-        setJobStatus('');
-        setJobLogs('');
-        setResultUrl('');
+        setJobId("");
+        setJobStatus("");
+        setJobLogs("");
+        setResultUrl("");
         setRunTime(0);
     };
 
@@ -70,9 +70,9 @@ function App() {
         recipeString: string
     ) => {
         resetState();
-        let firebaseRecipe = 'firebase:recipes/' + recipeId;
+        let firebaseRecipe = "firebase:recipes/" + recipeId;
         const firebaseConfig = configId
-            ? 'firebase:configs/' + configId
+            ? "firebase:configs/" + configId
             : undefined;
         const recipeChanged: boolean = await recipeHasChanged(
             recipeId,
@@ -80,7 +80,7 @@ function App() {
         );
         if (recipeChanged) {
             const recipeId = uuidv4();
-            firebaseRecipe = 'firebase:recipes_edited/' + recipeId;
+            firebaseRecipe = "firebase:recipes_edited/" + recipeId;
             const recipeJson = recipeToFirebase(
                 recipeString,
                 firebaseRecipe,
@@ -95,7 +95,7 @@ function App() {
             }
         }
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
-        const request: RequestInfo = new Request(url, { method: 'POST' });
+        const request: RequestInfo = new Request(url, { method: "POST" });
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
@@ -159,28 +159,28 @@ function App() {
     };
 
     return (
-        <Layout className='app-container'>
+        <Layout className="app-container">
             <Header
-                className='header'
-                style={{ justifyContent: 'space-between' }}
+                className="header"
+                style={{ justifyContent: "space-between" }}
             >
-                <h2 className='header-title'>cellPACK demo</h2>
+                <h2 className="header-title">cellPACK demo</h2>
                 <Link
-                    href='https://github.com/mesoscope/cellpack'
-                    className='header-link'
+                    href="https://github.com/mesoscope/cellpack"
+                    className="header-link"
                 >
                     GitHub
                 </Link>
             </Header>
             <Layout>
-                <Sider width='35%' theme='light' className='sider'>
+                <Sider width="35%" theme="light" className="sider">
                     <PackingInput startPacking={startPacking} />
                 </Sider>
-                <Content className='content-container'>
+                <Content className="content-container">
                     <Viewer resultUrl={resultUrl} />
                 </Content>
             </Layout>
-            <Footer className='footer'>
+            <Footer className="footer">
                 <StatusBar
                     jobStatus={jobStatus}
                     runTime={runTime}
