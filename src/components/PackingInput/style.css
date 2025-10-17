@@ -1,15 +1,11 @@
 .recipe-select {
-  display: flex;
-  white-space: nowrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
+    display: flex;
+    white-space: nowrap;
+    gap: 10px;
+    align-items: center;
+    height: var(--recipe-select-height);
 }
 
 .recipe-content {
-  display: flex;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  justify-content: space-between;
-  align-content: center;
+    height: calc(100% - var(--recipe-select-height));
 }

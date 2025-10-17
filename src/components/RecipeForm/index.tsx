@@ -1,11 +1,11 @@
-import { Button } from "antd";
-import InputSwitch from "../InputSwitch";
-import "./style.css";
+import { Button } from 'antd';
+import InputSwitch from '../InputSwitch';
+import './style.css';
 import {
     useSelectedRecipeId,
     useFieldsToDisplay,
     useIsPacking,
-} from "../../state/store";
+} from '../../state/store';
 
 interface RecipeFormProps {
     onStartPacking: () => Promise<void>;
@@ -17,10 +17,9 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
     const isPacking = useIsPacking();
 
     return (
-        <div className="recipe-form">
+        <div className='recipe-form'>
             {fieldsToDisplay && (
-                <div className="input-container">
-                    <h3>Options</h3>
+                <div className='input-container'>
                     {fieldsToDisplay.map((field) => (
                         <InputSwitch
                             key={field.id}
@@ -42,10 +41,10 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
             {recipeId && (
                 <Button
                     onClick={onStartPacking}
-                    color="primary"
-                    variant="filled"
+                    color='primary'
+                    variant='filled'
                     disabled={isPacking}
-                    style={{ width: "100%" }}
+                    style={{ width: '100%' }}
                 >
                     Pack!
                 </Button>

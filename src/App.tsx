@@ -13,13 +13,10 @@ import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from './constants/firebase';
 import { SIMULARIUM_EMBED_URL } from './constants/urls';
 import PackingInput from './components/PackingInput';
 import Viewer from './components/Viewer';
-import ErrorLogs from './components/ErrorLogs';
 import StatusBar from './components/StatusBar';
 import './App.css';
-import Sider from 'antd/es/layout/Sider';
-import { Footer } from 'antd/es/layout/layout';
 
-const { Header, Content } = Layout;
+const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {
@@ -34,6 +31,14 @@ function App() {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
+
+    const resetState = () => {
+        setJobId('');
+        setJobStatus('');
+        setJobLogs('');
+        setResultUrl('');
+        setRunTime(0);
+    };
 
     const recipeHasChanged = async (
         recipeId: string,
@@ -64,8 +69,7 @@ function App() {
         configId: string,
         recipeString: string
     ) => {
-        setResultUrl('');
-        setRunTime(0);
+        resetState();
         let firebaseRecipe = 'firebase:recipes/' + recipeId;
         const firebaseConfig = configId
             ? 'firebase:configs/' + configId
@@ -153,7 +157,6 @@ function App() {
         );
         setJobLogs(logStr);
     };
-    const showLogs = jobStatus == JOB_STATUS.FAILED;
 
     return (
         <Layout className='app-container'>
@@ -175,9 +178,6 @@ function App() {
                 </Sider>
                 <Content className='content-container'>
                     <Viewer resultUrl={resultUrl} />
-                    {/* {showLogs && (
-                        <ErrorLogs errorLogs={jobLogs} getLogs={getLogs} />
-                    )} */}
                 </Content>
             </Layout>
             <Footer className='footer'>
@@ -185,6 +185,8 @@ function App() {
                     jobStatus={jobStatus}
                     runTime={runTime}
                     jobId={jobId}
+                    errorLogs={jobLogs}
+                    getLogs={getLogs}
                 />
             </Footer>
         </Layout>

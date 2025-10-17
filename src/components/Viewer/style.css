@@ -1,9 +1,10 @@
 .viewer-container {
     width: 100%;
+    height: 100%;
 }
 
 .simularium-embed {
     width: 100%;
-    height: 600px;
+    height: 100%;
     border: 1px solid black;
 }
