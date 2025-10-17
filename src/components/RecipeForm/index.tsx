@@ -20,7 +20,6 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
         <div className="recipe-form">
             {fieldsToDisplay && (
                 <div className="input-container">
-                    <h3>Options</h3>
                     {fieldsToDisplay.map((field) => (
                         <InputSwitch
                             key={field.id}
