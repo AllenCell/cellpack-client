@@ -85,6 +85,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         value={gradientStrengthData.uiValue}
                         step={0.01}
                         style={{ width: 100 }}
+                        tooltip={{ formatter: (value) => value?.toFixed(2) }}
                     />
                     <InputNumber
                         id={gradientStrengthData.displayName + " Input"}

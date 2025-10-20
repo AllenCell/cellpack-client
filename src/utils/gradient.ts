@@ -11,16 +11,16 @@ interface GradientStrength {
 
 // Helpers: store <-> UI mapping
 // Store: "smaller = stronger" (e.g., decay length). UI: "bigger = stronger" (0.01-100). decay_length = 1 / gradient strength
-const MAX_GRADIENT_STRENGTH = 100;
-const MIN_GRADIENT_STRENGTH = 0.01;
+const MIN_DECAY_LENGTH = 0.01;
+const MAX_DECAY_LENGTH = 100;
 
 export const toUi = (storeVal: number) => {
-    if (storeVal <= 0) return MAX_GRADIENT_STRENGTH;
+    if (storeVal <= 0) return 1 / MIN_DECAY_LENGTH; // the max UI value due to the inverse relationship—smaller decay length = stronger gradient = higher UI number. 
     return Number((1 / storeVal).toFixed(2));
 };
 export const toStore = (uiVal: number) => {
-    if (uiVal <= 0) return MAX_GRADIENT_STRENGTH;
-    return Number((1 / uiVal).toFixed(4));
+    if (uiVal <= 0) return MAX_DECAY_LENGTH;
+    return Number((1 / uiVal).toFixed(8));
 };
 export const round2 = (n: number) => Number(n.toFixed(2));
 
@@ -69,8 +69,8 @@ export function deriveGradientStrength(
 ): GradientStrength | undefined {
     if (!opt?.strength_path) return undefined;
 
-    const storeMin = opt.strength_min ?? MIN_GRADIENT_STRENGTH;
-    const storeMax = opt.strength_max ?? MAX_GRADIENT_STRENGTH;
+    const storeMin = opt.strength_min ?? MIN_DECAY_LENGTH;
+    const storeMax = opt.strength_max ?? MAX_DECAY_LENGTH;
 
     const uiMin = toUi(storeMax);
     const uiMax = toUi(storeMin);
@@ -80,7 +80,7 @@ export function deriveGradientStrength(
     const storeNum =
         typeof storeRaw === "number"
             ? storeRaw
-            : opt.strength_default ?? storeMin;
+            : opt.strength_default ?? MIN_DECAY_LENGTH;
     const uiValue = round2(clampUi(toUi(storeNum)));
 
     return {
