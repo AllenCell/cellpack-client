@@ -14,26 +14,28 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
     const [viewContent, setViewContent] = useState<boolean>(true);
 
     if (!content) {
-        return (<></>)
+        return <></>;
     }
-    
-    const items = [{
-        key: "1",
-        label: title,
-        children: isEditable ? (
-            <Input.TextArea 
-                value={content} 
-                onChange={(e) => onChange(e.target.value)}
-                rows={14}
-            />
-        ) : (
-            <pre className="json-content">{content}</pre>
-        )
-    }];
-    
+
+    const items = [
+        {
+            key: "1",
+            label: title,
+            children: isEditable ? (
+                <Input.TextArea
+                    value={content}
+                    onChange={(e) => onChange(e.target.value)}
+                    rows={14}
+                />
+            ) : (
+                <pre className="json-content">{content}</pre>
+            ),
+        },
+    ];
+
     return (
         <div className={`${title.toLowerCase()}-box`}>
-            <Collapse 
+            <Collapse
                 items={items}
                 activeKey={viewContent ? ["1"] : []}
                 onChange={() => setViewContent(!viewContent)}

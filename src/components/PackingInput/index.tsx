@@ -1,4 +1,6 @@
 import { useCallback, useEffect } from "react";
+import { Tabs } from "antd";
+
 import {
     useSelectedRecipeId,
     useCurrentRecipeString,
@@ -16,9 +18,12 @@ import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import "./style.css";
 
-
 interface PackingInputProps {
-    startPacking: (recipeId: string, configId: string, recipeString: string) => Promise<void>;
+    startPacking: (
+        recipeId: string,
+        configId: string,
+        recipeString: string
+    ) => Promise<void>;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
@@ -60,25 +65,29 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     }
 
     return (
-        <div>
+        <>
             <div className="recipe-select">
-                <div>Packing Recipe</div>
+                <div>Choose Recipe</div>
                 <Dropdown
                     placeholder="Select an option"
                     options={inputOptions}
                     onChange={selectInput}
                 />
             </div>
-            <div className="recipe-content">
-                <RecipeForm onStartPacking={handleStartPacking}/>
-                <JSONViewer
-                    title="Recipe"
-                    content={recipeString}
-                    isEditable={fieldsToDisplay === undefined}
-                    onChange={handleRecipeStringChange}
-                />
-            </div>
-        </div>
+            <Tabs defaultActiveKey="1" className="recipe-content">
+                <Tabs.TabPane tab="Edit" key="1">
+                    <RecipeForm onStartPacking={handleStartPacking} />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Full Recipe" key="2">
+                    <JSONViewer
+                        title="Recipe"
+                        content={recipeString}
+                        isEditable={fieldsToDisplay === undefined}
+                        onChange={handleRecipeStringChange}
+                    />
+                </Tabs.TabPane>
+            </Tabs>
+        </>
     );
 };
 
