@@ -1,15 +1,10 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Layout, Typography } from "antd";
-import {
-    getResultPath,
-    getDocById,
-    getJobStatus,
-    addRecipe,
-} from "./utils/firebase";
+import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
-import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "./constants/firebase";
+import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
@@ -24,6 +19,7 @@ function App() {
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
     const [resultUrl, setResultUrl] = useState<string>("");
+    const [outputDir, setOutputDir] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
 
     let start = 0;
@@ -124,38 +120,27 @@ function App() {
         const id = jobIdFromSubmit || jobId;
         let localJobStatus = await getJobStatus(id);
         while (
-            localJobStatus !== JOB_STATUS.DONE &&
-            localJobStatus !== JOB_STATUS.FAILED
+            localJobStatus?.status !== JOB_STATUS.DONE &&
+            localJobStatus?.status !== JOB_STATUS.FAILED
         ) {
             await sleep(500);
             const newJobStatus = await getJobStatus(id);
-            if (localJobStatus !== newJobStatus) {
+            if (
+                newJobStatus &&
+                localJobStatus?.status !== newJobStatus.status
+            ) {
                 localJobStatus = newJobStatus;
-                setJobStatus(newJobStatus);
+                setJobStatus(newJobStatus.status);
             }
         }
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
-        if (localJobStatus == JOB_STATUS.DONE) {
-            fetchResultUrl(id);
-        } else if (localJobStatus == JOB_STATUS.FAILED) {
-            getLogs(id);
+        if (localJobStatus.status == JOB_STATUS.DONE) {
+            setResultUrl(SIMULARIUM_EMBED_URL + localJobStatus.result_path);
+            setOutputDir(localJobStatus.outputs_directory);
+        } else if (localJobStatus.status == JOB_STATUS.FAILED) {
+            setJobLogs(localJobStatus.error_message);
         }
-    };
-
-    const fetchResultUrl = async (jobIdFromSubmit?: string) => {
-        const id = jobIdFromSubmit || jobId;
-        const url = await getResultPath(id);
-        setResultUrl(SIMULARIUM_EMBED_URL + url);
-    };
-
-    const getLogs = async (jobIdFromSubmit?: string) => {
-        const id = jobIdFromSubmit || jobId;
-        const logStr: string = await getDocById(
-            FIRESTORE_COLLECTIONS.JOB_STATUS,
-            id
-        );
-        setJobLogs(logStr);
     };
 
     return (
@@ -186,7 +171,7 @@ function App() {
                     runTime={runTime}
                     jobId={jobId}
                     errorLogs={jobLogs}
-                    getLogs={getLogs}
+                    outputDir={outputDir}
                 />
             </Footer>
         </Layout>

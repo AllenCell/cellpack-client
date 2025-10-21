@@ -9,17 +9,18 @@ interface StatusBarProps {
     jobStatus: string;
     runTime: number;
     jobId: string;
+    outputDir: string;
     errorLogs: string;
-    getLogs: () => Promise<void>;
 }
 
 const StatusBar = (props: StatusBarProps): JSX.Element => {
-    const { jobStatus, runTime, jobId, errorLogs, getLogs } = props;
+    const { jobStatus, runTime, jobId, errorLogs, outputDir } = props;
+
     const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadResults = async (jobId: string) => {
         setIsDownloading(true);
-        await downloadOutputs(jobId);
+        await downloadOutputs(jobId, outputDir);
         setIsDownloading(false);
     };
 
@@ -48,7 +49,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     Download Packing Result
                 </Button>
             )}
-            {errorLogs && <ErrorLogs errorLogs={errorLogs} getLogs={getLogs} />}
+            {errorLogs && <ErrorLogs errorLogs={errorLogs} />}
         </>
     );
 };
