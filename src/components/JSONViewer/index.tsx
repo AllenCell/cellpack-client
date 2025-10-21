@@ -1,6 +1,12 @@
 import { Descriptions, Tree, TreeDataNode } from "antd";
-import "./style.css";
 import { DescriptionsItemProps } from "antd/es/descriptions/Item";
+import {
+    formatKeyValue,
+    formatArray,
+    convertUnderscoreToSpace,
+    isAnNumberArray,
+} from "./formattingUtils";
+import "./style.css";
 
 interface JSONViewerProps {
     title: string;
@@ -9,37 +15,12 @@ interface JSONViewerProps {
     onChange: (value: string) => void;
 }
 
-const JSONViewer = (props: JSONViewerProps): JSX.Element => {
+const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
     const { content } = props;
 
     if (!content) {
-        return <></>;
+        return null;
     }
-
-    const formatArray = (arr: unknown[]): string => {
-        console.log(arr);
-        return `[ ${arr
-            .map((item) => {
-                if (Array.isArray(item)) {
-                    return formatArray(item);
-                }
-                return isNaN(Number(item)) ? item : Number(item).toFixed(3);
-            })
-            .join(", ")} ]`;
-    };
-
-    const convertUnderscoreToSpace = (str: string): string => {
-        return str.replace(/_/g, " ");
-    };
-
-    const formatKeyValue = (key: string, value: string) => {
-        return (
-            <>
-                <span>{key}</span>:{" "}
-                <span style={{ fontWeight: "bold" }}>{value}</span>
-            </>
-        );
-    };
 
     const contentAsObj = JSON.parse(content);
     const returnOneElement = (
@@ -48,7 +29,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
         parentKey: string = ""
     ): TreeDataNode => {
         const nodeKey = parentKey ? `${parentKey}.${key}` : key;
-        if (Array.isArray(value)) {
+        if (Array.isArray(value) && isAnNumberArray(value)) {
             return {
                 key: nodeKey,
                 title: formatKeyValue(key, formatArray(value)),
@@ -64,9 +45,10 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
                 ),
             };
         }
+
         return {
             key: nodeKey,
-            title: formatKeyValue(key, String(value)),
+            title: formatKeyValue(key, value as string | null),
         };
     };
 
