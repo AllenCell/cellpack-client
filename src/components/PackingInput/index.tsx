@@ -1,13 +1,11 @@
 import { useCallback, useEffect } from "react";
 import {
-    useSelectedRecipeId,
     useCurrentRecipeString,
     useFieldsToDisplay,
     useInputOptions,
     useIsLoading,
     useLoadInputOptions,
     useSelectInput,
-    useUpdateRecipeString,
     useStartPacking,
     useLoadAllRecipes,
 } from "../../state/store";
@@ -23,7 +21,6 @@ interface PackingInputProps {
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
     const { startPacking } = props;
-    const selectedRecipeId = useSelectedRecipeId();
     const recipeString = useCurrentRecipeString();
     const fieldsToDisplay = useFieldsToDisplay();
     const inputOptions = useInputOptions();
@@ -32,7 +29,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
     const selectInput = useSelectInput();
-    const updateRecipeString = useUpdateRecipeString();
     const storeStartPacking = useStartPacking();
 
     const preFetchInputsAndRecipes = useCallback(async () => {
@@ -47,12 +43,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     const handleStartPacking = async () => {
         await storeStartPacking(startPacking);
-    };
-
-    const handleRecipeStringChange = (newString: string) => {
-        if (selectedRecipeId) {
-            updateRecipeString(selectedRecipeId, newString);
-        }
     };
 
     if (isLoading) {
@@ -75,7 +65,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     title="Recipe"
                     content={recipeString}
                     isEditable={fieldsToDisplay === undefined}
-                    onChange={handleRecipeStringChange}
                 />
             </div>
         </div>

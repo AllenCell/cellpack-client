@@ -4,7 +4,7 @@ import {
     useSelectedRecipeId,
     useUpdateRecipeObj,
     useGetCurrentValue,
-    useCurrentRecipeString,
+    useCurrentRecipeObj,
 } from "../../state/store";
 import { getSelectedGradient, deriveGradientStrength, round2, toStore } from "../../utils/gradient";
 import "./style.css";
@@ -22,7 +22,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
     // Force re-render after restore/navigation
-    useCurrentRecipeString();
+    useCurrentRecipeObj();
 
     const { currentGradient, selectedOption } = getSelectedGradient(
         gradientOptions,

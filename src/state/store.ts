@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { get as lodashGet, set as lodashSet } from 'lodash-es';
-import { PackingInputs } from "../types";
+import { get as lodashGet, set as lodashSet, isEqual } from 'lodash-es';
+import { PackingInputs, ViewableRecipe } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
 
 export interface RecipeData {
     id: string;
-    originalString: string;
-    currentString: string;
+    originalObj: ViewableRecipe;
+    currentObj: ViewableRecipe;
     isModified: boolean;
 }
 
@@ -29,7 +29,6 @@ type Actions = {
     loadAllRecipes: () => Promise<void>;
     selectInput: (inputName: string) => Promise<void>;
     loadRecipe: (recipeId: string) => Promise<void>;
-    updateRecipeString: (recipeId: string, newString: string) => void;
     updateRecipeObj: (recipeId: string, updates: Record<string, string | number>) => void;
     restoreRecipeDefault: (recipeId: string) => void;
     getCurrentValue: (path: string) => string | number | undefined;
@@ -37,6 +36,7 @@ type Actions = {
     startPacking: (
         callback: (recipeId: string, configId: string, recipeString: string) => Promise<void>
     ) => Promise<void>;
+    reset: () => void
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
@@ -68,14 +68,15 @@ export const useRecipeStore = create<RecipeStore>()(
         loadRecipe: async (recipeId) => {
             if (get().recipes[recipeId]) return;
             const recJson = await getFirebaseRecipe(recipeId);
-            const recStr = jsonToString(recJson);
+            const originalObj = structuredClone(recJson);
+            const currentObj = structuredClone(recJson);
             set(s => ({
                 recipes: {
                     ...s.recipes,
                     [recipeId]: {
                         id: recipeId,
-                        originalString: recStr,
-                        currentString: recStr,
+                        originalObj,
+                        currentObj,
                         isModified: false,
                     },
                 },
@@ -101,6 +102,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
         selectInput: async (inputName) => {
             const sel = get().inputOptions[inputName];
+            // TODO: fails silently? error handling here?
             if (!sel) return;
 
             set({
@@ -113,71 +115,70 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
+        updateRecipeObj: (recipeId, updates) => {
+            const rec = get().recipes[recipeId];
+            if (!rec) return;
 
-        updateRecipeString: (recipeId, newString) => {
-            set(s => {
-                const rec = s.recipes[recipeId];
-                if (!rec) return s;
+            const nextObj = structuredClone(rec.currentObj);
+            for (const [path, value] of Object.entries(updates)) {
+                lodashSet(nextObj, path, value);
+            }
+
+            const modified = !isEqual(nextObj, rec.originalObj);
+
+            set((state) => ({
+                recipes: {
+                    ...state.recipes,
+                    [recipeId]: {
+                        ...rec,
+                        currentObj: nextObj,
+                        isModified: modified,
+                    },
+                },
+            }));
+        },
+
+        restoreRecipeDefault: (recipeId) => {
+            set(state => {
+                const rec = state.recipes[recipeId];
+                if (!rec) return {};
+
+                const nextObj = structuredClone(rec.originalObj);
                 return {
                     recipes: {
-                        ...s.recipes,
+                        ...state.recipes,
                         [recipeId]: {
                             ...rec,
-                            currentString: newString,
-                            isModified: newString !== rec.originalString,
+                            currentObj: nextObj,
+                            isModified: false,
                         },
                     },
                 };
             });
         },
 
-        updateRecipeObj: (recipeId, updates) => {
-            const rec = get().recipes[recipeId];
-            if (!rec) return;
-
-            try {
-                const obj = JSON.parse(rec.currentString);
-
-                for (const [path, value] of Object.entries(updates)) {
-                    lodashSet(obj, path, value);
-                }
-                get().updateRecipeString(recipeId, JSON.stringify(obj, null, 2));
-            } catch {
-                // TODO: better error handling
-                console.warn("Failed to update recipe object")
-            }
-        },
-
-        restoreRecipeDefault: (recipeId) => {
-            const rec = get().recipes[recipeId];
-            if (rec) get().updateRecipeString(recipeId, rec.originalString);
-        },
-
 
         getCurrentValue: (path) => {
             const { selectedRecipeId, recipes } = get();
-            const str = recipes[selectedRecipeId]?.currentString;
-            if (!str) return undefined;
-            try {
-                const obj = JSON.parse(str);
-                const v = lodashGet(obj, path);
-                return typeof v === "string" || typeof v === "number" ? v : undefined;
-            } catch {
-                console.warn("Failed to retrieve value.")
-                return undefined;
-            }
+            const obj = recipes[selectedRecipeId]?.currentObj;
+            // TODO: fails silently? error handling here?
+            if (!obj) return undefined;
+            const v = lodashGet(obj, path);
+            return (typeof v === "string" || typeof v === "number") ? v : undefined;
         },
 
 
 
         startPacking: async (callback) => {
-            const s = get();
-            const input = s.inputOptions[s.selectedInputName];
+            const state = get();
+            const input = state.inputOptions[state.selectedInputName];
             const configId = input?.config ?? "";
-            const recipeString = s.recipes[s.selectedRecipeId]?.currentString ?? "";
+            const recipeObj = state.recipes[state.selectedRecipeId]?.currentObj ?? {};
+            const recipeString = jsonToString(recipeObj);
+
             set({ isPacking: true });
             try {
-                await callback(s.selectedRecipeId, configId, recipeString);
+                await callback(state.selectedRecipeId, configId, recipeString);
             } finally {
                 set({ isPacking: false });
             }
@@ -185,17 +186,12 @@ export const useRecipeStore = create<RecipeStore>()(
 
         getOriginalValue: (path) => {
             const { selectedRecipeId, recipes } = get();
-            const str = recipes[selectedRecipeId]?.originalString;
-            if (!str) return undefined;
-            try {
-                const obj = JSON.parse(str);
-                const v = lodashGet(obj, path);
-                return typeof v === "string" || typeof v === "number" ? v : undefined;
-            } catch {
-                console.warn("Failed to retrieve default value.")
-                return undefined;
-            }
+            const obj = recipes[selectedRecipeId]?.originalObj;
+            if (!obj) return undefined;
+            const v = lodashGet(obj, path);
+            return (typeof v === "string" || typeof v === "number") ? v : undefined;
         },
+        reset: () => set(() => ({ ...initialState })),
 
     })),
 
@@ -204,8 +200,6 @@ export const useRecipeStore = create<RecipeStore>()(
 
 // tiny helpers/selectors (all derived — not stored)
 export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
-export const useCurrentRecipeString = () =>
-    useRecipeStore(s => s.recipes[s.selectedRecipeId]?.currentString ?? "");
 export const useInputOptions = () => useRecipeStore(s => s.inputOptions);
 export const useIsLoading = () => useRecipeStore(s => s.isLoading);
 export const useIsPacking = () => useRecipeStore(s => s.isPacking);
@@ -214,13 +208,20 @@ export const useFieldsToDisplay = () =>
 export const useIsCurrentRecipeModified = () =>
     useRecipeStore(s => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () => useRecipeStore(s => s.getOriginalValue);
+export const useCurrentRecipeObj = () =>
+    useRecipeStore(s => s.recipes[s.selectedRecipeId]?.currentObj);
+export const useOriginalRecipeObj = () =>
+    useRecipeStore(s => s.recipes[s.selectedRecipeId]?.originalObj);
+// Derived state
+export const useCurrentRecipeString = () =>
+    useRecipeStore(s => jsonToString(s.recipes[s.selectedRecipeId]?.currentObj));
 
 // action selectors (stable identities)
 export const useLoadInputOptions = () => useRecipeStore(s => s.loadInputOptions);
 export const useLoadAllRecipes = () => useRecipeStore(s => s.loadAllRecipes);
 export const useSelectInput = () => useRecipeStore(s => s.selectInput);
 export const useUpdateRecipeObj = () => useRecipeStore(s => s.updateRecipeObj);
-export const useUpdateRecipeString = () => useRecipeStore(s => s.updateRecipeString);
 export const useRestoreRecipeDefault = () => useRecipeStore(s => s.restoreRecipeDefault);
 export const useStartPacking = () => useRecipeStore(s => s.startPacking);
 export const useGetCurrentValue = () => useRecipeStore(s => s.getCurrentValue);
+export const useResetRecipeStore = () => useRecipeStore(s => s.reset);

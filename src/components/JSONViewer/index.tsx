@@ -6,11 +6,10 @@ interface JSONViewerProps {
     title: string;
     content: string;
     isEditable: boolean;
-    onChange: (value: string) => void;
 }
 
 const JSONViewer = (props: JSONViewerProps): JSX.Element => {
-    const { title, content, isEditable, onChange } = props;
+    const { title, content, isEditable } = props;
     const [viewContent, setViewContent] = useState<boolean>(true);
 
     if (!content) {
@@ -23,7 +22,6 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element => {
         children: isEditable ? (
             <Input.TextArea 
                 value={content} 
-                onChange={(e) => onChange(e.target.value)}
                 rows={14}
             />
         ) : (

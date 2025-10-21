@@ -5,7 +5,7 @@ import {
     useSelectedRecipeId,
     useUpdateRecipeObj,
     useGetCurrentValue,
-    useCurrentRecipeString,
+    useCurrentRecipeObj,
 } from "../../state/store";
 import GradientInput from "../GradientInput";
 import "./style.css";
@@ -29,7 +29,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const selectedRecipeId = useSelectedRecipeId();
     const updateRecipeObj = useUpdateRecipeObj();
     const getCurrentValue = useGetCurrentValue();
-    const recipeVersion = useCurrentRecipeString();
+    const recipeVersion = useCurrentRecipeObj();
 
     // Stable getter for current value, with default fallback
     const getCurrentValueMemo = useCallback(() => {
