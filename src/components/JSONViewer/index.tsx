@@ -1,3 +1,4 @@
+import React from "react";
 import { Descriptions, Tree, TreeDataNode } from "antd";
 import { DescriptionsItemProps } from "antd/es/descriptions/Item";
 import {
@@ -75,7 +76,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
                 }}
             />
             {trees.map((tree) => (
-                <>
+                <React.Fragment key={tree.title}>
                     <h4 className="tree-title">{tree.title}</h4>
                     <Tree
                         key={tree.title}
@@ -83,7 +84,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
                         selectable={false}
                         treeData={tree.children}
                     />
-                </>
+                </React.Fragment>
             ))}
         </div>
     );
