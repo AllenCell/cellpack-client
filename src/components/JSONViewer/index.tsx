@@ -1,10 +1,9 @@
 import { Descriptions, Tree, TreeDataNode } from "antd";
 import { DescriptionsItemProps } from "antd/es/descriptions/Item";
 import {
-    formatKeyValue,
     formatArray,
     convertUnderscoreToSpace,
-    isAnNumberArray,
+    returnOneElement,
 } from "./formattingUtils";
 import "./style.css";
 
@@ -23,36 +22,10 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
     }
 
     const contentAsObj = JSON.parse(content);
-    const returnOneElement = (
-        key: string,
-        value: unknown,
-        parentKey: string = ""
-    ): TreeDataNode => {
-        const nodeKey = parentKey ? `${parentKey}.${key}` : key;
-        if (Array.isArray(value) && isAnNumberArray(value)) {
-            return {
-                key: nodeKey,
-                title: formatKeyValue(key, formatArray(value)),
-            };
-        }
 
-        if (typeof value === "object" && value !== null) {
-            return {
-                key: nodeKey,
-                title: key,
-                children: Object.entries(value).map(([k, v]) =>
-                    returnOneElement(k, v, nodeKey)
-                ),
-            };
-        }
-
-        return {
-            key: nodeKey,
-            title: formatKeyValue(key, value as string | null),
-        };
-    };
-
+    // descriptions for top level key-value pairs
     const descriptions: DescriptionsItemProps[] = [];
+    // trees for nested objects like 'objects', 'composition', 'gradients'
     const trees: { title: string; children: TreeDataNode[] }[] = [];
 
     const createTree = (key: string, value: object) => {
@@ -69,7 +42,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
         }
     };
 
-    // top level objects
+    // top level objects, like name, bounding_box, etc.
     Object.entries(contentAsObj).forEach(([key, value]) => {
         if (typeof value === "string") {
             descriptions.push({
@@ -81,11 +54,13 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
                 label: convertUnderscoreToSpace(key),
                 children: <>{formatArray(value)}</>,
             });
+            // if the value is an object, it's one of the nested items,
+            // either 'objects', 'composition' or 'gradients'
+            // this will make a tree with a title for each
         } else if (typeof value === "object" && value !== null) {
             createTree(key, value);
         }
     });
-    console.log(trees);
 
     return (
         <div className="full-recipe">
