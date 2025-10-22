@@ -101,7 +101,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
             />
             {trees.map((tree) => (
                 <>
-                    <h4>{tree.title}</h4>
+                    <h4 className="tree-title">{tree.title}</h4>
                     <Tree
                         key={tree.title}
                         showLine
