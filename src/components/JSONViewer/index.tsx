@@ -50,6 +50,12 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
                 label: convertUnderscoreToSpace(key),
                 children: <>{value}</>,
             });
+        } else if (typeof value === "number" || typeof value === "boolean") {
+            descriptions.push({
+                label: convertUnderscoreToSpace(key),
+                children: <>{String(value)}</>,
+            });
+            // if the value is an array
         } else if (Array.isArray(value)) {
             descriptions.push({
                 label: convertUnderscoreToSpace(key),
