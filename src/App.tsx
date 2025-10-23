@@ -42,18 +42,25 @@ function App() {
         return !(jsonToString(originalRecipe) == recipeString);
     };
 
-    const buildSubmitRecipeRequest = async (recipeId: string, configId: string, recipeString: string): Promise<Request> => {
-        const recipeChanged: boolean = await recipeHasChanged(recipeId, recipeString);
-        const firebaseRecipe = recipeChanged ? undefined : "firebase:recipes/" + recipeId;
-        const firebaseConfig = configId ? "firebase:configs/" + configId : undefined;
+    const submitRecipe = async (
+        recipeId: string,
+        configId: string,
+        recipeString: string
+    ) => {
+        resetState();
+        const recipeChanged: boolean = await recipeHasChanged(
+            recipeId,
+            recipeString
+        );
+        const firebaseRecipe = recipeChanged
+            ? undefined
+            : "firebase:recipes/" + recipeId;
+        const firebaseConfig = configId
+            ? "firebase:configs/" + configId
+            : undefined;
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
         const requestBody = recipeChanged ? recipeString : undefined;
-        return new Request(url, { method: "POST", body: requestBody });
-    }
-
-    const submitRecipe = async (recipeId: string, configId: string, recipeString: string) => {
-        resetState();
-        const request = await buildSubmitRecipeRequest(recipeId, configId, recipeString);
+        const request = new Request(url, { method: "POST", body: requestBody });
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
