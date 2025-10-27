@@ -144,6 +144,7 @@ export interface FirebaseRecipe {
     bounding_box?: [][] | object;
     grid_file_path?: string;
     recipe_path?: string;
+    randomness_seed?: number;
     composition?: Dictionary<FirebaseComposition>;
     objects?: Dictionary<FirebaseObject>;
     gradients?: Dictionary<FirebaseGradient>;
@@ -162,6 +163,7 @@ export type ViewableRecipe = {
     format_version?: string;
     bounding_box?: [][] | object;
     grid_file_path?: string;
+    randomness_seed?: number;
     composition?: Dictionary<ViewableComposition>;
     objects?: Dictionary<ViewableObject>;
     gradients?: Dictionary<ViewableGradient>;
