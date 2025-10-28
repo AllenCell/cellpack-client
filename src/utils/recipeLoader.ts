@@ -155,6 +155,7 @@ const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
         format_version: recipe.format_version,
         bounding_box: recipe.bounding_box,
         grid_file_path: recipe.grid_file_path,
+        randomness_seed: recipe.randomness_seed,
         composition: convertCollectionToViewable(recipe.composition),
         objects: convertCollectionToViewable(recipe.objects),
         gradients: convertCollectionToViewable(recipe.gradients),
