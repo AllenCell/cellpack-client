@@ -3,9 +3,9 @@ import { Input, InputNumber, Select, Slider } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
-    useUpdateRecipeObj,
+    useEditRecipe,
     useGetCurrentValue,
-    useCurrentRecipeObj,
+    useRecipes,
 } from "../../state/store";
 import GradientInput from "../GradientInput";
 import "./style.css";
@@ -27,9 +27,9 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions } = props;
 
     const selectedRecipeId = useSelectedRecipeId();
-    const updateRecipeObj = useUpdateRecipeObj();
+    const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
-    const recipeVersion = useCurrentRecipeObj();
+    const recipeVersion = useRecipes();
 
     // Stable getter for current value, with default fallback
     const getCurrentValueMemo = useCallback(() => {
@@ -48,7 +48,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const handleInputChange = (value: string | number | null) => {
         if (value == null || !selectedRecipeId) return;
         setValue(value);
-        updateRecipeObj(selectedRecipeId, { [id]: value });
+        editRecipe(selectedRecipeId, { [id]: value });
     };
 
     switch (inputType) {

@@ -1,45 +1,55 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import {
-    useCurrentRecipeString,
-    useFieldsToDisplay,
-    useInputOptions,
     useIsLoading,
-    useLoadInputOptions,
-    useSelectInput,
-    useStartPacking,
     useLoadAllRecipes,
+    useRecipes,
+    useSelectedRecipeId,
+    useSelectRecipe,
+    useStartPacking,
 } from "../../state/store";
+import { buildCurrentRecipeString } from "../../state/utils";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import "./style.css";
 
-
 interface PackingInputProps {
-    startPacking: (recipeId: string, configId: string, recipeString: string) => Promise<void>;
+    startPacking: (
+        recipeId: string,
+        configId: string,
+        recipeString: string
+    ) => Promise<void>;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
     const { startPacking } = props;
-    const recipeString = useCurrentRecipeString();
-    const fieldsToDisplay = useFieldsToDisplay();
-    const inputOptions = useInputOptions();
-    const isLoading = useIsLoading();
 
-    const loadInputOptions = useLoadInputOptions();
+    const recipes = useRecipes();
+    const selectedRecipeId = useSelectedRecipeId();
+    const isLoading = useIsLoading();
     const loadAllRecipes = useLoadAllRecipes();
-    const selectInput = useSelectInput();
+    const selectRecipe = useSelectRecipe();
     const storeStartPacking = useStartPacking();
 
-    const preFetchInputsAndRecipes = useCallback(async () => {
-        await loadInputOptions();
-        await loadAllRecipes();
-    }, [loadInputOptions, loadAllRecipes]);
+    const hasEditableFields = recipes[selectedRecipeId]?.editableFields !== undefined;
+    const hasRecipes = Object.keys(recipes).length > 0;
+
+    const currentRecipe = recipes[selectedRecipeId];
+
+    const recipeString = currentRecipe ? buildCurrentRecipeString(
+            currentRecipe.defaultRecipeData,
+            currentRecipe.edits
+        ) : "";
 
     // Load input options on mount
     useEffect(() => {
-        preFetchInputsAndRecipes();
-    }, [loadInputOptions, loadAllRecipes, preFetchInputsAndRecipes]);
+        const preFetchRecipes = async () => {
+            await loadAllRecipes();
+        }
+        if (!isLoading && !hasRecipes) {
+            preFetchRecipes();
+        }
+    }, [loadAllRecipes, hasRecipes, isLoading]);
 
     const handleStartPacking = async () => {
         await storeStartPacking(startPacking);
@@ -55,8 +65,9 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 <div>Packing Recipe</div>
                 <Dropdown
                     placeholder="Select an option"
-                    options={inputOptions}
-                    onChange={selectInput}
+                    options={recipes}
+                    value={selectedRecipeId}
+                    onChange={selectRecipe}
                 />
             </div>
             <div className="recipe-content">
@@ -64,7 +75,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 <JSONViewer
                     title="Recipe"
                     content={recipeString}
-                    isEditable={fieldsToDisplay === undefined}
+                    isEditable={hasEditableFields}
                 />
             </div>
         </div>
