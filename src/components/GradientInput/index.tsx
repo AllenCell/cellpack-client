@@ -6,7 +6,7 @@ import {
     useGetCurrentValue,
     useCurrentRecipeString,
 } from "../../state/store";
-import { getSelectedGradient, deriveGradientStrength, round2, toStore } from "../../utils/gradient";
+import { getSelectedGradient, deriveGradientStrength, round2 } from "../../utils/gradient";
 import "./style.css";
 
 interface GradientInputProps {
@@ -48,8 +48,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
     const handleStrengthChange = (val: number | null) => {
         if (val == null || !selectedRecipeId || !gradientStrengthData) return;
         const uiVal = round2(val);
-        const storeVal = toStore(uiVal);
-        updateRecipeObj(selectedRecipeId, { [gradientStrengthData.path]: storeVal });
+        updateRecipeObj(selectedRecipeId, { [gradientStrengthData.path]: uiVal });
     };
 
     const selectOptions = gradientOptions.map((option) => ({
