@@ -149,7 +149,7 @@ function App() {
                 className="header"
                 style={{ justifyContent: "space-between" }}
             >
-                <h2 className="header-title">cellPACK demo</h2>
+                <h2 className="header-title">cellPACK Studio</h2>
                 <Link
                     href="https://github.com/mesoscope/cellpack"
                     className="header-link"
