@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import { Dictionary, PackingInputs } from "../../types";
 import { map } from "lodash-es";
+import { Dictionary, PackingInputs } from "../../types";
 
 interface DropdownProps {
     placeholder: string;
