@@ -1,5 +1,6 @@
 import { Select } from "antd";
 import { Dictionary, PackingInputs } from "../../types";
+import { map } from "lodash-es";
 
 interface DropdownProps {
     placeholder: string;
@@ -10,9 +11,9 @@ interface DropdownProps {
 
 const Dropdown = (props: DropdownProps): JSX.Element => {
     const { placeholder, options, onChange, defaultValue } = props;
-    const selectOptions = Object.entries(options).map(([key]) => ({
-        label: <span>{key}</span>,
-        value: key,
+    const selectOptions = map(options, (opt, key) => ({
+        label: opt.name || key,
+        value: opt.recipe,
     }));
 
     return (

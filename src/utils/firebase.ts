@@ -75,7 +75,12 @@ const queryAllDocuments = async (collectionName: string) => {
     return await getDocs(q);
 };
 
-const queryDocumentsByTime = async (collectionName: string, field: string, operator: "<" | "<=" | "==" | "!=" | ">=" | ">" , value: Timestamp) => {
+const queryDocumentsByTime = async (
+    collectionName: string,
+    field: string,
+    operator: "<" | "<=" | "==" | "!=" | ">=" | ">",
+    value: Timestamp
+) => {
     const q = query(
         collection(db, collectionName),
         where(field, operator, value)
@@ -90,7 +95,10 @@ const mapQuerySnapshotToDocs = (querySnapshot: QuerySnapshot<DocumentData>) => {
     })) as FirestoreDoc[];
 };
 
-const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, field?: string) => {
+const extractSingleDocumentData = (
+    querySnapshot: QuerySnapshot<DocumentData>,
+    field?: string
+) => {
     let result = "";
     querySnapshot.forEach((doc) => {
         result = field ? doc.data()[field] : doc.data();
@@ -99,8 +107,13 @@ const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, f
 };
 
 // Query functions for our use case using generic functions
-const getJobStatus = async (jobId: string): Promise<JobStatusObject|undefined> => {
-    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
+const getJobStatus = async (
+    jobId: string
+): Promise<JobStatusObject | undefined> => {
+    const querySnapshot = await queryDocumentById(
+        FIRESTORE_COLLECTIONS.JOB_STATUS,
+        jobId
+    );
     const docs = querySnapshot.docs.map((doc) => ({
         status: doc.data().status,
         error_message: doc.data().error_message,
@@ -111,20 +124,28 @@ const getJobStatus = async (jobId: string): Promise<JobStatusObject|undefined> =
 };
 
 const getOutputsDirectory = async (jobId: string) => {
-    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
+    const querySnapshot = await queryDocumentById(
+        FIRESTORE_COLLECTIONS.JOB_STATUS,
+        jobId
+    );
     return extractSingleDocumentData(querySnapshot, "outputs_directory");
-}
+};
 
 const getAllDocsFromCollection = async (collectionName: string) => {
     const querySnapshot = await queryAllDocuments(collectionName);
     return mapQuerySnapshotToDocs(querySnapshot);
 };
 
-const getEditableFieldsList = async (editable_field_ids: string[]): Promise<EditableField[]|undefined> => {
+const getEditableFieldsList = async (
+    editable_field_ids: string[]
+): Promise<EditableField[] | undefined> => {
     if (editable_field_ids.length === 0) {
         return undefined;
     }
-    const querySnapshot = await queryDocumentsByIds(FIRESTORE_COLLECTIONS.EDITABLE_FIELDS, editable_field_ids);
+    const querySnapshot = await queryDocumentsByIds(
+        FIRESTORE_COLLECTIONS.EDITABLE_FIELDS,
+        editable_field_ids
+    );
     const docs = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
@@ -143,23 +164,28 @@ const getEditableFieldsList = async (editable_field_ids: string[]): Promise<Edit
 };
 
 const getPackingInputsDict = async (): Promise<Dictionary<PackingInputs>> => {
-    const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
+    const docs = await getAllDocsFromCollection(
+        FIRESTORE_COLLECTIONS.PACKING_INPUTS
+    );
     const inputsDict: Dictionary<PackingInputs> = {};
     for (const doc of docs) {
-        const name = doc[FIRESTORE_FIELDS.NAME];
+        const displayName = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
         const recipe = doc[FIRESTORE_FIELDS.RECIPE];
-        const editableFields = await getEditableFieldsList(doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []);
-        if (name && config && recipe) {
-            inputsDict[name] = {
+        const editableFields = await getEditableFieldsList(
+            doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []
+        );
+        if (config && recipe) {
+            inputsDict[recipe] = {
+                [FIRESTORE_FIELDS.NAME]: displayName,
                 [FIRESTORE_FIELDS.CONFIG]: config,
                 [FIRESTORE_FIELDS.RECIPE]: recipe,
-                [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields
+                [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields,
             };
         }
     }
     return inputsDict;
-}
+};
 
 const getDocsByIds = async (coll: string, ids: string[]) => {
     const querySnapshot = await queryDocumentsByIds(coll, ids);
@@ -170,36 +196,57 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
         ...doc.data(),
     }));
     return docs;
-}
+};
 
 const addRecipe = async (id: string, data: object) => {
     await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
-}
+};
 
 const docCleanup = async () => {
     const now = Date.now();
     const collectionsToClean = [
-        { name: FIRESTORE_COLLECTIONS.EDITED_RECIPES, retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED },
-        { name: FIRESTORE_COLLECTIONS.JOB_STATUS, retention: RETENTION_POLICY.RETENTION_PERIODS.JOB_STATUS }
+        {
+            name: FIRESTORE_COLLECTIONS.EDITED_RECIPES,
+            retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED,
+        },
+        {
+            name: FIRESTORE_COLLECTIONS.JOB_STATUS,
+            retention: RETENTION_POLICY.RETENTION_PERIODS.JOB_STATUS,
+        },
     ];
 
     for (const collectionConfig of collectionsToClean) {
-        const cutoffTime = Timestamp.fromMillis(now - collectionConfig.retention);
+        const cutoffTime = Timestamp.fromMillis(
+            now - collectionConfig.retention
+        );
         const querySnapshot = await queryDocumentsByTime(
             collectionConfig.name,
             RETENTION_POLICY.TIMESTAMP_FIELD,
             "<",
             cutoffTime
         );
-        
+
         const deletePromises: Promise<void>[] = [];
-        
+
         querySnapshot.forEach((document) => {
-            deletePromises.push(deleteDoc(doc(db, collectionConfig.name, document.id)));
+            deletePromises.push(
+                deleteDoc(doc(db, collectionConfig.name, document.id))
+            );
         });
-        
+
         await Promise.all(deletePromises);
-        console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
+        console.log(
+            `Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`
+        );
     }
-}
-export { db, queryDocumentById, getDocsByIds, getJobStatus, addRecipe, docCleanup, getPackingInputsDict, getOutputsDirectory };
+};
+export {
+    db,
+    queryDocumentById,
+    getDocsByIds,
+    getJobStatus,
+    addRecipe,
+    docCleanup,
+    getPackingInputsDict,
+    getOutputsDirectory,
+};

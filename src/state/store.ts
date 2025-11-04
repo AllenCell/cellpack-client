@@ -13,7 +13,6 @@ export interface RecipeData {
 }
 
 export interface RecipeState {
-    selectedRecipeName: string;
     selectedRecipeId: string;
     inputOptions: Record<string, PackingInputs>;
     recipes: Record<string, RecipeData>;
@@ -49,8 +48,7 @@ type Actions = {
 export type RecipeStore = RecipeState & UIState & Actions;
 
 const initialState: RecipeState & UIState = {
-    selectedRecipeName: "Peroxisome",
-    selectedRecipeId: "",
+    selectedRecipeId: "peroxisome_v_gradient_packing",
     inputOptions: {},
     recipes: {},
     isLoading: false,
@@ -107,14 +105,12 @@ export const useRecipeStore = create<RecipeStore>()(
             get().selectRecipe("Peroxisome");
         },
 
-        selectRecipe: async (recipeDisplayName) => {
-            console.log("Selecting recipe:", recipeDisplayName);
-            const sel = get().inputOptions[recipeDisplayName];
+        selectRecipe: async (recipeId) => {
+            const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
             set({
-                selectedRecipeName: recipeDisplayName,
-                selectedRecipeId: sel.recipe ?? "",
+                selectedRecipeId: recipeId,
             });
 
             if (sel.recipe && !get().recipes[sel.recipe]) {
@@ -182,7 +178,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
         startPacking: async (callback) => {
             const s = get();
-            const input = s.inputOptions[s.selectedRecipeName];
+            const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.config ?? "";
             const recipeString =
                 s.recipes[s.selectedRecipeId]?.currentString ?? "";
@@ -221,9 +217,7 @@ export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
 export const useIsLoading = () => useRecipeStore((s) => s.isLoading);
 export const useIsPacking = () => useRecipeStore((s) => s.isPacking);
 export const useFieldsToDisplay = () =>
-    useRecipeStore(
-        (s) => s.inputOptions[s.selectedRecipeName]?.editable_fields
-    );
+    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editable_fields);
 export const useIsCurrentRecipeModified = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () =>
