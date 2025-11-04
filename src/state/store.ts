@@ -47,8 +47,10 @@ type Actions = {
 
 export type RecipeStore = RecipeState & UIState & Actions;
 
+const INITIAL_RECIPE_ID = "peroxisome_v_gradient_packing";
+
 const initialState: RecipeState & UIState = {
-    selectedRecipeId: "peroxisome_v_gradient_packing",
+    selectedRecipeId: INITIAL_RECIPE_ID,
     inputOptions: {},
     recipes: {},
     isLoading: false,
@@ -102,7 +104,7 @@ export const useRecipeStore = create<RecipeStore>()(
             } finally {
                 set({ isLoading: false });
             }
-            get().selectRecipe("Peroxisome");
+            get().selectRecipe(INITIAL_RECIPE_ID);
         },
 
         selectRecipe: async (recipeId) => {
