@@ -95,16 +95,22 @@ export const useRecipeStore = create<RecipeStore>()(
             Object.values(inputOptions).forEach((opt) => {
                 if (opt?.recipe) ids.add(opt.recipe);
             });
-            const missing = [...ids].filter((id) => !recipes[id]);
-            if (!missing.length) return;
-
+            const recipesToLoad = [...ids].filter((id) => !recipes[id]);
+            if (!recipesToLoad.length) return;
             set({ isLoading: true });
             try {
-                await Promise.all(missing.map((id) => loadRecipe(id)));
+                await Promise.all(recipesToLoad.map((id) => loadRecipe(id)));
             } finally {
                 set({ isLoading: false });
             }
-            get().selectRecipe(INITIAL_RECIPE_ID);
+            let recipeToLoad = INITIAL_RECIPE_ID;
+            if (!get().recipes[INITIAL_RECIPE_ID]) {
+                console.warn(
+                    `Initial recipe ID ${INITIAL_RECIPE_ID} not found, selecting first available recipe.`
+                );
+                recipeToLoad = Object.keys(get().recipes)[0];
+            }
+            get().selectRecipe(recipeToLoad);
         },
 
         selectRecipe: async (recipeId) => {
