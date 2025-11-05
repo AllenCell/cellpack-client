@@ -101,7 +101,6 @@ vi.mock("../utils/packingService", () => ({
         return { status: "DONE", error_message: "", outputs_directory: "", result_path: "" };
     }),
     buildResultUrl: vi.fn(async () => "https://test.com/result/path.sim"),
-    fetchJobLogs: vi.fn(async () => "LOGS-FAIL"),
 }));
 
 vi.mock("../utils/firebase", () => ({
@@ -113,7 +112,7 @@ vi.mock("../utils/firebase", () => ({
 }));
 
 const { getRecipesFromFirebase } = await import("../utils/firebase");
-const { submitJob, pollForJobStatus, buildResultUrl, fetchJobLogs } = await import("../utils/packingService");
+const { submitJob, pollForJobStatus, buildResultUrl } = await import("../utils/packingService");
 
 /* ---------- Tests ---------- */
 
@@ -238,13 +237,12 @@ describe("recipe store", () => {
             });
 
             it("FAILED terminal status stores logs, leaves resultUrl empty", async () => {
-                vi.mocked(pollForJobStatus).mockResolvedValueOnce({ status: "FAILED", error_message: "", outputs_directory: "", result_path: "" });
+                vi.mocked(pollForJobStatus).mockResolvedValueOnce({ status: "FAILED", error_message: "LOGS-FAIL", outputs_directory: "", result_path: "" });
 
                 await useRecipeStore.getState().loadAllRecipes();
                 await useRecipeStore.getState().startPacking();
 
                 const s = useRecipeStore.getState();
-                expect(fetchJobLogs).toHaveBeenCalledWith("job-xyz");
                 expect(s.packingData.jobStatus).toBe(JOB_STATUS.FAILED);
                 expect(s.packingData.jobLogs).toBe("LOGS-FAIL");
                 expect(s.packingData.resultUrl).toBe("");

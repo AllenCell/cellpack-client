@@ -116,11 +116,10 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         }
 
         case "dropdown": {
-            const selectOptions =
-                options?.map((option) => ({
-                    label: option,
-                    value: option,
-                })) || [];
+            const selectOptions = options?.map((option) => ({
+                label: option,
+                value: option,
+            })) || [];
             return (
                 <div className="input-switch">
                     <div className="input-label">

@@ -8,7 +8,7 @@ const ErrorLogs = (): JSX.Element => {
     const [viewErrorLogs, setViewErrorLogs] = useState<boolean>(true);
     const {jobStatus, jobLogs: errorLogs} = usePackingData();
 
-    const toggleLogs = async () => {
+    const toggleLogs = () => {
         setViewErrorLogs(!viewErrorLogs);
     };
 

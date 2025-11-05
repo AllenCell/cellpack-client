@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { get as lodashGet, isEqual } from 'lodash-es';
 import { getOutputsDirectory, getRecipesFromFirebase } from "../utils/firebase";
-import { buildResultUrl, fetchJobLogs, pollForJobStatus, submitJob } from "../utils/packingService";
+import { buildResultUrl, pollForJobStatus, submitJob } from "../utils/packingService";
 import { JOB_STATUS } from "../constants/aws";
 import { jsonToString } from "../utils/recipeLoader";
 import { PackingManifest, RecipeManifest } from "../types";
@@ -188,7 +188,7 @@ export const useRecipeStore = create<RecipeStore>()(
                         }
                     }));
                 } else {
-                    const logs = await fetchJobLogs(newJobId);
+                    const logs = finalStatus.error_message;
                     set(state => ({
                         packingData: {
                             ...state.packingData,

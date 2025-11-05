@@ -1,7 +1,7 @@
 import { getSubmitPackingUrl, JOB_STATUS } from "../constants/aws";
 import { v4 as uuidv4 } from 'uuid';
-import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "../constants/firebase";
-import { addRecipe, getDocById, getJobStatus, getResultPath } from "./firebase";
+import { FIRESTORE_FIELDS } from "../constants/firebase";
+import { addRecipe, getJobStatus, getResultPath } from "./firebase";
 import { getFirebaseRecipe, jsonToString } from "./recipeLoader";
 import { SIMULARIUM_EMBED_URL } from "../constants/urls";
 import { JobStatusObject } from "../types";
@@ -66,10 +66,4 @@ export const pollForJobStatus = async (
 export const buildResultUrl = async (jobId: string): Promise<string> => {
     const rel = await getResultPath(jobId);
     return SIMULARIUM_EMBED_URL + rel;
-};
-
-export const fetchJobLogs = async (jobId: string): Promise<string> => {
-    if (!jobId) return "";
-    const logStr = await getDocById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
-    return logStr;
 };

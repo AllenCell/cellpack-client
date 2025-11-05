@@ -5,10 +5,9 @@ import {
     submitJob,
     pollForJobStatus,
     buildResultUrl,
-    fetchJobLogs,
 } from "../utils/packingService";
 import { JOB_STATUS } from "../constants/aws";
-import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "../constants/firebase";
+import { FIRESTORE_FIELDS } from "../constants/firebase";
 
 vi.mock("../utils/firebase", () => ({
     addRecipe: vi.fn(async () => { }),
@@ -24,7 +23,7 @@ vi.mock("../utils/recipeLoader", () => ({
 
 vi.mock("uuid", () => ({ v4: () => "uuid-123" }));
 
-const { addRecipe, getDocById, getJobStatus, getResultPath } = await import("../utils/firebase");
+const { addRecipe, getJobStatus, getResultPath } = await import("../utils/firebase");
 const { getFirebaseRecipe } = await import("../utils/recipeLoader");
 
 beforeEach(() => {
@@ -132,11 +131,5 @@ describe("packingService utils", () => {
         const url = await buildResultUrl("job-9");
         expect(getResultPath).toHaveBeenCalledWith("job-9");
         expect(url.endsWith("/result/path.sim")).toBe(true);
-    });
-
-    test("fetchJobLogs returns '' for empty id, otherwise fetches", async () => {
-        expect(await fetchJobLogs("")).toBe("");
-        expect(await fetchJobLogs("job-3")).toBe("LOGS-123");
-        expect(getDocById).toHaveBeenCalledWith(FIRESTORE_COLLECTIONS.JOB_STATUS, "job-3");
     });
 });
