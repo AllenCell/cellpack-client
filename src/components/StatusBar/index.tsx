@@ -24,7 +24,7 @@ const StatusBar = (): JSX.Element => {
     }
 
     return (
-        <div className="status-row">
+        <>
             <div className="status-container status-bar">
                 <div>
                     <b>Status</b> {jobStatus}
@@ -47,7 +47,7 @@ const StatusBar = (): JSX.Element => {
                 </Button>
             )}
             <ErrorLogs />
-        </div>
+        </>
     );
 };
 

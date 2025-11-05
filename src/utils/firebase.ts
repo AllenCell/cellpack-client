@@ -71,14 +71,6 @@ const queryDocumentsByIds = async (collectionName: string, ids: string[]) => {
     return await getDocs(q);
 };
 
-const queryDocumentsByField = async (collectionName: string, field: string, value: string | number | boolean) => {
-    const q = query(
-        collection(db, collectionName),
-        where(field, "==", value)
-    );
-    return await getDocs(q);
-};
-
 const queryAllDocuments = async (collectionName: string) => {
     const q = query(collection(db, collectionName));
     return await getDocs(q);
@@ -109,7 +101,7 @@ const extractSingleDocumentData = (querySnapshot: QuerySnapshot<DocumentData>, f
 
 // Query functions for our use case using generic functions
 const getResultPath = async (jobId: string) => {
-    const querySnapshot = await queryDocumentsByField(FIRESTORE_COLLECTIONS.RESULTS, FIRESTORE_FIELDS.BATCH_JOB_ID, jobId);
+    const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.RESULTS, jobId);
     return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.URL);
 };
 
@@ -180,12 +172,6 @@ const getRecipesFromFirebase = async (): Promise<Dictionary<RecipeManifest>> => 
     return inputsDict;
 }
 
-const getDocById = async (coll: string, id: string) => {
-    const docs = await getAllDocsFromCollection(coll);
-    const doc = docs.find(d => d.id === id);
-    return JSON.stringify(doc, null, 2);
-}
-
 const getDocsByIds = async (coll: string, ids: string[]) => {
     const querySnapshot = await queryDocumentsByIds(coll, ids);
     const docs = querySnapshot.docs.map((doc) => ({
@@ -227,4 +213,4 @@ const docCleanup = async () => {
         console.log(`Cleaned up ${deletePromises.length} documents from ${collectionConfig.name}`);
     }
 }
-export { db, queryDocumentById, getDocById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup, getRecipesFromFirebase, getOutputsDirectory };
+export { db, queryDocumentById, getDocsByIds, getJobStatus, getResultPath, addRecipe, docCleanup, getRecipesFromFirebase, getOutputsDirectory };
