@@ -38,6 +38,7 @@ export const FIRESTORE_FIELDS = {
     RECIPE: "recipe",
     CONFIG: "config",
     EDITABLE_FIELDS: "editable_fields",
+    RESULT_PATH: "result_path",
 } as const;
 
 export const RETENTION_POLICY = {

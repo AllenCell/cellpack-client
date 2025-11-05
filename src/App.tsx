@@ -6,6 +6,7 @@ import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
+import { useResultUrl, useSetResultUrl } from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -18,9 +19,10 @@ function App() {
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
-    const [resultUrl, setResultUrl] = useState<string>("");
     const [outputDir, setOutputDir] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
+    const resultUrl = useResultUrl();
+    const setResultUrl = useSetResultUrl();
 
     let start = 0;
 

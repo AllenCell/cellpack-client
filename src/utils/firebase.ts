@@ -175,12 +175,14 @@ const getPackingInputsDict = async (): Promise<Dictionary<PackingInputs>> => {
         const editableFields = await getEditableFieldsList(
             doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []
         );
+        const result = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
         if (config && recipe) {
             inputsDict[recipe] = {
                 [FIRESTORE_FIELDS.NAME]: displayName,
                 [FIRESTORE_FIELDS.CONFIG]: config,
                 [FIRESTORE_FIELDS.RECIPE]: recipe,
                 [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields,
+                [FIRESTORE_FIELDS.RESULT_PATH]: result,
             };
         }
     }
