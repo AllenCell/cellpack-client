@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useRecipeStore } from "../state/store";
-import { EditableField, PackingInputs, ViewableRecipe } from "../types";
+import { EditableField, ViewableRecipe } from "../types";
+import { JOB_STATUS } from "../constants/aws";
 
 /* ---------- Test data ---------- */
 
@@ -26,19 +27,6 @@ export const editableFieldPeroxisomeCount: EditableField = {
     path: "composition.membrane.regions.interior[2].count",
     min: 0,
     max: 1000,
-};
-
-export const packingInputsDictFixture: Record<string, PackingInputs> = {
-    fooInput: {
-        config: "config-123",
-        recipe: "r1",
-        editable_fields: [editableFieldPeroxisomeRadius, editableFieldPeroxisomeCount],
-    },
-    barInput: {
-        config: "config-999",
-        recipe: "r2",
-        editable_fields: [],
-    },
 };
 
 export const viewableRecipeR1: ViewableRecipe = {
@@ -96,10 +84,6 @@ export const viewableRecipeR2: ViewableRecipe = {
 
 /* ---------- Mocks ---------- */
 
-vi.mock("../utils/firebase", () => ({
-    getPackingInputsDict: vi.fn(async () => packingInputsDictFixture),
-}));
-
 vi.mock("../utils/recipeLoader", () => ({
     getFirebaseRecipe: vi.fn(async (name: string) => {
         if (name === "r1") return viewableRecipeR1;
@@ -109,175 +93,185 @@ vi.mock("../utils/recipeLoader", () => ({
     jsonToString: (obj: unknown) => JSON.stringify(obj, null, 2),
 }));
 
-const getPackingInputsDict =
-    (await import("../utils/firebase")).getPackingInputsDict as unknown as ReturnType<typeof vi.fn>;
-const getFirebaseRecipe =
-    (await import("../utils/recipeLoader")).getFirebaseRecipe as unknown as ReturnType<typeof vi.fn>;
+vi.mock("../utils/packingService", () => ({
+    submitJob: vi.fn(async () => ({ response: { ok: true }, data: { jobId: "job-xyz" } })),
+    pollForJobStatus: vi.fn(async (_jobId: string, onStatus?: (s: string) => void) => {
+        if (onStatus) {
+            onStatus("RUNNING");
+            onStatus("DONE");
+        }
+        return "DONE";
+    }),
+    buildResultUrl: vi.fn(async () => "https://test.com/result/path.sim"),
+    fetchJobLogs: vi.fn(async () => "LOGS-FAIL"),
+}));
+
+vi.mock("../utils/firebase", () => ({
+    getRecipesFromFirebase: vi.fn(async () => ({
+        r1: { recipeId: "r1", configId: "config-123", defaultRecipeData: viewableRecipeR1, edits: {}, editableFields: [] },
+        r2: { recipeId: "r2", configId: "config-456", defaultRecipeData: viewableRecipeR2, edits: {}, editableFields: [] },
+    })),
+}));
+
+vi.mock("../state/utils", () => ({
+    buildCurrentRecipeString: (def: object, edits: Record<string, unknown>) =>
+        JSON.stringify({ ...def, ...edits }),
+}));
+
+const { getRecipesFromFirebase } = await import("../utils/firebase");
+const { submitJob, pollForJobStatus, buildResultUrl, fetchJobLogs } = await import("../utils/packingService");
 
 /* ---------- Tests ---------- */
 
-describe("recipe store", () => {
+describe("recipe store (real buildCurrentRecipeString)", () => {
     afterEach(() => {
         useRecipeStore.getState().reset();
         vi.clearAllMocks();
     });
 
-    describe("input options loading", () => {
-        it("loads input options", async () => {
-            const loadInputOptions = useRecipeStore.getState().loadInputOptions;
-            await loadInputOptions();
-            const inputOptions = useRecipeStore.getState().inputOptions;
-
-            expect(getPackingInputsDict).toHaveBeenCalledTimes(1);
-            expect(inputOptions.fooInput.recipe).toBe("r1");
-            expect(inputOptions.fooInput.editable_fields?.[0]?.path).toBe(
-                "objects.peroxisome.radius"
-            );
-        });
-    });
-
-    describe("recipe loading and selection", () => {
-        it("loads a recipe once and sets mirrors", async () => {
-            const { loadRecipe } = useRecipeStore.getState();
-
-            await loadRecipe("r1");
-            const r1 = useRecipeStore.getState().recipes["r1"];
-
-            expect(getFirebaseRecipe).toHaveBeenCalledWith("r1");
-            expect(r1.currentObj.objects?.nucleus?.radius).toBe(10);
-            expect(r1.currentObj.composition?.comp1?.object).toBe("nucleus");
-            expect(r1.isModified).toBe(false);
-
-            await loadRecipe("r1");
-            expect(getFirebaseRecipe).toHaveBeenCalledTimes(1);
-        });
-
-        it("selects an input and auto-loads missing recipe", async () => {
-            const { loadInputOptions, selectInput } = useRecipeStore.getState();
-
-            await loadInputOptions();
-            await selectInput("fooInput");
+    describe("loading", () => {
+        it("loadAllRecipes populates recipes and selects first recipe", async () => {
+            const { loadAllRecipes, getOriginalValue } = useRecipeStore.getState();
+            await loadAllRecipes();
 
             const state = useRecipeStore.getState();
-            expect(state.selectedInputName).toBe("fooInput");
+            expect(getRecipesFromFirebase).toHaveBeenCalledTimes(1);
+            expect(Object.keys(state.recipes)).toEqual(["r1", "r2"]);
             expect(state.selectedRecipeId).toBe("r1");
-            expect(state.recipes["r1"]).toBeDefined();
+            expect(getOriginalValue("objects.nucleus.radius")).toBe(10);
         });
     });
 
-    describe("mutations", () => {
-        it("updateRecipeObj applies changes and marks modified", async () => {
-            const { loadRecipe, updateRecipeObj } = useRecipeStore.getState();
-            await loadRecipe("r1");
+    describe("selection", () => {
+        it("selectRecipe updates selectedRecipeId", async () => {
+            const { loadAllRecipes, selectRecipe } = useRecipeStore.getState();
+            await loadAllRecipes();
+            await selectRecipe("r2");
+            expect(useRecipeStore.getState().selectedRecipeId).toBe("r2");
+            await selectRecipe("r1");
+            expect(useRecipeStore.getState().selectedRecipeId).toBe("r1");
+        });
+    });
 
-            updateRecipeObj("r1", {
+    describe("edits & restore", () => {
+        it("editRecipe writes edits and getCurrentValue reflects them", async () => {
+            const { loadAllRecipes, selectRecipe, editRecipe, getCurrentValue } =
+                useRecipeStore.getState();
+
+            await loadAllRecipes();
+            await selectRecipe("r1");
+
+            expect(getCurrentValue("objects.nucleus.radius")).toBe(10);
+
+            editRecipe("r1", {
                 "objects.nucleus.radius": 42,
                 "composition.comp1.name": "base-updated",
             });
-            const r1 = useRecipeStore.getState().recipes["r1"];
 
-            expect(r1.currentObj.objects?.nucleus?.radius).toBe(42);
-            expect(r1.currentObj.composition?.comp1?.name).toBe("base-updated");
-            expect(r1.isModified).toBe(true);
+            expect(getCurrentValue("objects.nucleus.radius")).toBe(42);
+            expect(getCurrentValue("composition.comp1.name")).toBe("base-updated");
+
+            const r1 = useRecipeStore.getState().recipes["r1"];
+            expect(r1.edits["objects.nucleus.radius"]).toBe(42);
         });
 
-        it("restoreRecipeDefault resets to original and clears modified", async () => {
-            const { loadRecipe, updateRecipeObj, restoreRecipeDefault } =
-                useRecipeStore.getState();
-            await loadRecipe("r1");
+        it("restoreRecipeDefault clears edits and falls back to defaults", async () => {
+            const {
+                loadAllRecipes,
+                selectRecipe,
+                editRecipe,
+                restoreRecipeDefault,
+                getCurrentValue,
+            } = useRecipeStore.getState();
 
-            updateRecipeObj("r1", { "objects.nucleus.radius": 99 });
-            expect(useRecipeStore.getState().recipes["r1"].isModified).toBe(true);
+            await loadAllRecipes();
+            await selectRecipe("r1");
+
+            editRecipe("r1", { "objects.nucleus.radius": 99 });
+            expect(getCurrentValue("objects.nucleus.radius")).toBe(99);
 
             restoreRecipeDefault("r1");
-            const r1 = useRecipeStore.getState().recipes["r1"];
-
-            expect(r1.currentObj.objects?.nucleus?.radius).toBe(10);
-            expect(r1.isModified).toBe(false);
+            expect(getCurrentValue("objects.nucleus.radius")).toBe(10);
+            expect(Object.keys(useRecipeStore.getState().recipes["r1"].edits)).toHaveLength(0);
         });
     });
 
     describe("getters", () => {
-        it("getCurrentValue / getOriginalValue read from selected recipe", async () => {
+        it("getCurrentValue and getOriginalValue", async () => {
             const {
-                loadInputOptions,
-                selectInput,
-                loadRecipe,
+                loadAllRecipes,
+                selectRecipe,
+                editRecipe,
                 getCurrentValue,
                 getOriginalValue,
             } = useRecipeStore.getState();
 
-            await loadInputOptions();
-            await selectInput("fooInput");
-            await loadRecipe("r1");
+            await loadAllRecipes();
+            await selectRecipe("r1");
 
-            useRecipeStore.getState().updateRecipeObj("r1", {
-                "objects.nucleus.radius": 5,
-            });
-
-            expect(getCurrentValue("objects.nucleus.radius")).toBe(5);
             expect(getOriginalValue("objects.nucleus.radius")).toBe(10);
-            expect(getCurrentValue("missing.path")).toBeUndefined();
-        });
+            expect(getOriginalValue("objects.peroxisome.radius")).toBe(2.37);
+            expect(getOriginalValue("composition.membrane.regions.interior[2].count")).toBe(121);
 
-        it("supports peroxisome radius and count paths", async () => {
-            const {
-                loadInputOptions,
-                selectInput,
-                loadRecipe,
-                getCurrentValue,
-                updateRecipeObj,
-            } = useRecipeStore.getState();
-
-            await loadInputOptions();
-            await selectInput("fooInput");
-            await loadRecipe("r1");
-
-            expect(getCurrentValue("objects.peroxisome.radius")).toBe(2.37);
-            expect(
-                getCurrentValue("composition.membrane.regions.interior[2].count")
-            ).toBe(121);
-
-            updateRecipeObj("r1", {
+            editRecipe("r1", {
                 "objects.peroxisome.radius": 3.1,
                 "composition.membrane.regions.interior[2].count": 150,
             });
 
             expect(getCurrentValue("objects.peroxisome.radius")).toBe(3.1);
-            expect(
-                getCurrentValue("composition.membrane.regions.interior[2].count")
-            ).toBe(150);
+            expect(getCurrentValue("composition.membrane.regions.interior[2].count")).toBe(150);
+            expect(getCurrentValue("missing.path")).toBeUndefined();
         });
-    });
 
-    describe("packing serialization", () => {
-        it("startPacking serializes currentObj and passes ids", async () => {
-            const {
-                loadInputOptions,
-                selectInput,
-                loadRecipe,
-                startPacking,
-            } = useRecipeStore.getState();
+        describe("store: startPacking flow", () => {
+            it("loadAllRecipes selects first; startPacking success populates jobId/resultUrl and clears isPacking", async () => {
+                const store = useRecipeStore.getState();
 
-            await loadInputOptions();
-            await selectInput("fooInput");
-            await loadRecipe("r1");
+                await store.loadAllRecipes();
+                expect(getRecipesFromFirebase).toHaveBeenCalledTimes(1);
+                expect(useRecipeStore.getState().selectedRecipeId).toBe("r1");
 
-            const spy = vi.fn(async () => { });
-            await startPacking(spy);
+                await useRecipeStore.getState().startPacking();
 
-            expect(spy).toHaveBeenCalledWith(
-                "r1",
-                "config-123",
-                expect.any(String)
-            );
+                const s = useRecipeStore.getState();
+                expect(submitJob).toHaveBeenCalledWith("r1", expect.any(String), "config-123");
+                expect(pollForJobStatus).toHaveBeenCalledWith("job-xyz", expect.any(Function));
+                expect(buildResultUrl).toHaveBeenCalledWith("job-xyz");
+                expect(s.packingData.jobId).toBe("job-xyz");
+                expect(s.packingData.resultUrl).toBe("https://test.com/result/path.sim");
+                expect(s.isPacking).toBe(false);
+                expect(typeof s.packingData.runTime).toBe("number");
+            });
 
-            const [, , recipeString] = spy.mock.calls[0] as unknown as [string, string, string];
-            const parsed = JSON.parse(recipeString);
-            expect(parsed.objects.peroxisome.radius).toBe(2.37);
-            expect(
-                parsed.composition.membrane.regions.interior[2].count
-            ).toBe(121);
+            it("FAILED terminal status stores logs, leaves resultUrl empty", async () => {
+                vi.mocked(pollForJobStatus).mockResolvedValueOnce("FAILED");
+
+                await useRecipeStore.getState().loadAllRecipes();
+                await useRecipeStore.getState().startPacking();
+
+                const s = useRecipeStore.getState();
+                expect(fetchJobLogs).toHaveBeenCalledWith("job-xyz");
+                expect(s.packingData.jobStatus).toBe(JOB_STATUS.FAILED);
+                expect(s.packingData.jobLogs).toBe("LOGS-FAIL");
+                expect(s.packingData.resultUrl).toBe("");
+                expect(s.isPacking).toBe(false);
+            });
+
+            it("non-ok submit sets FAILED and stores error payload", async () => {
+                vi.mocked(submitJob).mockResolvedValueOnce({
+                    response: { ok: false, status: 400 } as Response,
+                    data: { message: "bad request" },
+                });
+
+                await useRecipeStore.getState().loadAllRecipes();
+                await useRecipeStore.getState().startPacking();
+
+                const s = useRecipeStore.getState();
+                expect(s.packingData.jobStatus).toBe(JOB_STATUS.FAILED);
+                expect(s.packingData.jobLogs).toContain("bad request");
+                expect(s.isPacking).toBe(false);
+            });
         });
-    });
+
+    })
 });
