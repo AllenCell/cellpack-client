@@ -43,6 +43,14 @@ export interface RecipeManifest {
     edits: Record<string, string | number>;
 }
 
+export interface PackingManifest {
+    jobId: string;
+    jobStatus: string;
+    jobLogs: string;
+    resultUrl: string;
+    runTime: number;
+}
+
 export type EditableField = {
     id: string;
     name: string;

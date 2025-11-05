@@ -13,23 +13,13 @@ import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import "./style.css";
 
-interface PackingInputProps {
-    startPacking: (
-        recipeId: string,
-        configId: string,
-        recipeString: string
-    ) => Promise<void>;
-}
-
-const PackingInput = (props: PackingInputProps): JSX.Element => {
-    const { startPacking } = props;
-
+const PackingInput = (): JSX.Element => {
     const recipes = useRecipes();
     const selectedRecipeId = useSelectedRecipeId();
     const isLoading = useIsLoading();
     const loadAllRecipes = useLoadAllRecipes();
     const selectRecipe = useSelectRecipe();
-    const storeStartPacking = useStartPacking();
+    const startPacking = useStartPacking();
 
     const hasEditableFields = recipes[selectedRecipeId]?.editableFields !== undefined;
     const hasRecipes = Object.keys(recipes).length > 0;
@@ -52,7 +42,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     }, [loadAllRecipes, hasRecipes, isLoading]);
 
     const handleStartPacking = async () => {
-        await storeStartPacking(startPacking);
+        await startPacking();
     };
 
     if (isLoading) {
