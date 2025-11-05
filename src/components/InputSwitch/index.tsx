@@ -16,7 +16,6 @@ interface InputSwitchProps {
     dataType: string;
     description: string;
     id: string;
-    defaultValue: string | number;
     min?: number;
     max?: number;
     conversionFactor?: number;
@@ -52,7 +51,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     // Stable getter for current value
     const getCurrentValueMemo = useCallback(() => {
         let value = getCurrentValue(id);
-        // todo does this make sense on ssot branch?
         if (!value) {
             // Default to min or 0 if numeric type, othewise empty string
             if (dataType === "integer" || dataType === "float") {

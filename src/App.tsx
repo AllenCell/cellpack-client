@@ -3,10 +3,8 @@ import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
 import "./App.css";
-import Sider from "antd/es/layout/Sider";
-import { Footer } from "antd/es/layout/layout";
 
-const { Header, Content } = Layout;
+const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {

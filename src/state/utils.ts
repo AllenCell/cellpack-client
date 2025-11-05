@@ -1,14 +1,13 @@
-import { ViewableRecipe } from "../types";
+import { RecipeManifest } from "../types";
 import { set } from "lodash-es";
-import { jsonToString } from "../utils/recipeLoader";
 
 /**
  * Build a recipe from a default and a set of edits.
  */
-export const buildCurrentRecipeString = (defaultRecipe: ViewableRecipe, edits: Record<string, string | number>) => {
-    const clone = structuredClone(defaultRecipe);
-    for (const [path, value] of Object.entries(edits)) {
+export const buildCurrentRecipeObject = (recipe: RecipeManifest) => {
+    const clone = structuredClone(recipe.defaultRecipeData);
+    for (const [path, value] of Object.entries(recipe.edits)) {
         set(clone, path, value);
     }
-    return jsonToString(clone);
+    return clone;
 };

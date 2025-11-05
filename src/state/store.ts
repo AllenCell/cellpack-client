@@ -4,8 +4,9 @@ import { get as lodashGet, isEqual } from 'lodash-es';
 import { getOutputsDirectory, getRecipesFromFirebase } from "../utils/firebase";
 import { buildResultUrl, fetchJobLogs, pollForJobStatus, submitJob } from "../utils/packingService";
 import { JOB_STATUS } from "../constants/aws";
+import { jsonToString } from "../utils/recipeLoader";
 import { PackingManifest, RecipeManifest } from "../types";
-import { buildCurrentRecipeString } from "./utils";
+import { buildCurrentRecipeObject } from "./utils";
 import { EMPTY_FIELDS, EMPTY_PACKING_DATA } from "./constants";
 
 export interface RecipeState {
@@ -144,7 +145,7 @@ export const useRecipeStore = create<RecipeStore>()(
             const rec = recipes[selectedRecipeId];
             if (!rec) return;
 
-            const recipeString = buildCurrentRecipeString(rec.defaultRecipeData, rec.edits);
+            const recipeString = jsonToString(buildCurrentRecipeObject(rec))
 
             set({ isPacking: true, packingData: EMPTY_PACKING_DATA });
 

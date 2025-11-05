@@ -56,9 +56,9 @@ export const pollForJobStatus = async (
         await sleep(500);
         const newJobStatus = await getJobStatus(jobId);
         if (newJobStatus && newJobStatus !== localJobStatus) {
-            localJobStatus = newJobStatus;
             if (onStatus) onStatus(newJobStatus.status);
         }
+        localJobStatus = newJobStatus ?? localJobStatus
     }
     return localJobStatus;
 };

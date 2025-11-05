@@ -5,34 +5,15 @@ export interface Document {
     recipe?: string;
     config?: string;
     editable_fields?: string[];
-}
+};
 
 export type FirestoreDoc = Document & {
     id: string;
 };
 
-export interface AWSBatchJobsResponse {
-    jobs: Array<{
-        status: string;
-        container: {
-            logStreamName: string;
-        };
-    }>;
-}
-
-export interface CloudWatchLogsResponse {
-    events: Array<{
-        message: string;
-    }>;
-}
-
-export type FirebaseDict = {
-    [key: string]: Dictionary<string>;
-};
-
 export interface Dictionary<T> {
     [Key: string]: T;
-}
+};
 
 export interface RecipeManifest {
     recipeId: string;
@@ -198,4 +179,4 @@ export type ViewableRecipe = {
     composition?: Dictionary<ViewableComposition>;
     objects?: Dictionary<ViewableObject>;
     gradients?: Dictionary<ViewableGradient>;
-}
+};

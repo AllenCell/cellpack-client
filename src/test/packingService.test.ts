@@ -13,7 +13,7 @@ import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "../constants/firebase";
 vi.mock("../utils/firebase", () => ({
     addRecipe: vi.fn(async () => { }),
     getDocById: vi.fn(async () => "LOGS-123"),
-    getJobStatus: vi.fn(async () => "QUEUED"),
+    getJobStatus: vi.fn(async () => ({ status: "STARTING", error_message: "", outputs_directory: "", result_path: "" })),
     getResultPath: vi.fn(async () => "/result/path.sim"),
 }));
 
@@ -108,7 +108,11 @@ describe("packingService utils", () => {
     });
 
     test("pollForJobStatus loops and returns terminal status, calling onStatus", async () => {
-        const sequence = ["QUEUED", "RUNNING", JOB_STATUS.DONE];
+        const sequence = [
+            { status: JOB_STATUS.STARTING, error_message: "", outputs_directory: "", result_path: "" },
+            { status: JOB_STATUS.RUNNING, error_message: "", outputs_directory: "", result_path: "" },
+            { status: JOB_STATUS.DONE, error_message: "", outputs_directory: "", result_path: "" }
+        ];
         let i = 0;
         vi.mocked(getJobStatus).mockImplementation(async () => sequence[Math.min(i++, sequence.length - 1)]);
 
@@ -119,8 +123,8 @@ describe("packingService utils", () => {
         const onStatus = vi.fn();
         const final = await pollForJobStatus("job-xyz", onStatus);
 
-        expect(final).toBe(JOB_STATUS.DONE);
-        expect(onStatus).toHaveBeenCalledWith("RUNNING");
+        expect(final.status).toBe(JOB_STATUS.DONE);
+        expect(onStatus).toHaveBeenCalledWith(JOB_STATUS.RUNNING);
         expect(onStatus).toHaveBeenCalledWith(JOB_STATUS.DONE);
     });
 

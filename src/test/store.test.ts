@@ -11,7 +11,6 @@ export const editableFieldPeroxisomeRadius: EditableField = {
     data_type: "number",
     input_type: "slider",
     description: "Radius of peroxisome (single_sphere)",
-    default: 2.37,
     path: "objects.peroxisome.radius",
     min: 0.1,
     max: 10,
@@ -23,7 +22,6 @@ export const editableFieldPeroxisomeCount: EditableField = {
     data_type: "number",
     input_type: "slider",
     description: "Number of peroxisomes inside the membrane",
-    default: 121,
     path: "composition.membrane.regions.interior[2].count",
     min: 0,
     max: 1000,
@@ -100,7 +98,7 @@ vi.mock("../utils/packingService", () => ({
             onStatus("RUNNING");
             onStatus("DONE");
         }
-        return "DONE";
+        return { status: "DONE", error_message: "", outputs_directory: "", result_path: "" };
     }),
     buildResultUrl: vi.fn(async () => "https://test.com/result/path.sim"),
     fetchJobLogs: vi.fn(async () => "LOGS-FAIL"),
@@ -111,11 +109,7 @@ vi.mock("../utils/firebase", () => ({
         r1: { recipeId: "r1", configId: "config-123", defaultRecipeData: viewableRecipeR1, edits: {}, editableFields: [] },
         r2: { recipeId: "r2", configId: "config-456", defaultRecipeData: viewableRecipeR2, edits: {}, editableFields: [] },
     })),
-}));
-
-vi.mock("../state/utils", () => ({
-    buildCurrentRecipeString: (def: object, edits: Record<string, unknown>) =>
-        JSON.stringify({ ...def, ...edits }),
+    getOutputsDirectory: vi.fn(async () => "outputs/job-xyz"),
 }));
 
 const { getRecipesFromFirebase } = await import("../utils/firebase");
@@ -123,7 +117,7 @@ const { submitJob, pollForJobStatus, buildResultUrl, fetchJobLogs } = await impo
 
 /* ---------- Tests ---------- */
 
-describe("recipe store (real buildCurrentRecipeString)", () => {
+describe("recipe store", () => {
     afterEach(() => {
         useRecipeStore.getState().reset();
         vi.clearAllMocks();
@@ -244,7 +238,7 @@ describe("recipe store (real buildCurrentRecipeString)", () => {
             });
 
             it("FAILED terminal status stores logs, leaves resultUrl empty", async () => {
-                vi.mocked(pollForJobStatus).mockResolvedValueOnce("FAILED");
+                vi.mocked(pollForJobStatus).mockResolvedValueOnce({ status: "FAILED", error_message: "", outputs_directory: "", result_path: "" });
 
                 await useRecipeStore.getState().loadAllRecipes();
                 await useRecipeStore.getState().startPacking();
