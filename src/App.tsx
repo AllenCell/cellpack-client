@@ -1,9 +1,10 @@
 import { Layout, Typography } from "antd";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
-import ErrorLogs from "./components/ErrorLogs";
 import StatusBar from "./components/StatusBar";
 import "./App.css";
+import Sider from "antd/es/layout/Sider";
+import { Footer } from "antd/es/layout/layout";
 
 const { Header, Content } = Layout;
 const { Link } = Typography;
@@ -11,18 +12,31 @@ const { Link } = Typography;
 function App() {
 
     return (
-        <div className="app-container">
-            <Header className="header" style={{ justifyContent: "space-between" }}>
-                <h2 className="header-title">cellPACK demo</h2>
-                <Link href="https://github.com/mesoscope/cellpack" className="header-link">GitHub</Link>
+        <Layout className="app-container">
+            <Header
+                className="header"
+                style={{ justifyContent: "space-between" }}
+            >
+                <h2 className="header-title">cellPACK Studio</h2>
+                <Link
+                    href="https://github.com/mesoscope/cellpack"
+                    className="header-link"
+                >
+                    GitHub
+                </Link>
             </Header>
-            <Content className="content-container">
-                <PackingInput />
+            <Layout>
+                <Sider width="35%" theme="light" className="sider">
+                    <PackingInput />
+                </Sider>
+                <Content className="content-container">
+                    <Viewer />
+                </Content>
+            </Layout>
+            <Footer className="footer">
                 <StatusBar />
-                <ErrorLogs />
-            </Content>
-            <Viewer />
-        </div>
+            </Footer>
+        </Layout>
     );
 }
 

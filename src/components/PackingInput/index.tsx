@@ -1,5 +1,7 @@
 import { useEffect } from "react";
+import { Tabs } from "antd";
 import {
+    useEditRecipe,
     useIsLoading,
     useLoadAllRecipes,
     useRecipes,
@@ -16,6 +18,7 @@ import "./style.css";
 const PackingInput = (): JSX.Element => {
     const recipes = useRecipes();
     const selectedRecipeId = useSelectedRecipeId();
+    const editRecipe = useEditRecipe();
     const isLoading = useIsLoading();
     const loadAllRecipes = useLoadAllRecipes();
     const selectRecipe = useSelectRecipe();
@@ -45,14 +48,23 @@ const PackingInput = (): JSX.Element => {
         await startPacking();
     };
 
+    //ssot make this work with "updates as object"
+        const handleRecipeChange = (
+            updates: Record<string, string | number>
+        ) => {
+            if (selectedRecipeId) {
+                editRecipe(selectedRecipeId, updates);
+            }
+        };
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div>
+        <>
             <div className="recipe-select">
-                <div>Packing Recipe</div>
+                <div>Choose Recipe</div>
                 <Dropdown
                     placeholder="Select an option"
                     options={recipes}
@@ -60,15 +72,20 @@ const PackingInput = (): JSX.Element => {
                     onChange={selectRecipe}
                 />
             </div>
-            <div className="recipe-content">
-                <RecipeForm onStartPacking={handleStartPacking} />
-                <JSONViewer
-                    title="Recipe"
-                    content={recipeString}
-                    isEditable={hasEditableFields}
-                />
-            </div>
-        </div>
+            <Tabs defaultActiveKey="1" className="recipe-content">
+                <Tabs.TabPane tab="Edit" key="1">
+                    <RecipeForm onStartPacking={handleStartPacking} />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Full Recipe" key="2">
+                    <JSONViewer
+                        title="Recipe"
+                        content={recipeString}
+                        isEditable={hasEditableFields}
+                        onChange={handleRecipeChange}
+                    />
+                </Tabs.TabPane>
+            </Tabs>
+        </>
     );
 };
 

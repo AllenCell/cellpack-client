@@ -4,14 +4,16 @@ import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
 import { usePackingData } from "../../state/store";
 import "./style.css";
+import ErrorLogs from "../ErrorLogs";
 
 const StatusBar = (): JSX.Element => {
-    const {jobStatus, runTime, jobId} = usePackingData();
+    const { jobStatus, runTime, jobId, outputDir } =
+        usePackingData();
     const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadResults = async (jobId: string) => {
         setIsDownloading(true);
-        await downloadOutputs(jobId);
+        await downloadOutputs(jobId, outputDir);
         setIsDownloading(false);
     };
 
@@ -44,6 +46,7 @@ const StatusBar = (): JSX.Element => {
                     Download Packing Result
                 </Button>
             )}
+            <ErrorLogs />
         </div>
     );
 };

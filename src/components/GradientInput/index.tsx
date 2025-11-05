@@ -61,12 +61,14 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                     <strong>{displayName}</strong>
                     <small>{description}</small>
                 </div>
-                <Select
-                    options={selectOptions}
-                    value={currentGradient}
-                    onChange={handleGradientChange}
-                    style={{ width: 200, margin: "0 16px" }}
-                />
+                <div className="input-content">
+                    <Select
+                        options={selectOptions}
+                        value={currentGradient}
+                        onChange={handleGradientChange}
+                        style={{ width: 200, margin: "0 6px" }}
+                    />
+                </div>
             </div>
             {gradientStrengthData && (
                 <div className="input-switch">
@@ -74,24 +76,26 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         <strong>{gradientStrengthData.displayName}</strong>
                         <small>{gradientStrengthData.description}</small>
                     </div>
-                    <Slider
-                        id={gradientStrengthData.displayName}
-                        min={gradientStrengthData.min}
-                        max={gradientStrengthData.max}
-                        onChange={(val) => handleStrengthChange(val)}
-                        value={gradientStrengthData.uiValue}
-                        step={0.01}
-                        style={{ width: 100 }}
-                    />
-                    <InputNumber
-                        id={gradientStrengthData.displayName + " Input"}
-                        min={gradientStrengthData.min}
-                        max={gradientStrengthData.max}
-                        value={gradientStrengthData.uiValue}
-                        onChange={(val) => handleStrengthChange(val)}
-                        step={0.01}
-                        style={{ margin: "0 16px" }}
-                    />
+                    <div className="input-content">
+                        <Slider
+                            id={gradientStrengthData.displayName}
+                            min={gradientStrengthData.min}
+                            max={gradientStrengthData.max}
+                            onChange={(val) => handleStrengthChange(val)}
+                            value={gradientStrengthData.uiValue}
+                            step={0.01}
+                            style={{ width: "60%" }}
+                        />
+                        <InputNumber
+                            id={gradientStrengthData.displayName + " Input"}
+                            min={gradientStrengthData.min}
+                            max={gradientStrengthData.max}
+                            value={gradientStrengthData.uiValue}
+                            onChange={(val) => handleStrengthChange(val)}
+                            step={0.01}
+                            style={{ margin: "0 6px" }}
+                        />
+                    </div>
                 </div>
             )}
         </div>

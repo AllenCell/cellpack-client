@@ -4,6 +4,7 @@ import { FIRESTORE_COLLECTIONS, FIRESTORE_FIELDS } from "../constants/firebase";
 import { addRecipe, getDocById, getJobStatus, getResultPath } from "./firebase";
 import { getFirebaseRecipe, jsonToString } from "./recipeLoader";
 import { SIMULARIUM_EMBED_URL } from "../constants/urls";
+import { JobStatusObject } from "../types";
 
 export async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,14 +50,14 @@ export const submitJob = async (
 export const pollForJobStatus = async (
     jobId: string,
     onStatus?: (s: string) => void
-): Promise<string> => {
+): Promise<JobStatusObject> => {
     let localJobStatus = await getJobStatus(jobId);
-    while (localJobStatus !== JOB_STATUS.DONE && localJobStatus !== JOB_STATUS.FAILED) {
+    while (localJobStatus?.status !== JOB_STATUS.DONE && localJobStatus?.status !== JOB_STATUS.FAILED) {
         await sleep(500);
-        const next = await getJobStatus(jobId);
-        if (next !== localJobStatus) {
-            localJobStatus = next;
-            if (onStatus) onStatus(next);
+        const newJobStatus = await getJobStatus(jobId);
+        if (newJobStatus && newJobStatus !== localJobStatus) {
+            localJobStatus = newJobStatus;
+            if (onStatus) onStatus(newJobStatus.status);
         }
     }
     return localJobStatus;

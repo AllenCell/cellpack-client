@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Collapse } from "antd";
+import { Button, Drawer } from "antd";
 import { usePackingData } from "../../state/store";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
@@ -12,28 +12,27 @@ const ErrorLogs = (): JSX.Element => {
         setViewErrorLogs(!viewErrorLogs);
     };
 
-    const items = [{
-        key: "1",
-        label: "Logs",
-        children: (
-            <div className="log-box">
-                <pre>{errorLogs}</pre>
-            </div>
-        )
-    }];
-
     if (jobStatus !== JOB_STATUS.FAILED) {
         return <></>
     };
 
     return (
-        <div>
-            <Collapse
-                items={items}
-                activeKey={viewErrorLogs && errorLogs.length > 0 ? ["1"] : []}
-                onChange={toggleLogs}
-            />
-        </div>
+        <>
+            <Button color="primary" variant="filled" onClick={toggleLogs}>
+                Logs
+            </Button>
+            <Drawer
+                title="Logs"
+                placement="right"
+                closable={true}
+                onClose={toggleLogs}
+                open={viewErrorLogs}
+            >
+                <div className="log-box">
+                    <pre>{errorLogs}</pre>
+                </div>
+            </Drawer>
+        </>
     );
 };
 

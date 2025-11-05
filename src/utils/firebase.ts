@@ -24,6 +24,7 @@ import {
     Dictionary,
     EditableField,
     RecipeManifest,
+    JobStatusObject,
 } from "../types";
 import { getFirebaseRecipe } from "./recipeLoader";
 
@@ -112,10 +113,16 @@ const getResultPath = async (jobId: string) => {
     return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.URL);
 };
 
-const getJobStatus = async (jobId: string) => {
+const getJobStatus = async (jobId: string): Promise<JobStatusObject | undefined> => {
     const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
-    return extractSingleDocumentData(querySnapshot, FIRESTORE_FIELDS.STATUS);
-}
+    const docs = querySnapshot.docs.map((doc) => ({
+        status: doc.data().status,
+        error_message: doc.data().error_message,
+        outputs_directory: doc.data().outputs_directory,
+        result_path: doc.data().result_path,
+    }));
+    return docs[0] || undefined;
+};
 
 const getOutputsDirectory = async (jobId: string) => {
     const querySnapshot = await queryDocumentById(FIRESTORE_COLLECTIONS.JOB_STATUS, jobId);
@@ -138,12 +145,13 @@ const getEditableFieldsList = async (editable_field_ids: string[]): Promise<Edit
         data_type: doc.data().data_type,
         input_type: doc.data().input_type,
         description: doc.data().description,
-        default: doc.data().default,
         min: doc.data().min,
         max: doc.data().max,
         options: doc.data().options,
         gradient_options: doc.data().gradient_options,
         path: doc.data().path,
+        conversion_factor: doc.data().conversion_factor,
+        unit: doc.data().unit,
     }));
     return docs;
 };

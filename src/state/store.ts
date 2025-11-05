@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { get as lodashGet, isEqual } from 'lodash-es';
-import { getRecipesFromFirebase } from "../utils/firebase";
+import { getOutputsDirectory, getRecipesFromFirebase } from "../utils/firebase";
 import { buildResultUrl, fetchJobLogs, pollForJobStatus, submitJob } from "../utils/packingService";
 import { JOB_STATUS } from "../constants/aws";
 import { PackingManifest, RecipeManifest } from "../types";
@@ -174,13 +174,15 @@ export const useRecipeStore = create<RecipeStore>()(
 
                 const runTime = (Date.now() - startedAtMs) / 1000;
 
-                if (finalStatus === JOB_STATUS.DONE) {
+                if (finalStatus.status === JOB_STATUS.DONE) {
                     const url = await buildResultUrl(newJobId);
+                    const outputDir = await getOutputsDirectory(newJobId);
                     set(state => ({
                         packingData: {
                             ...state.packingData,
                             jobStatus: JOB_STATUS.DONE,
                             resultUrl: url,
+                            outputDir,
                             runTime,
                         }
                     }));

@@ -19,23 +19,53 @@ interface InputSwitchProps {
     defaultValue: string | number;
     min?: number;
     max?: number;
+    conversionFactor?: number;
+    unit?: string;
     options?: string[];
     gradientOptions?: GradientOption[];
 }
 
 const InputSwitch = (props: InputSwitchProps): JSX.Element => {
-    const { displayName, inputType, dataType, description, defaultValue, min, max, options, id, gradientOptions } = props;
+    const {
+        displayName,
+        inputType,
+        dataType,
+        description,
+        min,
+        max,
+        options,
+        id,
+        gradientOptions,
+        conversionFactor,
+        unit
+    } = props;
 
     const selectedRecipeId = useSelectedRecipeId();
     const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
     const recipeVersion = useRecipes();
 
-    // Stable getter for current value, with default fallback
+    // Conversion factor for numeric inputs where we want to display a
+    // different unit in the UI than is stored in the recipe
+    const conversion = conversionFactor ?? 1;
+
+    // Stable getter for current value
     const getCurrentValueMemo = useCallback(() => {
-        const v = getCurrentValue(id);
-        return v ?? defaultValue;
-    }, [getCurrentValue, id, defaultValue]);
+        let value = getCurrentValue(id);
+        // todo does this make sense on ssot branch?
+        if (!value) {
+            // Default to min or 0 if numeric type, othewise empty string
+            if (dataType === "integer" || dataType === "float") {
+                value = min ?? 0;
+            } else {
+                value = "";
+            }
+        }
+        if (typeof value == "number") {
+            value = value * conversion;
+        }
+        return value;
+    }, [getCurrentValue, id, min, conversion, dataType]);
 
     // Local controlled state for the input UI
     const [value, setValue] = useState<string | number>(getCurrentValueMemo());
@@ -56,6 +86,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             const numericValue =
                 typeof value === "number" ? value : Number(value) || 0;
             const step = dataType === "integer" ? 1 : 0.01;
+            const maxValue = (max ?? 1) * conversion;
 
             return (
                 <div className="input-switch">
@@ -63,43 +94,49 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
                     </div>
-                    <Slider
-                        min={min}
-                        max={max}
-                        step={step}
-                        onChange={handleInputChange}
-                        value={numericValue}
-                        style={{ width: 100 }}
-                    />
-                    <InputNumber
-                        min={min}
-                        max={max}
-                        step={step}
-                        style={{ margin: "0 16px" }}
-                        value={numericValue}
-                        onChange={handleInputChange}
-                    />
+                    <div className="input-content">
+                        <Slider
+                            min={min}
+                            max={maxValue}
+                            step={step}
+                            onChange={handleInputChange}
+                            value={numericValue}
+                            style={{ width: "60%" }}
+                        />
+                        <InputNumber
+                            min={min}
+                            max={maxValue}
+                            step={step}
+                            style={{ margin: "0 6px" }}
+                            value={numericValue}
+                            onChange={handleInputChange}
+                        />
+                        {unit && <span>{unit}</span>}
+                    </div>
                 </div>
             );
         }
 
         case "dropdown": {
-            const selectOptions = options?.map((option) => ({
-                label: option,
-                value: option,
-            })) || [];
+            const selectOptions =
+                options?.map((option) => ({
+                    label: option,
+                    value: option,
+                })) || [];
             return (
                 <div className="input-switch">
                     <div className="input-label">
                         <strong>{displayName}</strong>{" "}
                         <small>{description}</small>
                     </div>
-                    <Select
-                        options={selectOptions}
-                        value={String(value)}
-                        onChange={handleInputChange}
-                        style={{ width: 200, marginLeft: 10 }}
-                    />
+                    <div className="input-content">
+                        <Select
+                            options={selectOptions}
+                            value={String(value)}
+                            onChange={handleInputChange}
+                            style={{ width: 200, marginLeft: 10 }}
+                        />
+                    </div>
                 </div>
             );
         }

@@ -1,5 +1,4 @@
-import { EditableField } from "../types";
-import { PackingManifest } from "./store";
+import { EditableField, PackingManifest } from "../types";
 
 // stable/frozen empty array to prevent re-renders
 export const EMPTY_FIELDS: readonly EditableField[] = Object.freeze([]);
@@ -8,5 +7,6 @@ export const EMPTY_PACKING_DATA: PackingManifest = Object.freeze({
     jobStatus: "",
     jobLogs: "",
     resultUrl: "",
-    runTime: -1
+    runTime: -1,
+    outputDir: "",
 })
