@@ -4,7 +4,7 @@ interface GradientStrength {
     displayName: string;
     description: string;
     path: string;
-    uiValue: number; // current slider value in UI domain
+    uiValue: number;
     min: number;
     max: number;
 };
@@ -60,8 +60,8 @@ export function deriveGradientStrength(
 ): GradientStrength | undefined {
     if (!opt?.strength_path) return undefined;
 
-    const storeMin = opt.strength_min ?? 0;
-    const storeMax = opt.strength_max ?? 0.99;
+    const storeMin = opt.strength_min ?? 0.01;
+    const storeMax = opt.strength_max ?? 100;
 
     const uiMin = storeMin;
     const uiMax = storeMax;
