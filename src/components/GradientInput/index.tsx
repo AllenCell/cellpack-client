@@ -1,4 +1,4 @@
-import { Select, Slider, InputNumber } from "antd";
+import { Select, Slider } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
@@ -86,16 +86,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                             onChange={(val) => handleStrengthChange(val)}
                             value={gradientStrengthData.uiValue}
                             step={0.01}
-                            style={{ width: "60%" }}
-                        />
-                        <InputNumber
-                            id={gradientStrengthData.displayName + " Input"}
-                            min={gradientStrengthData.min}
-                            max={gradientStrengthData.max}
-                            value={gradientStrengthData.uiValue}
-                            onChange={(val) => handleStrengthChange(val)}
-                            step={0.01}
-                            style={{ margin: "0 6px" }}
+                            style={{ width: "100%" }}
                         />
                     </div>
                 </div>
