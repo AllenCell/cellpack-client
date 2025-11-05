@@ -5,7 +5,7 @@ export interface Document {
     recipe?: string;
     config?: string;
     editable_fields?: string[];
-};
+}
 
 export type FirestoreDoc = Document & {
     id: string;
@@ -13,9 +13,10 @@ export type FirestoreDoc = Document & {
 
 export interface Dictionary<T> {
     [Key: string]: T;
-};
+}
 
 export type PackingInputs = {
+    name?: string;
     config: string;
     recipe: string;
     editable_fields?: EditableField[];
@@ -41,7 +42,7 @@ export type EditableField = {
     gradient_options?: GradientOption[];
     conversion_factor?: number;
     unit?: string;
-}
+};
 
 export type GradientOption = {
     display_name: string;
@@ -62,7 +63,7 @@ export interface RefsByCollection {
     composition: Dictionary<FirebaseComposition>;
     objects: Dictionary<FirebaseObject>;
     gradients: Dictionary<FirebaseGradient>;
-};
+}
 
 export interface FirebaseObject {
     name: string;
@@ -98,7 +99,7 @@ export interface FirebaseObject {
     rejection_threshold?: number;
     rotation_axis?: Array<number>;
     rotation_range?: number;
-};
+}
 
 export interface FirebaseGradient {
     name: string;
@@ -112,7 +113,7 @@ export interface FirebaseGradient {
     pick_mode?: string;
     reversed?: boolean;
     invert?: string;
-};
+}
 
 export type RegionObject = {
     count: number;
@@ -128,12 +129,12 @@ export interface FirebaseComposition {
     object?: string;
     inherit?: string;
     regions?: {
-        interior?: Array<string|RegionObject>;
-        surface?: Array<string|RegionObject>;
-        outer_leaflet?: Array<string|RegionObject>;
-        inner_leaflet?: Array<string|RegionObject>;
-    }
-};
+        interior?: Array<string | RegionObject>;
+        surface?: Array<string | RegionObject>;
+        outer_leaflet?: Array<string | RegionObject>;
+        inner_leaflet?: Array<string | RegionObject>;
+    };
+}
 
 export interface FirebaseRecipe {
     name: string;
@@ -149,9 +150,12 @@ export interface FirebaseRecipe {
     objects?: Dictionary<FirebaseObject>;
     gradients?: Dictionary<FirebaseGradient>;
     optional_gradients?: string[];
-};
+}
 
-export type Viewable<T extends { id: string; dedup_hash: string }> = Omit<T, "id" | "dedup_hash">;
+export type Viewable<T extends { id: string; dedup_hash: string }> = Omit<
+    T,
+    "id" | "dedup_hash"
+>;
 
 export type ViewableComposition = Viewable<FirebaseComposition>;
 export type ViewableObject = Viewable<FirebaseObject>;

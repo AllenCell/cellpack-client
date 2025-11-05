@@ -8,7 +8,7 @@ import {
     useInputOptions,
     useIsLoading,
     useLoadInputOptions,
-    useSelectInput,
+    useSelectRecipe,
     useUpdateRecipeString,
     useStartPacking,
     useLoadAllRecipes,
@@ -36,7 +36,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
-    const selectInput = useSelectInput();
+    const selectRecipe = useSelectRecipe();
     const updateRecipeString = useUpdateRecipeString();
     const storeStartPacking = useStartPacking();
 
@@ -69,9 +69,10 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
             <div className="recipe-select">
                 <div>Choose Recipe</div>
                 <Dropdown
+                    defaultValue={selectedRecipeId}
                     placeholder="Select an option"
                     options={inputOptions}
-                    onChange={selectInput}
+                    onChange={selectRecipe}
                 />
             </div>
             <Tabs defaultActiveKey="1" className="recipe-content">
