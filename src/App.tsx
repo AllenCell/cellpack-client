@@ -5,8 +5,7 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
-import { SIMULARIUM_EMBED_URL } from "./constants/urls";
-import { useResultUrl, useSetResultUrl } from "./state/store";
+import { useResultUrl, useSetPackingResults } from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -22,7 +21,7 @@ function App() {
     const [outputDir, setOutputDir] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
     const resultUrl = useResultUrl();
-    const setResultUrl = useSetResultUrl();
+    const setPackingResults = useSetPackingResults();
 
     let start = 0;
 
@@ -34,7 +33,13 @@ function App() {
         setJobId("");
         setJobStatus("");
         setJobLogs("");
-        setResultUrl("");
+        setPackingResults({
+            jobId: "",
+            jobLogs: "",
+            resultUrl: "",
+            runTime: 0,
+            outputDir: "",
+        });
         setRunTime(0);
     };
 
@@ -138,7 +143,13 @@ function App() {
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
         if (localJobStatus.status == JOB_STATUS.DONE) {
-            setResultUrl(SIMULARIUM_EMBED_URL + localJobStatus.result_path);
+            setPackingResults({
+                jobId: id,
+                jobLogs: "",
+                resultUrl: localJobStatus.result_path,
+                runTime: range,
+                outputDir: localJobStatus.outputs_directory,
+            });
             setOutputDir(localJobStatus.outputs_directory);
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
             setJobLogs(localJobStatus.error_message);

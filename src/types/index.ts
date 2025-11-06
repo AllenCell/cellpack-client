@@ -16,11 +16,11 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-export type PackingInputs = {
+export type RecipeManifest = {
     name?: string;
     config: string;
     recipe: string;
-    result_path?: string;
+    defaultResultPath?: string;
     editable_fields?: EditableField[];
 };
 
@@ -29,6 +29,14 @@ export type JobStatusObject = {
     error_message: string;
     outputs_directory: string;
     result_path: string;
+};
+
+export type PackingResults = {
+    jobId: string;
+    jobLogs: string;
+    resultUrl: string;
+    runTime: number;
+    outputDir: string;
 };
 
 export type EditableField = {

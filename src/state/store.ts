@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { get as lodashGet, set as lodashSet } from "lodash-es";
-import { PackingInputs } from "../types";
+import { PackingResults, RecipeManifest } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
 import { SIMULARIUM_EMBED_URL } from "../constants/urls";
@@ -16,8 +16,9 @@ export interface RecipeData {
 export interface RecipeState {
     selectedRecipeId: string;
     resultUrl: string;
-    inputOptions: Record<string, PackingInputs>;
+    inputOptions: Record<string, RecipeManifest>;
     recipes: Record<string, RecipeData>;
+    packingResults?: PackingResults;
 }
 
 export interface UIState {
@@ -45,7 +46,7 @@ type Actions = {
             recipeString: string
         ) => Promise<void>
     ) => Promise<void>;
-    setResultUrl: (url: string) => void;
+    setPackingResults: (results: PackingResults) => void;
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
@@ -123,7 +124,6 @@ export const useRecipeStore = create<RecipeStore>()(
 
             set({
                 selectedRecipeId: recipeId,
-                resultUrl: SIMULARIUM_EMBED_URL + (sel.result_path ?? ""),
             });
 
             if (sel.recipe && !get().recipes[sel.recipe]) {
@@ -131,11 +131,9 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
-
-        setResultUrl: (url: string) => {
-            set({ resultUrl: url });
+        setPackingResults: (results: PackingResults) => {
+            set({ packingResults: results });
         },
-
 
         updateRecipeString: (recipeId, newString) => {
             set((s) => {
@@ -241,7 +239,25 @@ export const useIsCurrentRecipeModified = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
-export const useResultUrl = () => useRecipeStore((s) => s.resultUrl);
+
+const useDefaultResultPath = () =>
+    useRecipeStore(
+        (s) => s.inputOptions[s.selectedRecipeId]?.defaultResultPath || ""
+    );
+
+export const useResultUrl = () => {
+    let path = "";
+    const results = useRecipeStore.getState().packingResults;
+    const currentRecipeId = useRecipeStore.getState().selectedRecipeId;
+    const defaultResultPath = useDefaultResultPath();
+    if (results) {
+        path = results.resultUrl;
+    } else if (currentRecipeId) {
+        path = defaultResultPath;
+    }
+    console.log("useResultUrl path:", `${SIMULARIUM_EMBED_URL}${path}`);
+    return `${SIMULARIUM_EMBED_URL}${path}`;
+};
 
 // action selectors (stable identities)
 export const useLoadInputOptions = () =>
@@ -257,4 +273,5 @@ export const useRestoreRecipeDefault = () =>
 export const useStartPacking = () => useRecipeStore((s) => s.startPacking);
 export const useGetCurrentValue = () =>
     useRecipeStore((s) => s.getCurrentValue);
-export const useSetResultUrl = () => useRecipeStore((s) => s.setResultUrl);
+export const useSetPackingResults = () =>
+    useRecipeStore((s) => s.setPackingResults);
