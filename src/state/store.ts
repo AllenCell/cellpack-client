@@ -297,10 +297,10 @@ export const useOutputsDirectory = () => {
 };
 
 export const useResultUrl = () => {
-    let path = "";
     const results = usePackingResults();
     const currentRecipeId = useSelectedRecipeId();
     const defaultResultPath = useDefaultResultPath();
+    let path = "";
     if (results.resultUrl) {
         path = results.resultUrl;
     } else if (currentRecipeId) {
