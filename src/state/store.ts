@@ -224,12 +224,13 @@ export const useRecipeStore = create<RecipeStore>()(
     }))
 );
 
-// tiny helpers/selectors (all derived — not stored)
+// simple selectors
 export const useSelectedRecipeId = () =>
     useRecipeStore((s) => s.selectedRecipeId);
 export const useCurrentRecipeString = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.currentString ?? "");
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
+
 export const useIsLoading = () => useRecipeStore((s) => s.isLoading);
 export const useIsPacking = () => useRecipeStore((s) => s.isPacking);
 export const useFieldsToDisplay = () =>
@@ -239,10 +240,18 @@ export const useIsCurrentRecipeModified = () =>
 export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
 
-const useDefaultResultPath = () =>
-    useRecipeStore(
-        (s) => s.inputOptions[s.selectedRecipeId]?.defaultResultPath || ""
-    );
+// compound selectors
+
+const useCurrentRecipeManifest = () => {
+    const selectedRecipeId = useSelectedRecipeId();
+    const inputOptions = useInputOptions();
+    if (!selectedRecipeId) return undefined;
+    return inputOptions[selectedRecipeId];
+};
+const useDefaultResultPath = () => {
+    const manifest = useCurrentRecipeManifest();
+    return manifest?.defaultResultPath || "";
+};
 
 export const useResultUrl = () => {
     let path = "";
