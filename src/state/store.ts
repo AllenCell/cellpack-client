@@ -239,6 +239,7 @@ export const useIsCurrentRecipeModified = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
+const usePackingResults = () => useRecipeStore((s) => s.packingResults);
 
 // compound selectors
 
@@ -253,11 +254,14 @@ const useDefaultResultPath = () => {
     return manifest?.defaultResultPath || "";
 };
 
-const usePackingResults = () => useRecipeStore((s) => s.packingResults);
-
 export const useRunTime = () => {
     const results = usePackingResults();
     return results ? results.runTime : 0;
+};
+
+export const useOutputsDirectory = () => {
+    const results = usePackingResults();
+    return results ? results.outputDir : "";
 };
 
 export const useResultUrl = () => {

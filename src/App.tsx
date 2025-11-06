@@ -5,7 +5,11 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
-import { useRunTime, useSetPackingResults } from "./state/store";
+import {
+    useOutputsDirectory,
+    useRunTime,
+    useSetPackingResults,
+} from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -18,9 +22,9 @@ function App() {
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
-    const [outputDir, setOutputDir] = useState<string>("");
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
+    const outputDir = useOutputsDirectory();
 
     let start = 0;
 
@@ -147,9 +151,16 @@ function App() {
                 runTime: range,
                 outputDir: localJobStatus.outputs_directory,
             });
-            setOutputDir(localJobStatus.outputs_directory);
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
-            setJobLogs(localJobStatus.error_message);
+            setPackingResults({
+                jobId: id,
+                jobLogs:
+                    "Packing job failed. Check AWS Batch logs for details. " +
+                    localJobStatus.error_message,
+                resultUrl: "",
+                runTime: range,
+                outputDir: "",
+            });
         }
     };
 
