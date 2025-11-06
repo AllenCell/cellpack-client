@@ -4,6 +4,7 @@ import { get as lodashGet, set as lodashSet } from "lodash-es";
 import { PackingResults, RecipeManifest } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
+import { EMPTY_PACKING_RESULTS } from "./constants";
 
 export interface RecipeData {
     id: string;
@@ -16,7 +17,7 @@ export interface RecipeState {
     selectedRecipeId: string;
     inputOptions: Record<string, RecipeManifest>;
     recipes: Record<string, RecipeData>;
-    packingResults?: PackingResults;
+    packingResults: PackingResults;
 }
 
 export interface UIState {
@@ -59,6 +60,7 @@ const initialState: RecipeState & UIState = {
     recipes: {},
     isLoading: false,
     isPacking: false,
+    packingResults: { ...EMPTY_PACKING_RESULTS },
 };
 
 export const useRecipeStore = create<RecipeStore>()(
@@ -118,6 +120,9 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         selectRecipe: async (recipeId) => {
+            set({
+                packingResults: { ...EMPTY_PACKING_RESULTS },
+            });
             const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
@@ -296,7 +301,7 @@ export const useResultUrl = () => {
     const results = usePackingResults();
     const currentRecipeId = useSelectedRecipeId();
     const defaultResultPath = useDefaultResultPath();
-    if (results) {
+    if (results.resultUrl) {
         path = results.resultUrl;
     } else if (currentRecipeId) {
         path = defaultResultPath;
