@@ -46,6 +46,8 @@ type Actions = {
         ) => Promise<void>
     ) => Promise<void>;
     setPackingResults: (results: PackingResults) => void;
+    setJobLogs: (logs: string) => void;
+    setJobId: (jobId: string) => void;
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
@@ -132,6 +134,23 @@ export const useRecipeStore = create<RecipeStore>()(
 
         setPackingResults: (results: PackingResults) => {
             set({ packingResults: results });
+        },
+
+        setJobLogs: (logs: string) => {
+            set({
+                packingResults: {
+                    ...(get().packingResults as PackingResults),
+                    jobLogs: logs,
+                },
+            });
+        },
+        setJobId: (jobId: string) => {
+            set({
+                packingResults: {
+                    ...(get().packingResults as PackingResults),
+                    jobId: jobId,
+                },
+            });
         },
 
         updateRecipeString: (recipeId, newString) => {
@@ -259,6 +278,16 @@ export const useRunTime = () => {
     return results ? results.runTime : 0;
 };
 
+export const useJobLogs = () => {
+    const results = usePackingResults();
+    return results ? results.jobLogs : "";
+};
+
+export const useJobId = () => {
+    const results = usePackingResults();
+    return results ? results.jobId : "";
+};
+
 export const useOutputsDirectory = () => {
     const results = usePackingResults();
     return results ? results.outputDir : "";
@@ -293,3 +322,5 @@ export const useGetCurrentValue = () =>
     useRecipeStore((s) => s.getCurrentValue);
 export const useSetPackingResults = () =>
     useRecipeStore((s) => s.setPackingResults);
+export const useSetJobLogs = () => useRecipeStore((s) => s.setJobLogs);
+export const useSetJobId = () => useRecipeStore((s) => s.setJobId);

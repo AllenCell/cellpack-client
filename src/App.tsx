@@ -6,8 +6,12 @@ import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
 import {
+    useJobId,
+    useJobLogs,
     useOutputsDirectory,
     useRunTime,
+    useSetJobId,
+    useSetJobLogs,
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
@@ -19,9 +23,11 @@ const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {
-    const [jobId, setJobId] = useState("");
-    const [jobStatus, setJobStatus] = useState("");
-    const [jobLogs, setJobLogs] = useState<string>("");
+    const [jobStatus, setJobStatus] = useState<string>("");
+    const setJobLogs = useSetJobLogs();
+    const jobLogs = useJobLogs();
+    const setJobId = useSetJobId();
+    const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
@@ -33,9 +39,6 @@ function App() {
     }
 
     const resetState = () => {
-        setJobId("");
-        setJobStatus("");
-        setJobLogs("");
         setPackingResults({
             jobId: "",
             jobLogs: "",
