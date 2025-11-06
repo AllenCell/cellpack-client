@@ -60,8 +60,8 @@ export function deriveGradientStrength(
 ): GradientStrength | undefined {
     if (!opt?.strength_path) return undefined;
 
-    const storeMin = opt.strength_min ?? 0.01;
-    const storeMax = opt.strength_max ?? 100;
+    const storeMin = opt.strength_min ?? 0;
+    const storeMax = opt.strength_max ?? 5;
 
     const uiMin = storeMin;
     const uiMax = storeMax;
@@ -75,7 +75,7 @@ export function deriveGradientStrength(
     const uiValue = round2(clampUi(storeNum));
 
     return {
-        displayName: `${opt.display_name} Decay Length`,
+        displayName: `Decay Length`,
         description: "Higher values will increase the decay length",
         path: opt.strength_path,
         uiValue,
