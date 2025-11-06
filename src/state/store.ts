@@ -14,7 +14,6 @@ export interface RecipeData {
 
 export interface RecipeState {
     selectedRecipeId: string;
-    resultUrl: string;
     inputOptions: Record<string, RecipeManifest>;
     recipes: Record<string, RecipeData>;
     packingResults?: PackingResults;
