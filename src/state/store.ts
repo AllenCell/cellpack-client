@@ -56,7 +56,6 @@ const INITIAL_RECIPE_ID = "peroxisome_v_gradient_packing";
 
 const initialState: RecipeState & UIState = {
     selectedRecipeId: INITIAL_RECIPE_ID,
-    resultUrl: "",
     inputOptions: {},
     recipes: {},
     isLoading: false,
