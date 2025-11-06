@@ -1,25 +1,24 @@
 import { Select } from "antd";
+import { map } from "lodash-es";
 import { Dictionary, RecipeManifest } from "../../types";
 
 interface DropdownProps {
     placeholder: string;
     options: Dictionary<RecipeManifest>;
-    value?: string;
+    defaultValue?: string;
     onChange: (value: string) => void;
 }
 
 const Dropdown = (props: DropdownProps): JSX.Element => {
-    const { placeholder, options, value, onChange } = props;
-    const selectOptions = Object.entries(options).map(([key, value]) => (
-        {
-            label: <span>{value.displayName}</span>,
-            value: key,
-        }
-    ));
+    const { placeholder, options, onChange, defaultValue } = props;
+        const selectOptions = map(options, (opt, key) => ({
+            label: opt.displayName || key,
+            value: opt.recipeId,
+        }));
 
     return (
         <Select
-            value={value}
+            defaultValue={defaultValue}
             onChange={onChange}
             placeholder={placeholder}
             options={selectOptions}
