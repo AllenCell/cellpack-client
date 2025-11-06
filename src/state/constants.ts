@@ -4,7 +4,6 @@ import { EditableField, PackingResults } from "../types";
 export const EMPTY_FIELDS: readonly EditableField[] = Object.freeze([]);
 export const EMPTY_PACKING_RESULTS: PackingResults = Object.freeze({
     jobId: "",
-    jobStatus: "",
     jobLogs: "",
     resultUrl: "",
     runTime: -1,
