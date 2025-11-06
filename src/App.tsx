@@ -138,7 +138,7 @@ function App() {
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
         if (localJobStatus.status == JOB_STATUS.DONE) {
-            setResultUrl(SIMULARIUM_EMBED_URL + localJobStatus.result_path);
+            setResultUrl(localJobStatus.result_path);
             setOutputDir(localJobStatus.outputs_directory);
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
             setJobLogs(localJobStatus.error_message);
@@ -164,7 +164,7 @@ function App() {
                     <PackingInput startPacking={startPacking} />
                 </Sider>
                 <Content className="content-container">
-                    <Viewer resultUrl={resultUrl} />
+                    <Viewer resultUrl={resultUrl ? SIMULARIUM_EMBED_URL + resultUrl : ""} />
                 </Content>
             </Layout>
             <Footer className="footer">

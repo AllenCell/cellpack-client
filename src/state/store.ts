@@ -4,7 +4,6 @@ import { get as lodashGet, set as lodashSet } from "lodash-es";
 import { PackingInputs } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
-import { SIMULARIUM_EMBED_URL } from "../constants/urls";
 
 export interface RecipeData {
     id: string;
@@ -15,7 +14,6 @@ export interface RecipeData {
 
 export interface RecipeState {
     selectedRecipeId: string;
-    resultUrl: string;
     inputOptions: Record<string, PackingInputs>;
     recipes: Record<string, RecipeData>;
 }
@@ -54,7 +52,6 @@ const INITIAL_RECIPE_ID = "peroxisome_v_gradient_packing";
 
 const initialState: RecipeState & UIState = {
     selectedRecipeId: INITIAL_RECIPE_ID,
-    resultUrl: "",
     inputOptions: {},
     recipes: {},
     isLoading: false,
@@ -123,7 +120,6 @@ export const useRecipeStore = create<RecipeStore>()(
 
             set({
                 selectedRecipeId: recipeId,
-                resultUrl: SIMULARIUM_EMBED_URL + (sel.result_path ?? ""),
             });
 
             if (sel.recipe && !get().recipes[sel.recipe]) {
@@ -133,7 +129,18 @@ export const useRecipeStore = create<RecipeStore>()(
 
 
         setResultUrl: (url: string) => {
-            set({ resultUrl: url });
+            const { inputOptions, selectedRecipeId } = get();
+            const sel = inputOptions[selectedRecipeId];
+            if (!sel) return;
+            set({
+                inputOptions: {
+                    ...get().inputOptions,
+                    [selectedRecipeId]: {
+                        ...sel,
+                        result_path: url,
+                    },
+                },
+            });
         },
 
 
@@ -241,7 +248,8 @@ export const useIsCurrentRecipeModified = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
-export const useResultUrl = () => useRecipeStore((s) => s.resultUrl);
+export const useResultUrl = () =>
+    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.result_path);
 
 // action selectors (stable identities)
 export const useLoadInputOptions = () =>
