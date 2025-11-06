@@ -7,12 +7,8 @@ interface GradientStrength {
     uiValue: number;
     min: number;
     max: number;
-};
+}
 
-// Helpers: store <-> UI mapping(not in use for now)
-// Store: "smaller = stronger" (e.g., decay length). UI: "bigger = stronger" (0..1).
-export const toUi = (storeVal: number) => Number((1 - storeVal).toFixed(2));
-export const toStore = (uiVal: number) => Number((1 - uiVal).toFixed(2));
 export const round2 = (n: number) => Number(n.toFixed(2));
 
 
