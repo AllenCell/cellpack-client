@@ -5,7 +5,7 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
-import { useSetPackingResults } from "./state/store";
+import { useRunTime, useSetPackingResults } from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -19,8 +19,8 @@ function App() {
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
     const [outputDir, setOutputDir] = useState<string>("");
-    const [runTime, setRunTime] = useState<number>(0);
     const setPackingResults = useSetPackingResults();
+    const runTime = useRunTime();
 
     let start = 0;
 
@@ -39,7 +39,6 @@ function App() {
             runTime: 0,
             outputDir: "",
         });
-        setRunTime(0);
     };
 
     const recipeHasChanged = async (
@@ -140,7 +139,6 @@ function App() {
             }
         }
         const range = (Date.now() - start) / 1000;
-        setRunTime(range);
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({
                 jobId: id,

@@ -253,10 +253,17 @@ const useDefaultResultPath = () => {
     return manifest?.defaultResultPath || "";
 };
 
+const usePackingResults = () => useRecipeStore((s) => s.packingResults);
+
+export const useRunTime = () => {
+    const results = usePackingResults();
+    return results ? results.runTime : 0;
+};
+
 export const useResultUrl = () => {
     let path = "";
-    const results = useRecipeStore.getState().packingResults;
-    const currentRecipeId = useRecipeStore.getState().selectedRecipeId;
+    const results = usePackingResults();
+    const currentRecipeId = useSelectedRecipeId();
     const defaultResultPath = useDefaultResultPath();
     if (results) {
         path = results.resultUrl;
