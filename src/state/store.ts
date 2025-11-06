@@ -131,7 +131,6 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         setPackingResults: (results: PackingResults) => {
-            console.log("Setting packing results:", results);
             set({ packingResults: results });
         },
 
