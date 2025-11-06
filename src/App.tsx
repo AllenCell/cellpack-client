@@ -5,7 +5,7 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
-import { useResultUrl, useSetPackingResults } from "./state/store";
+import { useSetPackingResults } from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -20,7 +20,6 @@ function App() {
     const [jobLogs, setJobLogs] = useState<string>("");
     const [outputDir, setOutputDir] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
-    const resultUrl = useResultUrl();
     const setPackingResults = useSetPackingResults();
 
     let start = 0;
@@ -175,7 +174,7 @@ function App() {
                     <PackingInput startPacking={startPacking} />
                 </Sider>
                 <Content className="content-container">
-                    <Viewer resultUrl={resultUrl} />
+                    <Viewer />
                 </Content>
             </Layout>
             <Footer className="footer">

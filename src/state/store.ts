@@ -4,7 +4,6 @@ import { get as lodashGet, set as lodashSet } from "lodash-es";
 import { PackingResults, RecipeManifest } from "../types";
 import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
 import { getPackingInputsDict } from "../utils/firebase";
-import { SIMULARIUM_EMBED_URL } from "../constants/urls";
 
 export interface RecipeData {
     id: string;
@@ -132,6 +131,7 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         setPackingResults: (results: PackingResults) => {
+            console.log("Setting packing results:", results);
             set({ packingResults: results });
         },
 
@@ -255,8 +255,7 @@ export const useResultUrl = () => {
     } else if (currentRecipeId) {
         path = defaultResultPath;
     }
-    console.log("useResultUrl path:", `${SIMULARIUM_EMBED_URL}${path}`);
-    return `${SIMULARIUM_EMBED_URL}${path}`;
+    return path;
 };
 
 // action selectors (stable identities)
