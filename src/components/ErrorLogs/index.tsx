@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button, Drawer } from "antd";
-import { usePackingData } from "../../state/store";
+import { usePackingResults } from "../../state/store";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
 
 const ErrorLogs = (): JSX.Element => {
     const [viewErrorLogs, setViewErrorLogs] = useState<boolean>(true);
-    const {jobStatus, jobLogs: errorLogs} = usePackingData();
+    const {jobStatus, jobLogs: errorLogs} = usePackingResults();
 
     const toggleLogs = () => {
         setViewErrorLogs(!viewErrorLogs);

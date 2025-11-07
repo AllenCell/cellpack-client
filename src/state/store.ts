@@ -5,14 +5,14 @@ import { getOutputsDirectory, getRecipesFromFirebase } from "../utils/firebase";
 import { buildResultUrl, pollForJobStatus, submitJob } from "../utils/packingService";
 import { JOB_STATUS } from "../constants/aws";
 import { jsonToString } from "../utils/recipeLoader";
-import { PackingManifest, RecipeManifest } from "../types";
+import { PackingResults, RecipeManifest } from "../types";
 import { buildCurrentRecipeObject } from "./utils";
 import { EMPTY_FIELDS, EMPTY_PACKING_DATA } from "./constants";
 
 export interface RecipeState {
     selectedRecipeId: string;
     recipes: Record<string, RecipeManifest>;
-    packingData: PackingManifest;
+    packingResults: PackingResults;
 }
 
 export interface UIState {
@@ -21,7 +21,7 @@ export interface UIState {
 }
 
 type Actions = {
-    loadAllRecipes: () => void;
+    loadAllRecipes: () => Promise<void>;
     selectRecipe: (recipeId: string) => Promise<void>;
     editRecipe: (recipeId: string, updates: Record<string, string | number>) => void;
     restoreRecipeDefault: (recipeId: string) => void;
@@ -29,6 +29,9 @@ type Actions = {
     getOriginalValue: (path: string) => string | number | undefined;
     startPacking: () => Promise<void>;
     reset: () => void;
+    setPackingResults: (results: PackingResults) => void;
+    setJobLogs: (logs: string) => void;
+    setJobId: (jobId: string) => void;
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
@@ -38,7 +41,7 @@ const initialState: RecipeState & UIState = {
     recipes: {},
     isLoading: false,
     isPacking: false,
-    packingData: EMPTY_PACKING_DATA,
+    packingResults: EMPTY_PACKING_DATA,
 };
 
 export const useRecipeStore = create<RecipeStore>()(
@@ -147,30 +150,30 @@ export const useRecipeStore = create<RecipeStore>()(
 
             const recipeString = jsonToString(buildCurrentRecipeObject(rec))
 
-            set({ isPacking: true, packingData: EMPTY_PACKING_DATA });
+            set({ isPacking: true, packingResults: EMPTY_PACKING_DATA });
 
             const startedAtMs = Date.now();
 
             try {
                 const { response, data } = await submitJob(selectedRecipeId, recipeString, rec.configId);
-                set((state) => ({ packingData: { ...state.packingData, jobStatus: JOB_STATUS.SUBMITTED } }));
+                set((state) => ({ packingResults: { ...state.packingResults, jobStatus: JOB_STATUS.SUBMITTED } }));
 
                 if (!response.ok) {
-                    set((state) => ({ packingData: { ...state.packingData, jobStatus: JOB_STATUS.FAILED, jobLogs: JSON.stringify(data) } }));
+                    set((state) => ({ packingResults: { ...state.packingResults, jobStatus: JOB_STATUS.FAILED, jobLogs: JSON.stringify(data) } }));
                     return;
                 }
 
                 const newJobId: string = data.jobId;
                 set(state => ({
-                    packingData: {
-                        ...state.packingData,
+                    packingResults: {
+                        ...state.packingResults,
                         jobId: newJobId,
                         jobStatus: JOB_STATUS.STARTING,
                     }
                 }));
 
                 const finalStatus = await pollForJobStatus(newJobId, (next) =>
-                    set(state => ({ packingData: { ...state.packingData, jobStatus: next } }))
+                    set(state => ({ packingResults: { ...state.packingResults, jobStatus: next } }))
                 );
 
                 const runTime = (Date.now() - startedAtMs) / 1000;
@@ -179,8 +182,8 @@ export const useRecipeStore = create<RecipeStore>()(
                     const url = await buildResultUrl(newJobId);
                     const outputDir = await getOutputsDirectory(newJobId);
                     set(state => ({
-                        packingData: {
-                            ...state.packingData,
+                        packingResults: {
+                            ...state.packingResults,
                             jobStatus: JOB_STATUS.DONE,
                             resultUrl: url,
                             outputDir,
@@ -190,8 +193,8 @@ export const useRecipeStore = create<RecipeStore>()(
                 } else {
                     const logs = finalStatus.error_message;
                     set(state => ({
-                        packingData: {
-                            ...state.packingData,
+                        packingResults: {
+                            ...state.packingResults,
                             jobStatus: JOB_STATUS.FAILED,
                             jobLogs: logs,
                             runTime,
@@ -203,6 +206,27 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
+        setPackingResults: (results: PackingResults) => {
+            set({ packingResults: results });
+        },
+
+        setJobLogs: (logs: string) => {
+            set({
+                packingResults: {
+                    ...(get().packingResults as PackingResults),
+                    jobLogs: logs,
+                },
+            });
+        },
+        setJobId: (jobId: string) => {
+            set({
+                packingResults: {
+                    ...(get().packingResults as PackingResults),
+                    jobId: jobId,
+                },
+            });
+        },
+
         reset: () => set(() => ({ ...initialState })),
 
     })),
@@ -211,9 +235,53 @@ export const useRecipeStore = create<RecipeStore>()(
 // Basic selectors
 export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
 export const useRecipes = () => useRecipeStore(s => s.recipes)
-export const usePackingData = () => useRecipeStore(s => s.packingData);
+export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 export const useIsLoading = () => useRecipeStore(s => s.isLoading);
 export const useIsPacking = () => useRecipeStore(s => s.isPacking);
+
+// Compound selectors
+
+export const useCurrentRecipeManifest = () => useRecipeStore(s => {
+    const selectedRecipeId = s.selectedRecipeId;
+    return selectedRecipeId ? s.recipes[selectedRecipeId] : undefined;
+});
+
+
+export const useDefaultResultPath = () => {
+    const manifest = useCurrentRecipeManifest();
+    return manifest?.defaultResultPath || "";
+};
+
+export const useRunTime = () => {
+    const results = usePackingResults();
+    return results ? results.runTime : 0;
+};
+
+export const useJobLogs = () => {
+    const results = usePackingResults();
+    return results ? results.jobLogs : "";
+};
+
+export const useJobId = () => {
+    const results = usePackingResults();
+    return results ? results.jobId : "";
+};
+
+export const useOutputsDirectory = () => {
+    const results = usePackingResults();
+    return results ? results.outputDir : "";
+};
+
+export const useResultUrl = () =>  useRecipeStore(s => {
+    const results = s.packingResults;
+    const currentRecipeId = s.selectedRecipeId
+    const defaultResultPath = s.recipes[currentRecipeId].defaultResultPath || undefined;
+    if (results) {
+        return results.resultUrl;
+    } else if (currentRecipeId) {
+        return defaultResultPath;
+    }
+});
 
 // Derived selectors
 export const useEditableFields = () =>
@@ -221,6 +289,7 @@ export const useEditableFields = () =>
         const id = s.selectedRecipeId;
         return (id && s.recipes[id]?.editableFields) ?? EMPTY_FIELDS;
     });
+
 
 // Action selectors
 export const useLoadAllRecipes = () => useRecipeStore(s => s.loadAllRecipes);

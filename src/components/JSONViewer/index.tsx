@@ -7,14 +7,13 @@ import {
     returnOneElement,
 } from "./formattingUtils";
 import "./style.css";
-import { useRecipes, useSelectedRecipeId } from "../../state/store";
+import { useCurrentRecipeManifest,
+    //  useRecipes, useSelectedRecipeId
+     } from "../../state/store";
 import { buildCurrentRecipeObject } from "../../state/utils";
 
 const JSONViewer = (): JSX.Element | null => {
-    const selectedRecipeId = useSelectedRecipeId();
-    const recipes = useRecipes();
-
-    const currentRecipe = recipes[selectedRecipeId];
+    const currentRecipe = useCurrentRecipeManifest();
 
     if (!currentRecipe) {
         return null;

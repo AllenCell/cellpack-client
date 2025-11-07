@@ -159,13 +159,15 @@ const getRecipesFromFirebase = async (): Promise<Dictionary<RecipeManifest>> => 
         if (name && config && recipeId) {
             const editableFields = await getEditableFieldsList(doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []);
             const recipe = await getFirebaseRecipe(recipeId);
+            const result = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
             inputsDict[recipeId] = {
                 recipeId: recipeId,
                 configId: config,
                 displayName: name,
                 editableFields: editableFields ?? [],
                 defaultRecipeData: recipe,
-                edits: {}
+                edits: {},
+                defaultResultPath: result,
             };
         }
     }

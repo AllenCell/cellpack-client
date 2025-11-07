@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Button } from "antd";
 import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
-import { usePackingData } from "../../state/store";
+import { usePackingResults } from "../../state/store";
 import "./style.css";
 import ErrorLogs from "../ErrorLogs";
 
 const StatusBar = (): JSX.Element => {
     const { jobStatus, runTime, jobId, outputDir } =
-        usePackingData();
+        usePackingResults();
     const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadResults = async (jobId: string) => {

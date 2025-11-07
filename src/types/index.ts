@@ -5,6 +5,7 @@ export interface Document {
     recipe?: string;
     config?: string;
     editable_fields?: string[];
+    result_path?: string;
 };
 
 export type FirestoreDoc = Document & {
@@ -22,9 +23,10 @@ export interface RecipeManifest {
     editableFields: EditableField[];
     defaultRecipeData: ViewableRecipe;
     edits: Record<string, string | number>;
+    defaultResultPath?: string;
 }
 
-export interface PackingManifest {
+export interface PackingResults {
     jobId: string;
     jobStatus: string;
     jobLogs: string;

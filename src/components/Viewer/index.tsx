@@ -1,9 +1,9 @@
-import { usePackingData } from "../../state/store";
+import { usePackingResults } from "../../state/store";
 import "./style.css";
 
 
 const Viewer = (): JSX.Element => {
-    const { resultUrl } = usePackingData();
+    const { resultUrl } = usePackingResults();
     if (!resultUrl) {
         return <></>;
     }
