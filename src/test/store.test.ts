@@ -230,10 +230,10 @@ describe("recipe store", () => {
                 expect(submitJob).toHaveBeenCalledWith("r1", expect.any(String), "config-123");
                 expect(pollForJobStatus).toHaveBeenCalledWith("job-xyz", expect.any(Function));
                 expect(buildResultUrl).toHaveBeenCalledWith("job-xyz");
-                expect(s.packingData.jobId).toBe("job-xyz");
-                expect(s.packingData.resultUrl).toBe("https://test.com/result/path.sim");
+                expect(s.packingResults.jobId).toBe("job-xyz");
+                expect(s.packingResults.resultUrl).toBe("https://test.com/result/path.sim");
                 expect(s.isPacking).toBe(false);
-                expect(typeof s.packingData.runTime).toBe("number");
+                expect(typeof s.packingResults.runTime).toBe("number");
             });
 
             it("FAILED terminal status stores logs, leaves resultUrl empty", async () => {
@@ -243,9 +243,9 @@ describe("recipe store", () => {
                 await useRecipeStore.getState().startPacking();
 
                 const s = useRecipeStore.getState();
-                expect(s.packingData.jobStatus).toBe(JOB_STATUS.FAILED);
-                expect(s.packingData.jobLogs).toBe("LOGS-FAIL");
-                expect(s.packingData.resultUrl).toBe("");
+                expect(s.packingResults.jobStatus).toBe(JOB_STATUS.FAILED);
+                expect(s.packingResults.jobLogs).toBe("LOGS-FAIL");
+                expect(s.packingResults.resultUrl).toBe("");
                 expect(s.isPacking).toBe(false);
             });
 
@@ -259,8 +259,8 @@ describe("recipe store", () => {
                 await useRecipeStore.getState().startPacking();
 
                 const s = useRecipeStore.getState();
-                expect(s.packingData.jobStatus).toBe(JOB_STATUS.FAILED);
-                expect(s.packingData.jobLogs).toContain("bad request");
+                expect(s.packingResults.jobStatus).toBe(JOB_STATUS.FAILED);
+                expect(s.packingResults.jobLogs).toContain("bad request");
                 expect(s.isPacking).toBe(false);
             });
         });
