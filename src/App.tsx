@@ -6,6 +6,7 @@ import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_EMBED_URL } from "./constants/urls";
+import { useResultUrl, useSetResultUrl } from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -18,9 +19,10 @@ function App() {
     const [jobId, setJobId] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobLogs, setJobLogs] = useState<string>("");
-    const [resultUrl, setResultUrl] = useState<string>("");
     const [outputDir, setOutputDir] = useState<string>("");
     const [runTime, setRunTime] = useState<number>(0);
+    const resultUrl = useResultUrl();
+    const setResultUrl = useSetResultUrl();
 
     let start = 0;
 
@@ -136,7 +138,7 @@ function App() {
         const range = (Date.now() - start) / 1000;
         setRunTime(range);
         if (localJobStatus.status == JOB_STATUS.DONE) {
-            setResultUrl(SIMULARIUM_EMBED_URL + localJobStatus.result_path);
+            setResultUrl(localJobStatus.result_path);
             setOutputDir(localJobStatus.outputs_directory);
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
             setJobLogs(localJobStatus.error_message);
@@ -162,7 +164,7 @@ function App() {
                     <PackingInput startPacking={startPacking} />
                 </Sider>
                 <Content className="content-container">
-                    <Viewer resultUrl={resultUrl} />
+                    <Viewer resultUrl={resultUrl ? SIMULARIUM_EMBED_URL + resultUrl : ""} />
                 </Content>
             </Layout>
             <Footer className="footer">

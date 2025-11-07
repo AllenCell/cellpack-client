@@ -43,6 +43,7 @@ type Actions = {
             recipeString: string
         ) => Promise<void>
     ) => Promise<void>;
+    setResultUrl: (url: string) => void;
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
@@ -125,6 +126,23 @@ export const useRecipeStore = create<RecipeStore>()(
                 await get().loadRecipe(sel.recipe);
             }
         },
+
+
+        setResultUrl: (url: string) => {
+            const { inputOptions, selectedRecipeId } = get();
+            const sel = inputOptions[selectedRecipeId];
+            if (!sel) return;
+            set({
+                inputOptions: {
+                    ...get().inputOptions,
+                    [selectedRecipeId]: {
+                        ...sel,
+                        result_path: url,
+                    },
+                },
+            });
+        },
+
 
         updateRecipeString: (recipeId, newString) => {
             set((s) => {
@@ -230,6 +248,8 @@ export const useIsCurrentRecipeModified = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
 export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
+export const useResultUrl = () =>
+    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.result_path);
 
 // action selectors (stable identities)
 export const useLoadInputOptions = () =>
@@ -245,3 +265,4 @@ export const useRestoreRecipeDefault = () =>
 export const useStartPacking = () => useRecipeStore((s) => s.startPacking);
 export const useGetCurrentValue = () =>
     useRecipeStore((s) => s.getCurrentValue);
+export const useSetResultUrl = () => useRecipeStore((s) => s.setResultUrl);

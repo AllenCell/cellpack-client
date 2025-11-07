@@ -46,7 +46,7 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
                     disabled={isPacking}
                     style={{ width: "100%" }}
                 >
-                    Pack!
+                    Re-run
                 </Button>
             )}
         </div>
