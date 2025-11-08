@@ -39,6 +39,13 @@ export function getSelectedGradient(
         return { currentGradient: defaultValue, selectedOption: { value: defaultValue, display_name: defaultValue, path: "" } as GradientOption };
     }
 
+    // Determine current packing mode and filter options accorrdingly
+    const modePath = gradientOptions[0].packing_mode_path ?? "";
+    const rawMode = modePath ? getCurrentValue(modePath) : undefined;
+    const currentMode = typeof rawMode === "string" ? rawMode : "gradient";
+    const validOptions =
+        gradientOptions.filter(o => o.packing_mode === currentMode);
+
     // Shared selector path (all options for this control share it)
     const selectorPath = gradientOptions[0].path ?? "";
 
@@ -48,9 +55,9 @@ export function getSelectedGradient(
 
     // The full option object for that value, or first as fallback
     const selectedOption =
-        gradientOptions.find(o => o.value === currentGradient) ?? gradientOptions[0];
+        validOptions.find(o => o.value === currentGradient) ?? validOptions[0];
 
-    return { currentGradient, selectedOption };
+    return { currentGradient: selectedOption.value, selectedOption };
 }
 
 
