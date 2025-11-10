@@ -179,18 +179,18 @@ const getRecipesFromFirebase = async (): Promise<Dictionary<RecipeManifest>> => 
     const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
     const inputsDict: Dictionary<RecipeManifest> = {};
     for (const doc of docs) {
-        const name = doc[FIRESTORE_FIELDS.NAME];
+        const displayName = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
         const recipeId = doc[FIRESTORE_FIELDS.RECIPE];
 
-        if (name && config && recipeId) {
+        if (displayName && config && recipeId) {
             const editableFields = await getEditableFieldsList(doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []);
             const recipe = await getFirebaseRecipe(recipeId);
             const result = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
             inputsDict[recipeId] = {
                 recipeId: recipeId,
                 configId: config,
-                displayName: name,
+                displayName,
                 editableFields: editableFields ?? [],
                 defaultRecipeData: recipe,
                 edits: {},
