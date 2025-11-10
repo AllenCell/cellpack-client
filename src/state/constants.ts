@@ -6,6 +6,6 @@ export const EMPTY_PACKING_RESULTS: PackingResults = Object.freeze({
     jobId: "",
     jobLogs: "",
     resultUrl: "",
-    runTime: -1,
+    runTime: 0,
     outputDir: "",
 });
