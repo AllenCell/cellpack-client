@@ -120,9 +120,8 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         selectRecipe: async (recipeId) => {
-            set({
-                packingResults: { ...EMPTY_PACKING_RESULTS },
-            });
+            get().setPackingResults({ ...EMPTY_PACKING_RESULTS });
+
             const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
@@ -147,6 +146,7 @@ export const useRecipeStore = create<RecipeStore>()(
                 },
             });
         },
+
         setJobId: (jobId: string) => {
             set({
                 packingResults: {

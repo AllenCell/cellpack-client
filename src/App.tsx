@@ -17,6 +17,8 @@ import {
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
+import { EMPTY_PACKING_RESULTS } from "./state/constants";
+
 import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
@@ -39,13 +41,7 @@ function App() {
     }
 
     const resetState = () => {
-        setPackingResults({
-            jobId: "",
-            jobLogs: "",
-            resultUrl: "",
-            runTime: 0,
-            outputDir: "",
-        });
+        setPackingResults({ ...EMPTY_PACKING_RESULTS });
     };
 
     const recipeHasChanged = async (
