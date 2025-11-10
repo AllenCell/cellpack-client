@@ -153,9 +153,7 @@ function App() {
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
             setPackingResults({
                 jobId: id,
-                jobLogs:
-                    "Packing job failed. Check AWS Batch logs for details. " +
-                    localJobStatus.error_message,
+                jobLogs: `Packing job failed: ${localJobStatus.error_message}`,
                 resultUrl: "",
                 runTime: range,
                 outputDir: "",
