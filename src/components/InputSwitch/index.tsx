@@ -49,6 +49,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         }
         if (typeof value == "number") {
             value = value * conversion;
+            value = Number(value.toFixed(4));
         }
         return value;
     }, [getCurrentValue, id, min, conversion, dataType]);
@@ -67,6 +68,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         if (typeof value === "number") {
             // Convert back to original units for updating recipe object
             value = value / conversion;
+            value = Number(value.toFixed(4));
         }
         updateRecipeObj(selectedRecipeId, { [id]: value });
     };
