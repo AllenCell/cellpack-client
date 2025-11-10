@@ -105,9 +105,8 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         selectRecipe: async (recipeId) => {
-            set({
-                packingResults: { ...EMPTY_PACKING_RESULTS },
-            });
+            get().setPackingResults({ ...EMPTY_PACKING_RESULTS });
+
             const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
@@ -127,15 +126,16 @@ export const useRecipeStore = create<RecipeStore>()(
         setJobLogs: (logs: string) => {
             set({
                 packingResults: {
-                    ...(get().packingResults as PackingResults),
+                    ...get().packingResults,
                     jobLogs: logs,
                 },
             });
         },
+
         setJobId: (jobId: string) => {
             set({
                 packingResults: {
-                    ...(get().packingResults as PackingResults),
+                    ...get().packingResults,
                     jobId: jobId,
                 },
             });
@@ -268,22 +268,22 @@ export const useDefaultResultPath = () => {
 
 export const useRunTime = () => {
     const results = usePackingResults();
-    return results ? results.runTime : 0;
+    return results.runTime;
 };
 
 export const useJobLogs = () => {
     const results = usePackingResults();
-    return results ? results.jobLogs : "";
+    return results.jobLogs;
 };
 
 export const useJobId = () => {
     const results = usePackingResults();
-    return results ? results.jobId : "";
+    return results.jobId;
 };
 
 export const useOutputsDirectory = () => {
     const results = usePackingResults();
-    return results ? results.outputDir : "";
+    return results.outputDir;
 };
 
 export const useResultUrl = () => {
