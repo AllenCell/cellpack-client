@@ -278,22 +278,22 @@ const useDefaultResultPath = () => {
 
 export const useRunTime = () => {
     const results = usePackingResults();
-    return results ? results.runTime : 0;
+    return results.runTime;
 };
 
 export const useJobLogs = () => {
     const results = usePackingResults();
-    return results ? results.jobLogs : "";
+    return results.jobLogs;
 };
 
 export const useJobId = () => {
     const results = usePackingResults();
-    return results ? results.jobId : "";
+    return results.jobId;
 };
 
 export const useOutputsDirectory = () => {
     const results = usePackingResults();
-    return results ? results.outputDir : "";
+    return results.outputDir;
 };
 
 export const useResultUrl = () => {
