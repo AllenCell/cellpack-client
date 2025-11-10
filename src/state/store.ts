@@ -141,7 +141,7 @@ export const useRecipeStore = create<RecipeStore>()(
         setJobLogs: (logs: string) => {
             set({
                 packingResults: {
-                    ...(get().packingResults as PackingResults),
+                    ...get().packingResults,
                     jobLogs: logs,
                 },
             });
@@ -150,7 +150,7 @@ export const useRecipeStore = create<RecipeStore>()(
         setJobId: (jobId: string) => {
             set({
                 packingResults: {
-                    ...(get().packingResults as PackingResults),
+                    ...get().packingResults,
                     jobId: jobId,
                 },
             });
