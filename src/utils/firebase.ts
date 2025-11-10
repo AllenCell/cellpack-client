@@ -25,7 +25,9 @@ import {
     Dictionary,
     EditableField,
     JobStatusObject,
+    RecipeData,
 } from "../types";
+import { getFirebaseRecipe } from "./recipeLoader";
 
 const getEnvVar = (key: string): string => {
     // check if we're in a browser environment (Vite)
@@ -163,25 +165,35 @@ const getEditableFieldsList = async (
     return docs;
 };
 
-const getPackingInputsDict = async (): Promise<Dictionary<RecipeManifest>> => {
-    const docs = await getAllDocsFromCollection(
-        FIRESTORE_COLLECTIONS.PACKING_INPUTS
-    );
+// TODO get data and metadata separately
+const getRecipeDataFromFirebase = async (recipeId: string): Promise<RecipeData> => {
+    const defaultRecipeData = await getFirebaseRecipe(recipeId);
+    return {
+        recipeId,
+        defaultRecipeData,
+        edits: {}
+    }
+}
+
+const getRecipesFromFirebase = async (): Promise<Dictionary<RecipeManifest>> => {
+    const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
     const inputsDict: Dictionary<RecipeManifest> = {};
     for (const doc of docs) {
-        const displayName = doc[FIRESTORE_FIELDS.NAME];
+        const name = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
-        const recipe = doc[FIRESTORE_FIELDS.RECIPE];
-        const editableFields = await getEditableFieldsList(
-            doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []
-        );
-        const result = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
-        if (config && recipe) {
-            inputsDict[recipe] = {
-                [FIRESTORE_FIELDS.NAME]: displayName,
-                [FIRESTORE_FIELDS.CONFIG]: config,
-                [FIRESTORE_FIELDS.RECIPE]: recipe,
-                [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields,
+        const recipeId = doc[FIRESTORE_FIELDS.RECIPE];
+
+        if (name && config && recipeId) {
+            const editableFields = await getEditableFieldsList(doc[FIRESTORE_FIELDS.EDITABLE_FIELDS] || []);
+            const recipe = await getFirebaseRecipe(recipeId);
+            const result = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
+            inputsDict[recipeId] = {
+                recipeId: recipeId,
+                configId: config,
+                displayName: name,
+                editableFields: editableFields ?? [],
+                defaultRecipeData: recipe,
+                edits: {},
                 defaultResultPath: result,
             };
         }
@@ -249,6 +261,7 @@ export {
     getJobStatus,
     addRecipe,
     docCleanup,
-    getPackingInputsDict,
+    getRecipesFromFirebase,
+    getRecipeDataFromFirebase,
     getOutputsDirectory,
 };
