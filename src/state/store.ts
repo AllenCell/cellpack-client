@@ -91,13 +91,11 @@ export const useRecipeStore = create<RecipeStore>()(
                 recipeIds.includes(INITIAL_RECIPE_ID) ? INITIAL_RECIPE_ID : recipeIds[0];
 
             // Ensure the bootstrap recipe is loaded & selected
-            if (!get().recipes[initialIdToLoad]) {
-                await loadRecipe(initialIdToLoad);
-            }
+            await loadRecipe(initialIdToLoad);
 
             // Load remaining recipes in the background (don’t block)
             const remainingRecipesToLoad = recipeIds.filter(
-                id => id !== initialIdToLoad && !get().recipes[id]
+                id => id !== initialIdToLoad
             );
             Promise.all(remainingRecipesToLoad.map((id) => loadRecipe(id)));
         },
