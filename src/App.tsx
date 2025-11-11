@@ -5,24 +5,34 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
-import { SIMULARIUM_EMBED_URL } from "./constants/urls";
-import { useResultUrl, useSetResultUrl } from "./state/store";
+import {
+    useJobId,
+    useJobLogs,
+    useOutputsDirectory,
+    useRunTime,
+    useSetJobId,
+    useSetJobLogs,
+    useSetPackingResults,
+} from "./state/store";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
+import { EMPTY_PACKING_RESULTS } from "./state/constants";
+
 import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
 
 function App() {
-    const [jobId, setJobId] = useState("");
-    const [jobStatus, setJobStatus] = useState("");
-    const [jobLogs, setJobLogs] = useState<string>("");
-    const [outputDir, setOutputDir] = useState<string>("");
-    const [runTime, setRunTime] = useState<number>(0);
-    const resultUrl = useResultUrl();
-    const setResultUrl = useSetResultUrl();
+    const [jobStatus, setJobStatus] = useState<string>("");
+    const setJobLogs = useSetJobLogs();
+    const jobLogs = useJobLogs();
+    const setJobId = useSetJobId();
+    const jobId = useJobId();
+    const setPackingResults = useSetPackingResults();
+    const runTime = useRunTime();
+    const outputDir = useOutputsDirectory();
 
     let start = 0;
 
@@ -31,11 +41,7 @@ function App() {
     }
 
     const resetState = () => {
-        setJobId("");
-        setJobStatus("");
-        setJobLogs("");
-        setResultUrl("");
-        setRunTime(0);
+        setPackingResults({ ...EMPTY_PACKING_RESULTS });
     };
 
     const recipeHasChanged = async (
@@ -136,12 +142,22 @@ function App() {
             }
         }
         const range = (Date.now() - start) / 1000;
-        setRunTime(range);
         if (localJobStatus.status == JOB_STATUS.DONE) {
-            setResultUrl(localJobStatus.result_path);
-            setOutputDir(localJobStatus.outputs_directory);
+            setPackingResults({
+                jobId: id,
+                jobLogs: "",
+                resultUrl: localJobStatus.result_path,
+                runTime: range,
+                outputDir: localJobStatus.outputs_directory,
+            });
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
-            setJobLogs(localJobStatus.error_message);
+            setPackingResults({
+                jobId: id,
+                jobLogs: `Packing job failed: ${localJobStatus.error_message}`,
+                resultUrl: "",
+                runTime: range,
+                outputDir: "",
+            });
         }
     };
 
@@ -164,7 +180,7 @@ function App() {
                     <PackingInput startPacking={startPacking} />
                 </Sider>
                 <Content className="content-container">
-                    <Viewer resultUrl={resultUrl ? SIMULARIUM_EMBED_URL + resultUrl : ""} />
+                    <Viewer />
                 </Content>
             </Layout>
             <Footer className="footer">

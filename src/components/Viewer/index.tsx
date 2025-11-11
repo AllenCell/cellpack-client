@@ -1,14 +1,15 @@
+import { SIMULARIUM_EMBED_URL } from "../../constants/urls";
+import { useResultUrl } from "../../state/store";
 import "./style.css";
 
-interface ViewerProps {
-    resultUrl: string;
-}
-
-const Viewer = (props: ViewerProps): JSX.Element => {
-    const { resultUrl } = props;
+const Viewer = (): JSX.Element => {
+    const resultUrl = useResultUrl();
     return (
         <div className="viewer-container">
-            <iframe className="simularium-embed" src={resultUrl} />
+            <iframe
+                className="simularium-embed"
+                src={`${SIMULARIUM_EMBED_URL}${resultUrl}`}
+            />
         </div>
     );
 };

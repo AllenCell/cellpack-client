@@ -1,11 +1,11 @@
 import { Select } from "antd";
 import { map } from "lodash-es";
-import { Dictionary, PackingInputs } from "../../types";
+import { Dictionary, RecipeManifest } from "../../types";
 
 interface DropdownProps {
     placeholder: string;
     defaultValue?: string;
-    options: Dictionary<PackingInputs>;
+    options: Dictionary<RecipeManifest>;
     onChange: (value: string) => void;
 }
 

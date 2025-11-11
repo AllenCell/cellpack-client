@@ -21,7 +21,7 @@ import {
 } from "../constants/firebase";
 import {
     FirestoreDoc,
-    PackingInputs,
+    RecipeManifest,
     Dictionary,
     EditableField,
     JobStatusObject,
@@ -163,11 +163,11 @@ const getEditableFieldsList = async (
     return docs;
 };
 
-const getPackingInputsDict = async (): Promise<Dictionary<PackingInputs>> => {
+const getPackingInputsDict = async (): Promise<Dictionary<RecipeManifest>> => {
     const docs = await getAllDocsFromCollection(
         FIRESTORE_COLLECTIONS.PACKING_INPUTS
     );
-    const inputsDict: Dictionary<PackingInputs> = {};
+    const inputsDict: Dictionary<RecipeManifest> = {};
     for (const doc of docs) {
         const displayName = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
@@ -182,7 +182,7 @@ const getPackingInputsDict = async (): Promise<Dictionary<PackingInputs>> => {
                 [FIRESTORE_FIELDS.CONFIG]: config,
                 [FIRESTORE_FIELDS.RECIPE]: recipe,
                 [FIRESTORE_FIELDS.EDITABLE_FIELDS]: editableFields,
-                [FIRESTORE_FIELDS.RESULT_PATH]: result,
+                defaultResultPath: result,
             };
         }
     }
