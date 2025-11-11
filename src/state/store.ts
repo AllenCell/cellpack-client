@@ -99,7 +99,7 @@ export const useRecipeStore = create<RecipeStore>()(
             const remainingRecipesToLoad = recipeIds.filter(
                 id => id !== initialIdToLoad && !get().recipes[id]
             );
-            await Promise.all(remainingRecipesToLoad.map((id) => loadRecipe(id)));
+            Promise.all(remainingRecipesToLoad.map((id) => loadRecipe(id)));
         },
 
         selectRecipe: async (recipeId) => {
