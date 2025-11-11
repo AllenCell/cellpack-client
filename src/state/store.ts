@@ -1,13 +1,10 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { isEqual, get as lodashGet } from "lodash-es";
+import { isEqual, get as lodashGet, set as lodashSet } from "lodash-es";
 import { PackingResults, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
 import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
 import { EMPTY_PACKING_RESULTS } from "./constants";
-import { buildCurrentRecipeObject } from "./utils";
-
-
 export interface RecipeState {
     selectedRecipeId: string;
     inputOptions: Record<string, RecipeManifest>;
@@ -90,7 +87,7 @@ export const useRecipeStore = create<RecipeStore>()(
             if (!recipesToLoad.length) return;
             set({ isLoading: true });
             try {
-                await Promise.all(recipesToLoad.map((id) => loadRecipe(id)));              
+                await Promise.all(recipesToLoad.map((id) => loadRecipe(id)));
             } finally {
                 set({ isLoading: false });
             }
@@ -202,8 +199,9 @@ export const useRecipeStore = create<RecipeStore>()(
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
-            const recipe = s.recipes[s.selectedRecipeId];
-            const recipeString = jsonToString(buildCurrentRecipeObject(recipe))
+            const recipeObject = selectCurrentRecipeObject(s);
+            if (!recipeObject) return;
+            const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
             try {
                 await callback(s.selectedRecipeId, configId, recipeString);
@@ -231,6 +229,7 @@ export const useRecipeStore = create<RecipeStore>()(
     }))
 );
 
+
 // Basic selectors
 export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
@@ -242,6 +241,26 @@ export const useRecipes = () => useRecipeStore(s => s.recipes)
 export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
 // Compound selectors
+// We need the following two selector because the current
+// recipe object is used in store actions like startPacking.
+// The hook pattern is used only in selectors and in components:
+// pureSelector(store) vs
+// useSelectedData = () => useRecipeStore(pureSelector)
+// TODO we could choose to refactor all selectors to be pure selectors
+// and build the hooks separately.
+// pure selector
+export const selectCurrentRecipeObject = (s: RecipeStore) => {
+    const recipe = s.recipes[s.selectedRecipeId];
+    if (!recipe) return undefined;
+    const clone = structuredClone(recipe.defaultRecipeData);
+    for (const [path, value] of Object.entries(recipe.edits)) {
+        lodashSet(clone, path, value);
+    }
+    return clone;
+};
+// hook
+export const useCurrentRecipeObject = () =>
+    useRecipeStore(selectCurrentRecipeObject);
 
 const useCurrentRecipeManifest = () => {
     const selectedRecipeId = useSelectedRecipeId();
@@ -256,10 +275,6 @@ export const useCurrentRecipeData = () => {
     return recipes[selectedRecipeId] || undefined;
 }
 
-export const useCurrentRecipeObject = () => {
-    const recipe = useCurrentRecipeData();
-    return recipe ? buildCurrentRecipeObject(recipe) : undefined;
-}
 
 export const useDefaultResultPath = () => {
     const manifest = useCurrentRecipeManifest();
