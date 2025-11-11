@@ -36,6 +36,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         if (selectedOption.packing_mode && selectedOption.packing_mode_path) {
             editRecipe(selectedRecipeId, selectedOption.packing_mode_path, selectedOption.packing_mode);
         }
+        editRecipe(selectedRecipeId, selectedOption.path, value);
     };
 
     const handleStrengthChange = (val: number | null) => {
