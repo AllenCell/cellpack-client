@@ -1,15 +1,16 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { isEqual, get as lodashGet, set as lodashSet } from "lodash-es";
-import { PackingResults, RecipeData, RecipeManifest } from "../types";
+import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
 import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
-import { EMPTY_PACKING_RESULTS } from "./constants";
+import { EMPTY_PACKING_RESULT } from "./constants";
+
 export interface RecipeState {
     selectedRecipeId: string;
     inputOptions: Record<string, RecipeManifest>;
     recipes: Record<string, RecipeData>;
-    packingResults: PackingResults;
+    packingResults: Record<string, PackingResult>;
 }
 
 export interface UIState {
@@ -33,7 +34,7 @@ type Actions = {
             recipeString: string
         ) => Promise<void>
     ) => Promise<void>;
-    setPackingResults: (results: PackingResults) => void;
+    setPackingResults: (results: PackingResult) => void;
     setJobLogs: (logs: string) => void;
     setJobId: (jobId: string) => void;
 };
@@ -48,7 +49,7 @@ const initialState: RecipeState & UIState = {
     recipes: {},
     isLoading: false,
     isPacking: false,
-    packingResults: { ...EMPTY_PACKING_RESULTS },
+    packingResults: { [INITIAL_RECIPE_ID]: EMPTY_PACKING_RESULT },
 };
 
 export const useRecipeStore = create<RecipeStore>()(
@@ -102,8 +103,6 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         selectRecipe: async (recipeId) => {
-            get().setPackingResults({ ...EMPTY_PACKING_RESULTS });
-
             const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
@@ -116,24 +115,38 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
-        setPackingResults: (results: PackingResults) => {
-            set({ packingResults: results });
-        },
-
-        setJobLogs: (logs: string) => {
+        setPackingResults: (results: PackingResult) => {
+            const currentRecipeId = get().selectedRecipeId;
             set({
                 packingResults: {
                     ...get().packingResults,
-                    jobLogs: logs,
+                    [currentRecipeId]: results,
+                },
+            });
+        },
+
+        setJobLogs: (logs: string) => {
+            const currentRecipeId = get().selectedRecipeId;
+            set({
+                packingResults: {
+                    ...get().packingResults,
+                    [currentRecipeId]: {
+                        ...get().packingResults[currentRecipeId],
+                        jobLogs: logs,
+                    },
                 },
             });
         },
 
         setJobId: (jobId: string) => {
+            const currentRecipeId = get().selectedRecipeId;
             set({
                 packingResults: {
                     ...get().packingResults,
-                    jobId: jobId,
+                    [currentRecipeId]: {
+                        ...get().packingResults[currentRecipeId],
+                        jobId: jobId,
+                    },
                 },
             });
         },
@@ -276,33 +289,42 @@ export const useCurrentRecipeData = () => {
 }
 
 
-export const useDefaultResultPath = () => {
+export 
+const useCurrentPackingResult = () => {
+    const selectedRecipeId = useSelectedRecipeId();
+    const packingResults = usePackingResults();
+    return (
+        packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT
+    );
+};
+
+const useDefaultResultPath = () => {
     const manifest = useCurrentRecipeManifest();
     return manifest?.defaultResultPath || "";
 };
 
 export const useRunTime = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.runTime;
 };
 
 export const useJobLogs = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.jobLogs;
 };
 
 export const useJobId = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.jobId;
 };
 
 export const useOutputsDirectory = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.outputDir;
 };
 
 export const useResultUrl = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     const currentRecipeId = useSelectedRecipeId();
     const defaultResultPath = useDefaultResultPath();
     let path = "";
