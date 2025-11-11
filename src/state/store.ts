@@ -1,22 +1,21 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { isEqual, get as lodashGet } from "lodash-es";
-import { PackingResults, RecipeData, RecipeManifest } from "../types";
+import { isEmpty, isEqual, get as lodashGet } from "lodash-es";
+import { PackingResults, RecipeData, RecipeMetadata } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
-import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
+import { getRecipeDataFromFirebase, getRecipeMetadataFromFirebase } from "../utils/firebase";
 import { EMPTY_PACKING_RESULTS } from "./constants";
 import { buildCurrentRecipeObject } from "./utils";
 
 
 export interface RecipeState {
     selectedRecipeId: string;
-    inputOptions: Record<string, RecipeManifest>;
+    inputOptions: Record<string, RecipeMetadata>;
     recipes: Record<string, RecipeData>;
     packingResults: PackingResults;
 }
 
 export interface UIState {
-    isLoading: boolean;
     isPacking: boolean;
 }
 
@@ -49,7 +48,6 @@ const initialState: RecipeState & UIState = {
     selectedRecipeId: INITIAL_RECIPE_ID,
     inputOptions: {},
     recipes: {},
-    isLoading: false,
     isPacking: false,
     packingResults: { ...EMPTY_PACKING_RESULTS },
 };
@@ -59,18 +57,17 @@ export const useRecipeStore = create<RecipeStore>()(
         ...initialState,
 
         loadInputOptions: async () => {
-            set({ isLoading: true });
-            try {
-                const inputOptions = await getRecipesFromFirebase();
-                set({ inputOptions });
-            } finally {
-                set({ isLoading: false });
-            }
+            // Early return to prevent re-querying after options have loaded
+            if (!isEmpty(get().inputOptions)) return;
+            const inputOptions = await getRecipeMetadataFromFirebase();
+            set({ inputOptions });
         },
 
         loadRecipe: async (recipeId) => {
-            if (get().recipes[recipeId]) return;
-            const rec = await getRecipeDataFromFirebase(recipeId);
+            const { recipes, inputOptions } = get();
+            if (recipes[recipeId]) return;
+            const editableFieldIds = inputOptions[recipeId].editableFieldIds;
+            const rec = await getRecipeDataFromFirebase(recipeId, editableFieldIds);
             set((s) => ({
                 recipes: {
                     ...s.recipes,
@@ -80,28 +77,29 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         loadAllRecipes: async () => {
-            const { inputOptions, recipes, loadRecipe } = get();
+            const { inputOptions, loadRecipe } = get();
 
-            const ids = new Set<string>();
-            Object.values(inputOptions).forEach((opt) => {
-                if (opt?.recipeId) ids.add(opt.recipeId);
-            });
-            const recipesToLoad = [...ids].filter((id) => !recipes[id]);
-            if (!recipesToLoad.length) return;
-            set({ isLoading: true });
-            try {
-                await Promise.all(recipesToLoad.map((id) => loadRecipe(id)));              
-            } finally {
-                set({ isLoading: false });
+            const optionList = Object.values(inputOptions || {});
+            if (optionList.length === 0) return;
+
+            const recipeIds = optionList
+                .map(o => o?.recipeId)
+                .filter(id => id && !get().recipes[id]);
+            
+            // Make sure our default initial is in the options we queried
+            const initialIdToLoad =
+                recipeIds.includes(INITIAL_RECIPE_ID) ? INITIAL_RECIPE_ID : recipeIds[0];
+
+            // Ensure the bootstrap recipe is loaded & selected
+            if (!get().recipes[initialIdToLoad]) {
+                await loadRecipe(initialIdToLoad);
             }
-            let recipeToLoad = INITIAL_RECIPE_ID;
-            if (!get().recipes[INITIAL_RECIPE_ID]) {
-                console.warn(
-                    `Initial recipe ID ${INITIAL_RECIPE_ID} not found, selecting first available recipe.`
-                );
-                recipeToLoad = Object.keys(get().recipes)[0];
-            }
-            get().selectRecipe(recipeToLoad);
+
+            // Load remaining recipes in the background (don’t block)
+            const remainingRecipesToLoad = recipeIds.filter(
+                id => id !== initialIdToLoad && !get().recipes[id]
+            );
+            await Promise.all(remainingRecipesToLoad.map((id) => loadRecipe(id)));
         },
 
         selectRecipe: async (recipeId) => {
@@ -140,7 +138,6 @@ export const useRecipeStore = create<RecipeStore>()(
                 },
             });
         },
-
 
         editRecipe: (recipeId, path, value) => {
             const rec = get().recipes[recipeId];
@@ -234,16 +231,15 @@ export const useRecipeStore = create<RecipeStore>()(
 // Basic selectors
 export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
-export const useIsLoading = () => useRecipeStore(s => s.isLoading);
 export const useIsPacking = () => useRecipeStore(s => s.isPacking);
 export const useFieldsToDisplay = () =>
-    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editableFields);
+    useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.editableFields);
 export const useRecipes = () => useRecipeStore(s => s.recipes)
 export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
 // Compound selectors
 
-const useCurrentRecipeManifest = () => {
+const useCurrentRecipeMetadata = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const inputOptions = useInputOptions();
     if (!selectedRecipeId) return undefined;
@@ -258,12 +254,16 @@ export const useCurrentRecipeData = () => {
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
-   return recipe ? buildCurrentRecipeObject(recipe) : undefined;
+    return recipe ? buildCurrentRecipeObject(recipe) : undefined;
 }
 
 export const useDefaultResultPath = () => {
-    const manifest = useCurrentRecipeManifest();
-    return manifest?.defaultResultPath || "";
+    const manifest = useCurrentRecipeMetadata();
+    // the default URL is stored in the metadata which loads before
+    // the recipe is queried, using both data here prevents the viewer
+    // loading ahead of the recipe
+    const recipe = useCurrentRecipeData();
+    return (recipe && manifest?.defaultResultPath) || "";
 };
 
 export const useRunTime = () => {

@@ -16,25 +16,23 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-// TODO further refine difference between data and metadata, decide how
-// to store them, and when to load them.
+// The fields in RecipeMetadata are available immeidately when we run
+// getAllDocsFromCollection
+export interface RecipeMetadata {
+    recipeId: string;
+    configId: string;
+    displayName: string;
+    editableFieldIds: string[];
+    defaultResultPath?: string;
+}
 
 export interface RecipeData {
     recipeId: string;
     defaultRecipeData: ViewableRecipe;
-    edits: Record<string, string | number>;
-}
-
-export interface RecipeManifest {
-    recipeId: string;
-    configId: string;
-    displayName: string;
     editableFields: EditableField[];
     defaultResultPath?: string;
-    defaultRecipeData: ViewableRecipe;
     edits: Record<string, string | number>;
 }
-
 
 export type JobStatusObject = {
     status: string;
