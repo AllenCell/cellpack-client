@@ -258,7 +258,7 @@ export const useCurrentRecipeData = () => {
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
-   return recipe ? buildCurrentRecipeObject(recipe) : undefined;
+    return recipe ? buildCurrentRecipeObject(recipe) : undefined;
 }
 
 export const useDefaultResultPath = () => {
