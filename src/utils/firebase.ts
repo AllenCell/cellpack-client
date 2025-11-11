@@ -193,7 +193,8 @@ const getRecipeMetadataFromFirebase = async (): Promise<Record<string, RecipeMet
 }
 
 /**
- * Querying the recipe and the editable fields is slower. Can be called individually 
+ * Retrieves both the recipe and its editable fields from Firebase for a given recipe ID and list of editable field IDs.
+ * This process is slower than retrieving metadata alone and should be called when full recipe data is required. Returns a RecipeData object.
  */
 const getRecipeDataFromFirebase = async (recipeId: string, editableFieldIds: string[]): Promise<RecipeData> => {
     const defaultRecipeData = await getFirebaseRecipe(recipeId);
