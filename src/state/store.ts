@@ -288,9 +288,7 @@ const useCurrentPackingResult = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const packingResults = usePackingResults();
     return (
-        packingResults[selectedRecipeId] || {
-            ...EMPTY_PACKING_RESULT,
-        }
+        packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT
     );
 };
 
