@@ -102,6 +102,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                             style={{ margin: "0 6px" }}
                             value={numericValue}
                             onChange={handleInputChange}
+                            type="number"
                         />
                         {unit && <span>{unit}</span>}
                     </div>
