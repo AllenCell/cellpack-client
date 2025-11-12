@@ -1,20 +1,26 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { SIMULARIUM_EMBED_URL } from "../../constants/urls";
-import { useCurrentRecipeObject, useIsPacking, useResultUrl } from "../../state/store";
+import { useCurrentRecipeObject, useIsModified, useIsPacking, useResultUrl } from "../../state/store";
 import "./style.css";
 
 const Viewer = (): JSX.Element => {
     const resultUrl = useResultUrl();
-    const recipeObj = useCurrentRecipeObject();
+    const recipeObject = useCurrentRecipeObject();
+    const isLoading = !recipeObject;
     const isPacking = useIsPacking();
+    const isModified = useIsModified();
 
-    const overlayText = isPacking
-        ? "Running..."
-        : !recipeObj
-        ? "Loading..."
-        : "";
+    let overlayText = "";
+    if (isLoading) {
+        overlayText = "Loading...";
+    } else if (isPacking) {
+        overlayText = "Running...";
+    } else if (isModified) {
+        overlayText = "Re-run packing to view result";
+    }
 
-    const showOverlay = !recipeObj || isPacking;
+    const showOverlay = isLoading || isPacking || isModified;
+    const showSpinner = isLoading || isPacking;
 
     return (
         <div className="viewer-container">
@@ -25,7 +31,7 @@ const Viewer = (): JSX.Element => {
             {showOverlay && (
                 <div className="viewer-overlay">
                     <div className="overlay-content">
-                        <LoadingOutlined />
+                        {showSpinner && <LoadingOutlined />}
                         <p>{overlayText}</p>
                     </div>
                 </div>
