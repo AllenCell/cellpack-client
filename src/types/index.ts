@@ -41,7 +41,7 @@ export type JobStatusObject = {
     result_path: string;
 };
 
-export type PackingResults = {
+export type PackingResult = {
     jobId: string;
     jobLogs: string;
     resultUrl: string;

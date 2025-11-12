@@ -1,18 +1,17 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { isEmpty, isEqual, get as lodashGet } from "lodash-es";
-import { PackingResults, RecipeData, RecipeMetadata } from "../types";
+import { isEqual, get as lodashGet } from "lodash-es";
+import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
-import { getRecipeDataFromFirebase, getRecipeMetadataFromFirebase } from "../utils/firebase";
-import { EMPTY_PACKING_RESULTS } from "./constants";
-import { buildCurrentRecipeObject } from "./utils";
-
+import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
+import { EMPTY_PACKING_RESULT } from "./constants";
+import { buildRecipeObject } from "./utils";
 
 export interface RecipeState {
     selectedRecipeId: string;
     inputOptions: Record<string, RecipeMetadata>;
     recipes: Record<string, RecipeData>;
-    packingResults: PackingResults;
+    packingResults: Record<string, PackingResult>;
 }
 
 export interface UIState {
@@ -35,7 +34,7 @@ type Actions = {
             recipeString: string
         ) => Promise<void>
     ) => Promise<void>;
-    setPackingResults: (results: PackingResults) => void;
+    setPackingResults: (results: PackingResult) => void;
     setJobLogs: (logs: string) => void;
     setJobId: (jobId: string) => void;
 };
@@ -49,7 +48,7 @@ const initialState: RecipeState & UIState = {
     inputOptions: {},
     recipes: {},
     isPacking: false,
-    packingResults: { ...EMPTY_PACKING_RESULTS },
+    packingResults: { [INITIAL_RECIPE_ID]: EMPTY_PACKING_RESULT },
 };
 
 export const useRecipeStore = create<RecipeStore>()(
@@ -101,8 +100,6 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         selectRecipe: async (recipeId) => {
-            get().setPackingResults({ ...EMPTY_PACKING_RESULTS });
-
             const sel = get().inputOptions[recipeId];
             if (!sel) return;
 
@@ -115,24 +112,38 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
-        setPackingResults: (results: PackingResults) => {
-            set({ packingResults: results });
-        },
-
-        setJobLogs: (logs: string) => {
+        setPackingResults: (results: PackingResult) => {
+            const currentRecipeId = get().selectedRecipeId;
             set({
                 packingResults: {
                     ...get().packingResults,
-                    jobLogs: logs,
+                    [currentRecipeId]: results,
+                },
+            });
+        },
+
+        setJobLogs: (logs: string) => {
+            const currentRecipeId = get().selectedRecipeId;
+            set({
+                packingResults: {
+                    ...get().packingResults,
+                    [currentRecipeId]: {
+                        ...get().packingResults[currentRecipeId],
+                        jobLogs: logs,
+                    },
                 },
             });
         },
 
         setJobId: (jobId: string) => {
+            const currentRecipeId = get().selectedRecipeId;
             set({
                 packingResults: {
                     ...get().packingResults,
-                    jobId: jobId,
+                    [currentRecipeId]: {
+                        ...get().packingResults[currentRecipeId],
+                        jobId: jobId,
+                    },
                 },
             });
         },
@@ -197,8 +208,9 @@ export const useRecipeStore = create<RecipeStore>()(
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
-            const recipe = s.recipes[s.selectedRecipeId];
-            const recipeString = jsonToString(buildCurrentRecipeObject(recipe))
+            const recipeObject = buildRecipeObject(s.recipes[s.selectedRecipeId]);
+            if (!recipeObject) return;
+            const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
             try {
                 await callback(s.selectedRecipeId, configId, recipeString);
@@ -226,6 +238,7 @@ export const useRecipeStore = create<RecipeStore>()(
     }))
 );
 
+
 // Basic selectors
 export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
@@ -235,7 +248,10 @@ export const useFieldsToDisplay = () =>
 export const useRecipes = () => useRecipeStore(s => s.recipes)
 export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
-// Compound selectors
+export const useCurrentRecipeObject = () => {
+    const recipe = useCurrentRecipeData();
+    return recipe ? buildRecipeObject(recipe) : undefined;
+}
 
 const useCurrentRecipeMetadata = () => {
     const selectedRecipeId = useSelectedRecipeId();
@@ -250,10 +266,13 @@ export const useCurrentRecipeData = () => {
     return recipes[selectedRecipeId] || undefined;
 }
 
-export const useCurrentRecipeObject = () => {
-    const recipe = useCurrentRecipeData();
-    return recipe ? buildCurrentRecipeObject(recipe) : undefined;
-}
+export const useCurrentPackingResult = () => {
+    const selectedRecipeId = useSelectedRecipeId();
+    const packingResults = usePackingResults();
+    return (
+        packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT
+    );
+};
 
 export const useDefaultResultPath = () => {
     const manifest = useCurrentRecipeMetadata();
@@ -265,27 +284,27 @@ export const useDefaultResultPath = () => {
 };
 
 export const useRunTime = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.runTime;
 };
 
 export const useJobLogs = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.jobLogs;
 };
 
 export const useJobId = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.jobId;
 };
 
 export const useOutputsDirectory = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     return results.outputDir;
 };
 
 export const useResultUrl = () => {
-    const results = usePackingResults();
+    const results = useCurrentPackingResult();
     const currentRecipeId = useSelectedRecipeId();
     const defaultResultPath = useDefaultResultPath();
     let path = "";

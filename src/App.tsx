@@ -17,7 +17,6 @@ import {
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
-import { EMPTY_PACKING_RESULTS } from "./state/constants";
 
 import "./App.css";
 
@@ -39,10 +38,6 @@ function App() {
     async function sleep(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
-
-    const resetState = () => {
-        setPackingResults({ ...EMPTY_PACKING_RESULTS });
-    };
 
     const recipeHasChanged = async (
         recipeId: string,
@@ -73,7 +68,6 @@ function App() {
         configId: string,
         recipeString: string
     ) => {
-        resetState();
         let firebaseRecipe = "firebase:recipes/" + recipeId;
         const firebaseConfig = configId
             ? "firebase:configs/" + configId
