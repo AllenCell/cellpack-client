@@ -272,8 +272,6 @@ export const useCurrentRecipeData = () => {
     return recipes[selectedRecipeId] || undefined;
 }
 
-
-export 
 const useCurrentPackingResult = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const packingResults = usePackingResults();
