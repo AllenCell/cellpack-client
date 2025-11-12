@@ -46,6 +46,11 @@ export function getSelectedGradient(
     const validOptions =
         gradientOptions.filter(o => o.packing_mode === currentMode);
 
+    if (!validOptions.length) {
+        // Fallback to default if no valid options
+        return { currentGradient: defaultValue, selectedOption: { value: defaultValue, display_name: defaultValue, path: "" } as GradientOption };
+    }
+
     // Shared selector path (all options for this control share it)
     const selectorPath = gradientOptions[0].path ?? "";
 
