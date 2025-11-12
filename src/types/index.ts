@@ -16,7 +16,7 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-// The fields in RecipeMetadata are available immeidately when we run
+// The fields in RecipeMetadata are available immediately when we run
 // getAllDocsFromCollection
 export interface RecipeMetadata {
     recipeId: string;
@@ -41,7 +41,7 @@ export type JobStatusObject = {
     result_path: string;
 };
 
-export type PackingResults = {
+export type PackingResult = {
     jobId: string;
     jobLogs: string;
     resultUrl: string;

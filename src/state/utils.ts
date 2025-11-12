@@ -1,13 +1,11 @@
-import { RecipeData } from "../types";
-import { set } from "lodash-es";
+import { set as lodashSet } from "lodash-es";
+import { RecipeData, ViewableRecipe } from "../types";
 
-/**
- * Build a recipe from a default and a set of edits.
- */
-export const buildCurrentRecipeObject = (recipe: RecipeData) => {
+export const buildRecipeObject = (recipe: RecipeData): ViewableRecipe => {
     const clone = structuredClone(recipe.defaultRecipeData);
     for (const [path, value] of Object.entries(recipe.edits)) {
-        set(clone, path, value);
+        lodashSet(clone, path, value);
     }
     return clone;
-};
+}
+
