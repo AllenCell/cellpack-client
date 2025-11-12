@@ -78,7 +78,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             const numericValue =
                 typeof value === "number" ? value : Number(value) || 0;
             const step = dataType === "integer" ? 1 : 0.01;
-            const maxValue = (max ?? 1) * conversion;
+            let maxValue = (max ?? 1) * conversion;
+            maxValue = Number(maxValue.toFixed(4));
 
             return (
                 <div className="input-switch">
