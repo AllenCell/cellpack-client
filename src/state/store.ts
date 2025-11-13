@@ -3,7 +3,10 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { isEqual, get as lodashGet } from "lodash-es";
 import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
-import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
+import {
+    getRecipeDataFromFirebase,
+    getRecipesFromFirebase,
+} from "../utils/firebase";
 import { EMPTY_PACKING_RESULT } from "./constants";
 import { applyChangesToNestedObject } from "./utils";
 
@@ -24,7 +27,11 @@ type Actions = {
     loadRecipe: (recipeId: string) => Promise<void>;
     loadAllRecipes: () => Promise<void>;
     selectRecipe: (recipeId: string) => Promise<void>;
-    editRecipe: (recipeID: string, path: string, value: string | number) => void;
+    editRecipe: (
+        recipeID: string,
+        path: string,
+        value: string | number
+    ) => void;
     restoreRecipeDefault: (recipeId: string) => void;
     getCurrentValue: (path: string) => string | number | undefined;
     getOriginalValue: (path: string) => string | number | undefined;
@@ -73,7 +80,7 @@ export const useRecipeStore = create<RecipeStore>()(
             set((s) => ({
                 recipes: {
                     ...s.recipes,
-                    [recipeId]: rec
+                    [recipeId]: rec,
                 },
             }));
         },
@@ -152,7 +159,6 @@ export const useRecipeStore = create<RecipeStore>()(
             });
         },
 
-
         editRecipe: (recipeId, path, value) => {
             const rec = get().recipes[recipeId];
             if (!rec) return;
@@ -171,12 +177,11 @@ export const useRecipeStore = create<RecipeStore>()(
                     ...state.recipes,
                     [recipeId]: {
                         ...rec,
-                        edits: newEdits
+                        edits: newEdits,
                     },
                 },
             }));
         },
-
 
         getCurrentValue: (path) => {
             const { selectedRecipeId, recipes } = get();
@@ -186,7 +191,10 @@ export const useRecipeStore = create<RecipeStore>()(
             // First check if an edited value exists at this path
             const editedValue = lodashGet(rec.edits, path);
             if (editedValue !== undefined) {
-                if (typeof editedValue === "string" || typeof editedValue === "number") {
+                if (
+                    typeof editedValue === "string" ||
+                    typeof editedValue === "number"
+                ) {
                     return editedValue;
                 }
                 return undefined;
@@ -194,7 +202,10 @@ export const useRecipeStore = create<RecipeStore>()(
 
             // Otherwise, fall back to the default recipe
             const defaultValue = lodashGet(rec.defaultRecipeData, path);
-            if (typeof defaultValue === "string" || typeof defaultValue === "number") {
+            if (
+                typeof defaultValue === "string" ||
+                typeof defaultValue === "number"
+            ) {
                 return defaultValue;
             }
 
@@ -206,7 +217,9 @@ export const useRecipeStore = create<RecipeStore>()(
             const rec = recipes[selectedRecipeId]?.defaultRecipeData;
             if (!rec) return undefined;
             const v = lodashGet(rec, path);
-            return (typeof v === "string" || typeof v === "number") ? v : undefined;
+            return typeof v === "string" || typeof v === "number"
+                ? v
+                : undefined;
         },
 
         startPacking: async (callback) => {
@@ -214,7 +227,10 @@ export const useRecipeStore = create<RecipeStore>()(
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
             const { defaultRecipeData, edits } = s.recipes[s.selectedRecipeId];
-            const recipeObject = applyChangesToNestedObject(defaultRecipeData, edits);
+            const recipeObject = applyChangesToNestedObject(
+                defaultRecipeData,
+                edits
+            );
             if (!recipeObject) return;
             const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
@@ -226,7 +242,7 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         restoreRecipeDefault: (recipeId) => {
-            set(state => {
+            set((state) => {
                 const rec = state.recipes[recipeId];
                 if (!rec) return {};
                 return {
@@ -240,25 +256,26 @@ export const useRecipeStore = create<RecipeStore>()(
                 };
             });
         },
-
     }))
 );
 
-
 // Basic selectors
-export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
+export const useSelectedRecipeId = () =>
+    useRecipeStore((s) => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
-export const useIsLoading = () => useRecipeStore(s => s.isLoading);
-export const useIsPacking = () => useRecipeStore(s => s.isPacking);
+export const useIsLoading = () => useRecipeStore((s) => s.isLoading);
+export const useIsPacking = () => useRecipeStore((s) => s.isPacking);
 export const useFieldsToDisplay = () =>
     useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editableFields);
-export const useRecipes = () => useRecipeStore(s => s.recipes)
-export const usePackingResults = () => useRecipeStore(s => s.packingResults);
+export const useRecipes = () => useRecipeStore((s) => s.recipes);
+export const usePackingResults = () => useRecipeStore((s) => s.packingResults);
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
-    return recipe ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits) : undefined;
-}
+    return recipe
+        ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits)
+        : undefined;
+};
 
 const useCurrentRecipeManifest = () => {
     const selectedRecipeId = useSelectedRecipeId();
@@ -271,14 +288,12 @@ export const useCurrentRecipeData = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const recipes = useRecipes();
     return recipes[selectedRecipeId] || undefined;
-}
+};
 
 const useCurrentPackingResult = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const packingResults = usePackingResults();
-    return (
-        packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT
-    );
+    return packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT;
 };
 
 const useDefaultResultPath = () => {
@@ -319,12 +334,18 @@ export const useResultUrl = () => {
     return path;
 };
 
+export const useIsOriginalRecipe = () => {
+    const recipe = useCurrentRecipeData();
+    if (!recipe) return true;
+    return Object.keys(recipe.edits).length === 0;
+};
+
 // Action selectors
 export const useLoadInputOptions = () =>
     useRecipeStore((s) => s.loadInputOptions);
 export const useLoadAllRecipes = () => useRecipeStore((s) => s.loadAllRecipes);
 export const useSelectRecipe = () => useRecipeStore((s) => s.selectRecipe);
-export const useEditRecipe = () => useRecipeStore(s => s.editRecipe);
+export const useEditRecipe = () => useRecipeStore((s) => s.editRecipe);
 export const useRestoreRecipeDefault = () =>
     useRecipeStore((s) => s.restoreRecipeDefault);
 export const useStartPacking = () => useRecipeStore((s) => s.startPacking);
