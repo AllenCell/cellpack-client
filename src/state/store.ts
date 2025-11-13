@@ -1,15 +1,15 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { isEmpty, isEqual, get as lodashGet } from "lodash-es";
-import { PackingResult, RecipeData, RecipeMetadata } from "../types";
+import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
-import { getRecipeDataFromFirebase, getRecipeMetadataFromFirebase } from "../utils/firebase";
+import { getRecipeDataFromFirebase, getRecipeManifestFromFirebase } from "../utils/firebase";
 import { EMPTY_PACKING_RESULT } from "./constants";
 import { buildRecipeObject } from "./utils";
 
 export interface RecipeState {
     selectedRecipeId: string;
-    inputOptions: Record<string, RecipeMetadata>;
+    inputOptions: Record<string, RecipeManifest>;
     recipes: Record<string, RecipeData>;
     packingResults: Record<string, PackingResult>;
 }
@@ -58,7 +58,7 @@ export const useRecipeStore = create<RecipeStore>()(
         loadInputOptions: async () => {
             // Early return to prevent re-querying after options have loaded
             if (!isEmpty(get().inputOptions)) return;
-            const inputOptions = await getRecipeMetadataFromFirebase();
+            const inputOptions = await getRecipeManifestFromFirebase();
             set({ inputOptions });
         },
 
@@ -253,7 +253,7 @@ export const useCurrentRecipeObject = () => {
     return recipe ? buildRecipeObject(recipe) : undefined;
 }
 
-const useCurrentRecipeMetadata = () => {
+const useCurrentRecipeManifest = () => {
     const selectedRecipeId = useSelectedRecipeId();
     const inputOptions = useInputOptions();
     if (!selectedRecipeId) return undefined;
@@ -275,8 +275,8 @@ export const useCurrentPackingResult = () => {
 };
 
 export const useDefaultResultPath = () => {
-    const manifest = useCurrentRecipeMetadata();
-    // the default URL is stored in the metadata which loads before
+    const manifest = useCurrentRecipeManifest();
+    // the default URL is stored in the manifest which loads before
     // the recipe is queried, using both data here prevents the viewer
     // loading ahead of the recipe
     const recipe = useCurrentRecipeData();

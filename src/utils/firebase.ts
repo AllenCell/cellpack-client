@@ -25,7 +25,7 @@ import {
     EditableField,
     JobStatusObject,
     RecipeData,
-    RecipeMetadata,
+    RecipeManifest,
 } from "../types";
 import { getFirebaseRecipe } from "./recipeLoader";
 
@@ -166,12 +166,12 @@ const getEditableFieldsList = async (
 };
 
 /**
- * These RecipeMetadata fields are queried as a group, and quick to retrieve from the backend.
+ * These RecipeManifest fields are queried as a group, and quick to retrieve from the backend.
  * Slower loading fields are defined as RecipeData and queried individually.
  */
-const getRecipeMetadataFromFirebase = async (): Promise<Record<string, RecipeMetadata>> => {
+const getRecipeManifestFromFirebase = async (): Promise<Record<string, RecipeManifest>> => {
     const docs = await getAllDocsFromCollection(FIRESTORE_COLLECTIONS.PACKING_INPUTS);
-    const inputsDict: Dictionary<RecipeMetadata> = {};
+    const inputsDict: Dictionary<RecipeManifest> = {};
     for (const doc of docs) {
         const displayName = doc[FIRESTORE_FIELDS.NAME];
         const config = doc[FIRESTORE_FIELDS.CONFIG];
@@ -194,7 +194,7 @@ const getRecipeMetadataFromFirebase = async (): Promise<Record<string, RecipeMet
 
 /**
  * Retrieves both the recipe and its editable fields from Firebase for a given recipe ID and list of editable field IDs.
- * This process is slower than retrieving metadata alone and should be called when full recipe data is required. Returns a RecipeData object.
+ * This process is slower than retrieving manifests and should be called when full recipe data is required. Returns a RecipeData object.
  */
 const getRecipeDataFromFirebase = async (recipeId: string, editableFieldIds: string[]): Promise<RecipeData> => {
     const defaultRecipeData = await getFirebaseRecipe(recipeId);
@@ -267,7 +267,7 @@ export {
     getJobStatus,
     addRecipe,
     docCleanup,
-    getRecipeMetadataFromFirebase,
+    getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
     getOutputsDirectory,
 };

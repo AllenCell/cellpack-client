@@ -16,9 +16,9 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-// The fields in RecipeMetadata are available immediately when we run
+// The fields in RecipeManifest are available immediately when we run
 // getAllDocsFromCollection
-export interface RecipeMetadata {
+export interface RecipeManifest {
     recipeId: string;
     configId: string;
     displayName: string;
