@@ -37,11 +37,15 @@
 .slider-label-left {
     float: left;
     text-align: left;
+    display: flex;
+    flex-direction: column;
 }
 
 .slider-label-right {
     float: right;
     text-align: right;
+    display: flex;
+    flex-direction: column;
 }
 
 .ant-select-outlined {
