@@ -49,6 +49,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         }
         if (typeof value == "number") {
             value = value * conversion;
+            value = Number(value.toFixed(4));
         }
         return value;
     }, [getCurrentValue, id, min, conversion, dataType]);
@@ -67,6 +68,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         if (typeof value === "number") {
             // Convert back to original units for updating recipe object
             value = value / conversion;
+            value = Number(value.toFixed(4));
         }
         editRecipe(selectedRecipeId, id, value);
     };
@@ -76,7 +78,8 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             const numericValue =
                 typeof value === "number" ? value : Number(value) || 0;
             const step = dataType === "integer" ? 1 : 0.01;
-            const maxValue = (max ?? 1) * conversion;
+            let maxValue = (max ?? 1) * conversion;
+            maxValue = Number(maxValue.toFixed(4));
 
             return (
                 <div className="input-switch">
@@ -100,6 +103,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                             style={{ margin: "0 6px" }}
                             value={numericValue}
                             onChange={handleInputChange}
+                            type="number"
                         />
                         {unit && <span>{unit}</span>}
                     </div>

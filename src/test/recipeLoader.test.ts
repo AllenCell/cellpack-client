@@ -74,8 +74,8 @@ test('one_sphere recipe displays correct default values', async () => {
     expect(recipe.version).toBe('1.0.0');
     expect(recipe.format_version).toBe('2.1');
     expect(recipe.bounding_box).toEqual([
-        [0, 0, 0],
-        [20, 20, 20]
+        [-20, -20, -20],
+        [100, 100, 100]
     ]);
     
     expect(recipe.objects?.base?.packing_mode).toBe('random');
@@ -84,7 +84,7 @@ test('one_sphere recipe displays correct default values', async () => {
     expect(recipe.objects?.base?.rejection_threshold).toBe(50);
     
     expect(recipe.objects?.sphere_25?.type).toBe('single_sphere');
-    expect(recipe.objects?.sphere_25?.radius).toBe(5);
+    expect(recipe.objects?.sphere_25?.radius).toBe(40);
     expect(recipe.objects?.sphere_25?.inherit).toBe('base');
     
     expect(recipe.composition?.A?.count).toBe(1);
