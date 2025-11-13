@@ -197,11 +197,11 @@ const getRecipeManifestFromFirebase = async (): Promise<Record<string, RecipeMan
  * This process is slower than retrieving manifests and should be called when full recipe data is required. Returns a RecipeData object.
  */
 const getRecipeDataFromFirebase = async (recipeId: string, editableFieldIds: string[]): Promise<RecipeData> => {
-    const defaultRecipeData = await getFirebaseRecipe(recipeId);
+    const defaultRecipe = await getFirebaseRecipe(recipeId);
     const editableFields = await getEditableFieldsList(editableFieldIds) || [];
     return {
         recipeId,
-        defaultRecipeData,
+        defaultRecipe,
         editableFields,
         edits: {}
     }

@@ -28,7 +28,7 @@ export interface RecipeManifest {
 
 export interface RecipeData {
     recipeId: string;
-    defaultRecipeData: ViewableRecipe;
+    defaultRecipe: ViewableRecipe;
     editableFields: EditableField[];
     defaultResultPath?: string;
     edits: Record<string, string | number>;

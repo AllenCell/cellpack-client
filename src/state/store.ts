@@ -154,7 +154,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
             const newEdits = { ...rec.edits };
 
-            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            const defaultValue = lodashGet(rec.defaultRecipe, path);
             if (isEqual(defaultValue, value)) {
                 delete newEdits[path]; // no longer different from default
             } else {
@@ -188,7 +188,7 @@ export const useRecipeStore = create<RecipeStore>()(
             }
 
             // Otherwise, fall back to the default recipe
-            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            const defaultValue = lodashGet(rec.defaultRecipe, path);
             if (typeof defaultValue === "string" || typeof defaultValue === "number") {
                 return defaultValue;
             }
@@ -198,7 +198,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
         getOriginalValue: (path) => {
             const { selectedRecipeId, recipes } = get();
-            const rec = recipes[selectedRecipeId]?.defaultRecipeData;
+            const rec = recipes[selectedRecipeId]?.defaultRecipe;
             if (!rec) return undefined;
             const v = lodashGet(rec, path);
             return (typeof v === "string" || typeof v === "number") ? v : undefined;
