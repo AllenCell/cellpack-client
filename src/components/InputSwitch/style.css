@@ -1,9 +1,10 @@
 .input-switch {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .input-label {
@@ -17,4 +18,27 @@
     display: flex;
     flex-direction: row;
     width: 60%;
+}
+
+.slider-input-wrapper {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.slider-labels {
+    margin-left: 5px;
+    margin-right: 0px;
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+.slider-label-left {
+    float: left;
+    text-align: left;
+}
+
+.slider-label-right {
+    float: right;
+    text-align: right;
 }

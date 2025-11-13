@@ -71,7 +71,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 loadingText
             ) : (
                 <Tabs defaultActiveKey="1" className="recipe-content">
-                    <Tabs.TabPane tab="Edit" key="1">
+                    <Tabs.TabPane tab="Editable fields" key="1">
                         <RecipeForm onStartPacking={handleStartPacking} />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Full Recipe" key="2">

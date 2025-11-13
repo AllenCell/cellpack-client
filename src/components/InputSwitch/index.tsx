@@ -80,32 +80,44 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             const step = dataType === "integer" ? 1 : 0.01;
             let maxValue = (max ?? 1) * conversion;
             maxValue = Number(maxValue.toFixed(4));
+            const minValue = min ?? 0;
 
             return (
                 <div className="input-switch">
                     <div className="input-label">
-                        <strong>{displayName}</strong>{" "}
+                        <strong>
+                            {displayName} {unit && <span>({unit})</span>}
+                        </strong>
                         <small>{description}</small>
                     </div>
                     <div className="input-content">
-                        <Slider
-                            min={min}
-                            max={maxValue}
-                            step={step}
-                            onChange={handleInputChange}
-                            value={numericValue}
-                            style={{ width: "60%" }}
-                        />
+                        <div className="slider-input-wrapper">
+                            <Slider
+                                min={minValue}
+                                max={maxValue}
+                                step={step}
+                                onChange={handleInputChange}
+                                value={numericValue}
+                                style={{ width: "95%", marginBottom: 0 }}
+                            />
+                            <div className="slider-labels">
+                                <small className="slider-label-left">
+                                    {minValue}
+                                </small>
+                                <small className="slider-label-right">
+                                    {maxValue}
+                                </small>
+                            </div>
+                        </div>
                         <InputNumber
-                            min={min}
+                            min={minValue}
                             max={maxValue}
                             step={step}
-                            style={{ margin: "0 6px" }}
+                            style={{ margin: "0 10px 10px" }}
                             value={numericValue}
                             onChange={handleInputChange}
                             type="number"
                         />
-                        {unit && <span>{unit}</span>}
                     </div>
                 </div>
             );

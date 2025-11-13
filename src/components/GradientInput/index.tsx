@@ -72,7 +72,7 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         <strong>{gradientStrengthData.displayName}</strong>
                         <small>{gradientStrengthData.description}</small>
                     </div>
-                    <div className="input-content">
+                    <div className="input-strength">
                         <Slider
                             id={gradientStrengthData.displayName}
                             min={gradientStrengthData.min}
@@ -80,8 +80,16 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                             onChange={(val) => handleStrengthChange(val)}
                             value={gradientStrengthData.uiValue}
                             step={0.01}
-                            style={{ width: "100%" }}
+                            style={{ marginBottom: 0 }}
                         />
+                        <div className="slider-labels">
+                            <small className="slider-label-left">
+                                {gradientStrengthData.min}<br /> weak
+                            </small>
+                            <small className="slider-label-right" style={{ marginRight: "5px" }}>
+                                {gradientStrengthData.max}<br /> strong
+                            </small>
+                        </div>
                     </div>
                 </div>
             )}
