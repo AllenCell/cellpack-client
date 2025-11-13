@@ -12,8 +12,8 @@ interface DropdownProps {
 const Dropdown = (props: DropdownProps): JSX.Element => {
     const { placeholder, options, onChange, defaultValue } = props;
     const selectOptions = map(options, (opt, key) => ({
-        label: opt.name || key,
-        value: opt.recipe,
+        label: opt.displayName || key,
+        value: opt.recipeId,
     }));
 
     return (

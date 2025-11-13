@@ -2,9 +2,8 @@ import { Select, Slider } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
-    useUpdateRecipeObj,
     useGetCurrentValue,
-    useCurrentRecipeString,
+    useEditRecipe,
 } from "../../state/store";
 import { getSelectedGradient, deriveGradientStrength, round2 } from "../../utils/gradient";
 import "./style.css";
@@ -19,10 +18,8 @@ interface GradientInputProps {
 const GradientInput = (props: GradientInputProps): JSX.Element => {
     const { displayName, description, gradientOptions, defaultValue } = props;
     const selectedRecipeId = useSelectedRecipeId();
-    const updateRecipeObj = useUpdateRecipeObj();
+    const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
-    // Force re-render after restore/navigation
-    useCurrentRecipeString();
 
     const { currentGradient, selectedOption } = getSelectedGradient(
         gradientOptions,
@@ -36,19 +33,16 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
         if (!selectedRecipeId) return;
         const selectedOption = gradientOptions.find(option => option.value === value);
         if (!selectedOption || !selectedOption.path) return;
-
-        // Make changes to JSON recipe
-        const changes: Record<string, string | number> = {[selectedOption.path]: value};
         if (selectedOption.packing_mode && selectedOption.packing_mode_path) {
-            changes[selectedOption.packing_mode_path] = selectedOption.packing_mode;
+            editRecipe(selectedRecipeId, selectedOption.packing_mode_path, selectedOption.packing_mode);
         }
-        updateRecipeObj(selectedRecipeId, changes);
+        editRecipe(selectedRecipeId, selectedOption.path, value);
     };
 
     const handleStrengthChange = (val: number | null) => {
         if (val == null || !selectedRecipeId || !gradientStrengthData) return;
         const uiVal = round2(val);
-        updateRecipeObj(selectedRecipeId, { [gradientStrengthData.path]: uiVal });
+        editRecipe(selectedRecipeId, gradientStrengthData.path, uiVal);
     };
 
     const selectOptions = gradientOptions.map((option) => ({

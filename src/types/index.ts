@@ -16,13 +16,25 @@ export interface Dictionary<T> {
     [Key: string]: T;
 }
 
-export type RecipeManifest = {
-    name?: string;
-    config: string;
-    recipe: string;
+// TODO further refine difference between data and metadata, decide how
+// to store them, and when to load them.
+
+export interface RecipeData {
+    recipeId: string;
+    defaultRecipeData: ViewableRecipe;
+    edits: Record<string, string | number>;
+}
+
+export interface RecipeManifest {
+    recipeId: string;
+    configId: string;
+    displayName: string;
+    editableFields: EditableField[];
     defaultResultPath?: string;
-    editable_fields?: EditableField[];
-};
+    defaultRecipeData: ViewableRecipe;
+    edits: Record<string, string | number>;
+}
+
 
 export type JobStatusObject = {
     status: string;

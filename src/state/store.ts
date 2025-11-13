@@ -1,17 +1,11 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { get as lodashGet, set as lodashSet } from "lodash-es";
-import { PackingResult, RecipeManifest } from "../types";
-import { getFirebaseRecipe, jsonToString } from "../utils/recipeLoader";
-import { getPackingInputsDict } from "../utils/firebase";
+import { isEqual, get as lodashGet } from "lodash-es";
+import { PackingResult, RecipeData, RecipeManifest } from "../types";
+import { jsonToString } from "../utils/recipeLoader";
+import { getRecipeDataFromFirebase, getRecipesFromFirebase } from "../utils/firebase";
 import { EMPTY_PACKING_RESULT } from "./constants";
-
-export interface RecipeData {
-    id: string;
-    originalString: string;
-    currentString: string;
-    isModified: boolean;
-}
+import { applyChangesToNestedObject } from "./utils";
 
 export interface RecipeState {
     selectedRecipeId: string;
@@ -27,14 +21,10 @@ export interface UIState {
 
 type Actions = {
     loadInputOptions: () => Promise<void>;
-    loadAllRecipes: () => Promise<void>;
-    selectRecipe: (inputName: string) => Promise<void>;
     loadRecipe: (recipeId: string) => Promise<void>;
-    updateRecipeString: (recipeId: string, newString: string) => void;
-    updateRecipeObj: (
-        recipeId: string,
-        updates: Record<string, string | number>
-    ) => void;
+    loadAllRecipes: () => Promise<void>;
+    selectRecipe: (recipeId: string) => Promise<void>;
+    editRecipe: (recipeID: string, path: string, value: string | number) => void;
     restoreRecipeDefault: (recipeId: string) => void;
     getCurrentValue: (path: string) => string | number | undefined;
     getOriginalValue: (path: string) => string | number | undefined;
@@ -70,7 +60,7 @@ export const useRecipeStore = create<RecipeStore>()(
         loadInputOptions: async () => {
             set({ isLoading: true });
             try {
-                const inputOptions = await getPackingInputsDict();
+                const inputOptions = await getRecipesFromFirebase();
                 set({ inputOptions });
             } finally {
                 set({ isLoading: false });
@@ -79,17 +69,11 @@ export const useRecipeStore = create<RecipeStore>()(
 
         loadRecipe: async (recipeId) => {
             if (get().recipes[recipeId]) return;
-            const recJson = await getFirebaseRecipe(recipeId);
-            const recStr = jsonToString(recJson);
+            const rec = await getRecipeDataFromFirebase(recipeId);
             set((s) => ({
                 recipes: {
                     ...s.recipes,
-                    [recipeId]: {
-                        id: recipeId,
-                        originalString: recStr,
-                        currentString: recStr,
-                        isModified: false,
-                    },
+                    [recipeId]: rec
                 },
             }));
         },
@@ -99,7 +83,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
             const ids = new Set<string>();
             Object.values(inputOptions).forEach((opt) => {
-                if (opt?.recipe) ids.add(opt.recipe);
+                if (opt?.recipeId) ids.add(opt.recipeId);
             });
             const recipesToLoad = [...ids].filter((id) => !recipes[id]);
             if (!recipesToLoad.length) return;
@@ -127,8 +111,8 @@ export const useRecipeStore = create<RecipeStore>()(
                 selectedRecipeId: recipeId,
             });
 
-            if (sel.recipe && !get().recipes[sel.recipe]) {
-                await get().loadRecipe(sel.recipe);
+            if (sel.recipeId && !get().recipes[sel.recipeId]) {
+                await get().loadRecipe(sel.recipeId);
             }
         },
 
@@ -168,70 +152,71 @@ export const useRecipeStore = create<RecipeStore>()(
             });
         },
 
-        updateRecipeString: (recipeId, newString) => {
-            set((s) => {
-                const rec = s.recipes[recipeId];
-                if (!rec) return s;
-                return {
-                    recipes: {
-                        ...s.recipes,
-                        [recipeId]: {
-                            ...rec,
-                            currentString: newString,
-                            isModified: newString !== rec.originalString,
-                        },
-                    },
-                };
-            });
-        },
 
-        updateRecipeObj: (recipeId, updates) => {
+        editRecipe: (recipeId, path, value) => {
             const rec = get().recipes[recipeId];
             if (!rec) return;
 
-            try {
-                const obj = JSON.parse(rec.currentString);
+            const newEdits = { ...rec.edits };
 
-                for (const [path, value] of Object.entries(updates)) {
-                    lodashSet(obj, path, value);
-                }
-                get().updateRecipeString(
-                    recipeId,
-                    JSON.stringify(obj, null, 2)
-                );
-            } catch {
-                // TODO: better error handling
-                console.warn("Failed to update recipe object");
+            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            if (isEqual(defaultValue, value)) {
+                delete newEdits[path]; // no longer different from default
+            } else {
+                newEdits[path] = value;
             }
+
+            set((state) => ({
+                recipes: {
+                    ...state.recipes,
+                    [recipeId]: {
+                        ...rec,
+                        edits: newEdits
+                    },
+                },
+            }));
         },
 
-        restoreRecipeDefault: (recipeId) => {
-            const rec = get().recipes[recipeId];
-            if (rec) get().updateRecipeString(recipeId, rec.originalString);
-        },
 
         getCurrentValue: (path) => {
             const { selectedRecipeId, recipes } = get();
-            const str = recipes[selectedRecipeId]?.currentString;
-            if (!str) return undefined;
-            try {
-                const obj = JSON.parse(str);
-                const v = lodashGet(obj, path);
-                return typeof v === "string" || typeof v === "number"
-                    ? v
-                    : undefined;
-            } catch {
-                console.warn("Failed to retrieve value.");
+            const rec = recipes[selectedRecipeId];
+            if (!rec) return undefined;
+
+            // First check if an edited value exists at this path
+            const editedValue = lodashGet(rec.edits, path);
+            if (editedValue !== undefined) {
+                if (typeof editedValue === "string" || typeof editedValue === "number") {
+                    return editedValue;
+                }
                 return undefined;
             }
+
+            // Otherwise, fall back to the default recipe
+            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            if (typeof defaultValue === "string" || typeof defaultValue === "number") {
+                return defaultValue;
+            }
+
+            return undefined;
+        },
+
+        getOriginalValue: (path) => {
+            const { selectedRecipeId, recipes } = get();
+            const rec = recipes[selectedRecipeId]?.defaultRecipeData;
+            if (!rec) return undefined;
+            const v = lodashGet(rec, path);
+            return (typeof v === "string" || typeof v === "number") ? v : undefined;
         },
 
         startPacking: async (callback) => {
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
-            const configId = input?.config ?? "";
-            const recipeString =
-                s.recipes[s.selectedRecipeId]?.currentString ?? "";
+            const configId = input?.configId ?? "";
+            const { defaultRecipeData, edits } = s.recipes[s.selectedRecipeId];
+            const recipeObject = applyChangesToNestedObject(defaultRecipeData, edits);
+            if (!recipeObject) return;
+            const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
             try {
                 await callback(s.selectedRecipeId, configId, recipeString);
@@ -240,42 +225,40 @@ export const useRecipeStore = create<RecipeStore>()(
             }
         },
 
-        getOriginalValue: (path) => {
-            const { selectedRecipeId, recipes } = get();
-            const str = recipes[selectedRecipeId]?.originalString;
-            if (!str) return undefined;
-            try {
-                const obj = JSON.parse(str);
-                const v = lodashGet(obj, path);
-                return typeof v === "string" || typeof v === "number"
-                    ? v
-                    : undefined;
-            } catch {
-                console.warn("Failed to retrieve default value.");
-                return undefined;
-            }
+        restoreRecipeDefault: (recipeId) => {
+            set(state => {
+                const rec = state.recipes[recipeId];
+                if (!rec) return {};
+                return {
+                    recipes: {
+                        ...state.recipes,
+                        [recipeId]: {
+                            ...rec,
+                            edits: {},
+                        },
+                    },
+                };
+            });
         },
+
     }))
 );
 
-// simple selectors
-export const useSelectedRecipeId = () =>
-    useRecipeStore((s) => s.selectedRecipeId);
-export const useCurrentRecipeString = () =>
-    useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.currentString ?? "");
+
+// Basic selectors
+export const useSelectedRecipeId = () => useRecipeStore(s => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
-
-export const useIsLoading = () => useRecipeStore((s) => s.isLoading);
-export const useIsPacking = () => useRecipeStore((s) => s.isPacking);
+export const useIsLoading = () => useRecipeStore(s => s.isLoading);
+export const useIsPacking = () => useRecipeStore(s => s.isPacking);
 export const useFieldsToDisplay = () =>
-    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editable_fields);
-export const useIsCurrentRecipeModified = () =>
-    useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.isModified ?? false);
-export const useGetOriginalValue = () =>
-    useRecipeStore((s) => s.getOriginalValue);
-const usePackingResults = () => useRecipeStore((s) => s.packingResults);
+    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editableFields);
+export const useRecipes = () => useRecipeStore(s => s.recipes)
+export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
-// compound selectors
+export const useCurrentRecipeObject = () => {
+    const recipe = useCurrentRecipeData();
+    return recipe ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits) : undefined;
+}
 
 const useCurrentRecipeManifest = () => {
     const selectedRecipeId = useSelectedRecipeId();
@@ -283,6 +266,12 @@ const useCurrentRecipeManifest = () => {
     if (!selectedRecipeId) return undefined;
     return inputOptions[selectedRecipeId];
 };
+
+export const useCurrentRecipeData = () => {
+    const selectedRecipeId = useSelectedRecipeId();
+    const recipes = useRecipes();
+    return recipes[selectedRecipeId] || undefined;
+}
 
 const useCurrentPackingResult = () => {
     const selectedRecipeId = useSelectedRecipeId();
@@ -330,20 +319,19 @@ export const useResultUrl = () => {
     return path;
 };
 
-// action selectors (stable identities)
+// Action selectors
 export const useLoadInputOptions = () =>
     useRecipeStore((s) => s.loadInputOptions);
 export const useLoadAllRecipes = () => useRecipeStore((s) => s.loadAllRecipes);
 export const useSelectRecipe = () => useRecipeStore((s) => s.selectRecipe);
-export const useUpdateRecipeObj = () =>
-    useRecipeStore((s) => s.updateRecipeObj);
-export const useUpdateRecipeString = () =>
-    useRecipeStore((s) => s.updateRecipeString);
+export const useEditRecipe = () => useRecipeStore(s => s.editRecipe);
 export const useRestoreRecipeDefault = () =>
     useRecipeStore((s) => s.restoreRecipeDefault);
 export const useStartPacking = () => useRecipeStore((s) => s.startPacking);
 export const useGetCurrentValue = () =>
     useRecipeStore((s) => s.getCurrentValue);
+export const useGetOriginalValue = () =>
+    useRecipeStore((s) => s.getOriginalValue);
 export const useSetPackingResults = () =>
     useRecipeStore((s) => s.setPackingResults);
 export const useSetJobLogs = () => useRecipeStore((s) => s.setJobLogs);

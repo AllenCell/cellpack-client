@@ -3,9 +3,9 @@ import { Input, InputNumber, Select, Slider } from "antd";
 import { GradientOption } from "../../types";
 import {
     useSelectedRecipeId,
-    useUpdateRecipeObj,
     useGetCurrentValue,
-    useCurrentRecipeString,
+    useEditRecipe,
+    useRecipes,
 } from "../../state/store";
 import GradientInput from "../GradientInput";
 import "./style.css";
@@ -28,9 +28,9 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     const { displayName, inputType, dataType, description, min, max, options, id, gradientOptions, conversionFactor, unit } = props;
 
     const selectedRecipeId = useSelectedRecipeId();
-    const updateRecipeObj = useUpdateRecipeObj();
+    const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
-    const recipeVersion = useCurrentRecipeString();
+    const recipes = useRecipes();
 
     // Conversion factor for numeric inputs where we want to display a
     // different unit in the UI than is stored in the recipe
@@ -60,7 +60,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
     // Reset local state when store value (or recipe) changes
     useEffect(() => {
         setValue(getCurrentValueMemo());
-    }, [getCurrentValueMemo, recipeVersion]);
+    }, [getCurrentValueMemo, recipes]);
 
     const handleInputChange = (value: string | number | null) => {
         if (value == null || !selectedRecipeId) return;
@@ -70,7 +70,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
             value = value / conversion;
             value = Number(value.toFixed(4));
         }
-        updateRecipeObj(selectedRecipeId, { [id]: value });
+        editRecipe(selectedRecipeId, id, value);
     };
 
     switch (inputType) {

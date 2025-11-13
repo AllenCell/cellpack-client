@@ -3,15 +3,13 @@ import { Tabs } from "antd";
 
 import {
     useSelectedRecipeId,
-    useCurrentRecipeString,
-    useFieldsToDisplay,
-    useInputOptions,
     useIsLoading,
-    useLoadInputOptions,
     useSelectRecipe,
-    useUpdateRecipeString,
     useStartPacking,
     useLoadAllRecipes,
+    useCurrentRecipeObject,
+    useInputOptions,
+    useLoadInputOptions,
 } from "../../state/store";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -29,15 +27,13 @@ interface PackingInputProps {
 const PackingInput = (props: PackingInputProps): JSX.Element => {
     const { startPacking } = props;
     const selectedRecipeId = useSelectedRecipeId();
-    const recipeString = useCurrentRecipeString();
-    const fieldsToDisplay = useFieldsToDisplay();
+    const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
     const isLoading = useIsLoading();
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
     const selectRecipe = useSelectRecipe();
-    const updateRecipeString = useUpdateRecipeString();
     const storeStartPacking = useStartPacking();
 
     const preFetchInputsAndRecipes = useCallback(async () => {
@@ -52,12 +48,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
 
     const handleStartPacking = async () => {
         await storeStartPacking(startPacking);
-    };
-
-    const handleRecipeStringChange = (newString: string) => {
-        if (selectedRecipeId) {
-            updateRecipeString(selectedRecipeId, newString);
-        }
     };
 
     if (isLoading) {
@@ -82,9 +72,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                 <Tabs.TabPane tab="Full Recipe" key="2">
                     <JSONViewer
                         title="Recipe"
-                        content={recipeString}
-                        isEditable={fieldsToDisplay === undefined}
-                        onChange={handleRecipeStringChange}
+                        content={recipeObj}
                     />
                 </Tabs.TabPane>
             </Tabs>

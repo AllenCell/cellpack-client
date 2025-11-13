@@ -7,12 +7,11 @@ import {
     returnOneElement,
 } from "./formattingUtils";
 import "./style.css";
+import { ViewableRecipe } from "../../types";
 
 interface JSONViewerProps {
     title: string;
-    content: string;
-    isEditable: boolean;
-    onChange: (value: string) => void;
+    content?: ViewableRecipe;
 }
 
 const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
@@ -21,8 +20,6 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
     if (!content) {
         return null;
     }
-
-    const contentAsObj = JSON.parse(content);
 
     // descriptions for top level key-value pairs
     const descriptions: DescriptionsItemProps[] = [];
@@ -44,7 +41,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
     };
 
     // top level objects, like name, bounding_box, etc.
-    Object.entries(contentAsObj).forEach(([key, value]) => {
+    Object.entries(content).forEach(([key, value]) => {
         if (typeof value === "string") {
             descriptions.push({
                 label: convertUnderscoreToSpace(key),
