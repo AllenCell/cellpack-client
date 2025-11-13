@@ -295,7 +295,7 @@ const useCurrentPackingResult = () => {
     return packingResults[selectedRecipeId] || EMPTY_PACKING_RESULT;
 };
 
-export const useDefaultResultPath = () => {
+const useDefaultResultPath = () => {
     const manifest = useCurrentRecipeManifest();
     // the default URL is stored in the manifest which loads before
     // the recipe is queried, using both data here prevents the viewer
