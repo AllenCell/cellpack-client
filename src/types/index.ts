@@ -30,7 +30,6 @@ export interface RecipeData {
     recipeId: string;
     defaultRecipe: ViewableRecipe;
     editableFields: EditableField[];
-    defaultResultPath?: string;
     edits: Record<string, string | number>;
 }
 
