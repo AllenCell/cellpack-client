@@ -3,7 +3,6 @@ import { Tabs } from "antd";
 
 import {
     useSelectedRecipeId,
-    useIsLoading,
     useSelectRecipe,
     useStartPacking,
     useLoadAllRecipes,
@@ -29,7 +28,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const selectedRecipeId = useSelectedRecipeId();
     const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
-    const isLoading = useIsLoading();
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
@@ -50,8 +48,11 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         await storeStartPacking(startPacking);
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    const loadingText = <div className="recipe-select">Loading...</div>;
+
+    // No recipe or dropdown options to load
+    if (!recipeObj && !inputOptions[selectedRecipeId]) {
+        return loadingText;
     }
 
     return (
@@ -65,17 +66,19 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                     onChange={selectRecipe}
                 />
             </div>
-            <Tabs defaultActiveKey="1" className="recipe-content">
-                <Tabs.TabPane tab="Edit" key="1">
-                    <RecipeForm onStartPacking={handleStartPacking} />
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Full Recipe" key="2">
-                    <JSONViewer
-                        title="Recipe"
-                        content={recipeObj}
-                    />
-                </Tabs.TabPane>
-            </Tabs>
+            {/* Options menu loaded, but no recipe to load yet */}
+            {!recipeObj ? (
+                loadingText
+            ) : (
+                <Tabs defaultActiveKey="1" className="recipe-content">
+                    <Tabs.TabPane tab="Edit" key="1">
+                        <RecipeForm onStartPacking={handleStartPacking} />
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Full Recipe" key="2">
+                        <JSONViewer title="Recipe" content={recipeObj} />
+                    </Tabs.TabPane>
+                </Tabs>
+            )}
         </>
     );
 };

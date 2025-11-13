@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { isEqual, get as lodashGet } from "lodash-es";
+import { isEmpty, isEqual, get as lodashGet } from "lodash-es";
 import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
 import {
     getRecipeDataFromFirebase,
-    getRecipesFromFirebase,
+    getRecipeManifestFromFirebase,
 } from "../utils/firebase";
 import { EMPTY_PACKING_RESULT } from "./constants";
 import { applyChangesToNestedObject } from "./utils";
@@ -18,7 +18,6 @@ export interface RecipeState {
 }
 
 export interface UIState {
-    isLoading: boolean;
     isPacking: boolean;
 }
 
@@ -55,7 +54,6 @@ const initialState: RecipeState & UIState = {
     selectedRecipeId: INITIAL_RECIPE_ID,
     inputOptions: {},
     recipes: {},
-    isLoading: false,
     isPacking: false,
     packingResults: { [INITIAL_RECIPE_ID]: EMPTY_PACKING_RESULT },
 };
@@ -65,18 +63,20 @@ export const useRecipeStore = create<RecipeStore>()(
         ...initialState,
 
         loadInputOptions: async () => {
-            set({ isLoading: true });
-            try {
-                const inputOptions = await getRecipesFromFirebase();
-                set({ inputOptions });
-            } finally {
-                set({ isLoading: false });
-            }
+            // Early return to prevent re-querying after options have loaded
+            if (!isEmpty(get().inputOptions)) return;
+            const inputOptions = await getRecipeManifestFromFirebase();
+            set({ inputOptions });
         },
 
         loadRecipe: async (recipeId) => {
-            if (get().recipes[recipeId]) return;
-            const rec = await getRecipeDataFromFirebase(recipeId);
+            const { recipes, inputOptions } = get();
+            if (recipes[recipeId]) return;
+            const editableFieldIds = inputOptions[recipeId].editableFieldIds;
+            const rec = await getRecipeDataFromFirebase(
+                recipeId,
+                editableFieldIds
+            );
             set((s) => ({
                 recipes: {
                     ...s.recipes,
@@ -86,28 +86,32 @@ export const useRecipeStore = create<RecipeStore>()(
         },
 
         loadAllRecipes: async () => {
-            const { inputOptions, recipes, loadRecipe } = get();
+            const { inputOptions, loadRecipe } = get();
 
-            const ids = new Set<string>();
-            Object.values(inputOptions).forEach((opt) => {
-                if (opt?.recipeId) ids.add(opt.recipeId);
+            const optionList = Object.values(inputOptions || {});
+            if (optionList.length === 0) return;
+
+            const recipeIds = optionList
+                .map((o) => o?.recipeId)
+                .filter((id) => id && !get().recipes[id]);
+
+            // Make sure our default initial is in the options we queried
+            const initialIdToLoad = recipeIds.includes(INITIAL_RECIPE_ID)
+                ? INITIAL_RECIPE_ID
+                : recipeIds[0];
+
+            // Ensure the bootstrap recipe is loaded & selected
+            await loadRecipe(initialIdToLoad);
+
+            // Load remaining recipes in the background (don’t block)
+            const remainingRecipesToLoad = recipeIds.filter(
+                (id) => id !== initialIdToLoad
+            );
+            Promise.all(
+                remainingRecipesToLoad.map((id) => loadRecipe(id))
+            ).catch((err) => {
+                console.error("Error loading remaining recipes:", err);
             });
-            const recipesToLoad = [...ids].filter((id) => !recipes[id]);
-            if (!recipesToLoad.length) return;
-            set({ isLoading: true });
-            try {
-                await Promise.all(recipesToLoad.map((id) => loadRecipe(id)));
-            } finally {
-                set({ isLoading: false });
-            }
-            let recipeToLoad = INITIAL_RECIPE_ID;
-            if (!get().recipes[INITIAL_RECIPE_ID]) {
-                console.warn(
-                    `Initial recipe ID ${INITIAL_RECIPE_ID} not found, selecting first available recipe.`
-                );
-                recipeToLoad = Object.keys(get().recipes)[0];
-            }
-            get().selectRecipe(recipeToLoad);
         },
 
         selectRecipe: async (recipeId) => {
@@ -165,7 +169,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
             const newEdits = { ...rec.edits };
 
-            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            const defaultValue = lodashGet(rec.defaultRecipe, path);
             if (isEqual(defaultValue, value)) {
                 delete newEdits[path]; // no longer different from default
             } else {
@@ -201,7 +205,7 @@ export const useRecipeStore = create<RecipeStore>()(
             }
 
             // Otherwise, fall back to the default recipe
-            const defaultValue = lodashGet(rec.defaultRecipeData, path);
+            const defaultValue = lodashGet(rec.defaultRecipe, path);
             if (
                 typeof defaultValue === "string" ||
                 typeof defaultValue === "number"
@@ -214,7 +218,7 @@ export const useRecipeStore = create<RecipeStore>()(
 
         getOriginalValue: (path) => {
             const { selectedRecipeId, recipes } = get();
-            const rec = recipes[selectedRecipeId]?.defaultRecipeData;
+            const rec = recipes[selectedRecipeId]?.defaultRecipe;
             if (!rec) return undefined;
             const v = lodashGet(rec, path);
             return typeof v === "string" || typeof v === "number"
@@ -226,9 +230,9 @@ export const useRecipeStore = create<RecipeStore>()(
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
-            const { defaultRecipeData, edits } = s.recipes[s.selectedRecipeId];
+            const { defaultRecipe, edits } = s.recipes[s.selectedRecipeId];
             const recipeObject = applyChangesToNestedObject(
-                defaultRecipeData,
+                defaultRecipe,
                 edits
             );
             if (!recipeObject) return;
@@ -263,17 +267,16 @@ export const useRecipeStore = create<RecipeStore>()(
 export const useSelectedRecipeId = () =>
     useRecipeStore((s) => s.selectedRecipeId);
 export const useInputOptions = () => useRecipeStore((s) => s.inputOptions);
-export const useIsLoading = () => useRecipeStore((s) => s.isLoading);
 export const useIsPacking = () => useRecipeStore((s) => s.isPacking);
 export const useFieldsToDisplay = () =>
-    useRecipeStore((s) => s.inputOptions[s.selectedRecipeId]?.editableFields);
+    useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.editableFields);
 export const useRecipes = () => useRecipeStore((s) => s.recipes);
 export const usePackingResults = () => useRecipeStore((s) => s.packingResults);
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
     return recipe
-        ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits)
+        ? applyChangesToNestedObject(recipe.defaultRecipe, recipe.edits)
         : undefined;
 };
 
@@ -298,7 +301,11 @@ const useCurrentPackingResult = () => {
 
 const useDefaultResultPath = () => {
     const manifest = useCurrentRecipeManifest();
-    return manifest?.defaultResultPath || "";
+    // the default URL is stored in the manifest which loads before
+    // the recipe is queried, using both data here prevents the viewer
+    // loading ahead of the recipe
+    const recipe = useCurrentRecipeData();
+    return (recipe && manifest?.defaultResultPath) || "";
 };
 
 export const useRunTime = () => {
