@@ -98,7 +98,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                                 step={step}
                                 onChange={handleInputChange}
                                 value={numericValue}
-                                style={{ width: "95%", marginBottom: 0 }}
+                                style={{ marginBottom: 0 }}
                             />
                             <div className="slider-labels">
                                 <small className="slider-label-left">
