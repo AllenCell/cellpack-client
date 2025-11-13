@@ -48,12 +48,12 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         await storeStartPacking(startPacking);
     };
 
-    const loadingText = (<div className="recipe-select">Loading...</div>)
+    const loadingText = <div className="recipe-select">Loading...</div>;
 
     // No recipe or dropdown options to load
     if (!recipeObj && !inputOptions[selectedRecipeId]) {
         return loadingText;
-    }   
+    }
 
     return (
         <>
