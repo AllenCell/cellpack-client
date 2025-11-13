@@ -159,6 +159,7 @@ const recipeToViewable = (recipe: FirebaseRecipe): ViewableRecipe => {
         composition: convertCollectionToViewable(recipe.composition),
         objects: convertCollectionToViewable(recipe.objects),
         gradients: convertCollectionToViewable(recipe.gradients),
+        description: recipe.description
     };
     return viewableRecipe;
 }

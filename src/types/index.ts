@@ -159,6 +159,7 @@ export interface FirebaseRecipe {
     name: string;
     id: string;
     dedup_hash: string;
+    description?: string;
     version?: string;
     format_version?: string;
     bounding_box?: [][] | object;
@@ -190,4 +191,5 @@ export type ViewableRecipe = {
     composition?: Dictionary<ViewableComposition>;
     objects?: Dictionary<ViewableObject>;
     gradients?: Dictionary<ViewableGradient>;
+    description?: string;
 };
