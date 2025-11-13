@@ -208,8 +208,8 @@ export const useRecipeStore = create<RecipeStore>()(
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
-            const { defaultRecipeData, edits } = s.recipes[s.selectedRecipeId];
-            const recipeObject = applyChangesToNestedObject(defaultRecipeData, edits);
+            const { defaultRecipe, edits } = s.recipes[s.selectedRecipeId];
+            const recipeObject = applyChangesToNestedObject(defaultRecipe, edits);
             if (!recipeObject) return;
             const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
@@ -251,7 +251,7 @@ export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
-    return recipe ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits) : undefined;
+    return recipe ? applyChangesToNestedObject(recipe.defaultRecipe, recipe.edits) : undefined;
 }
 
 const useCurrentRecipeManifest = () => {
