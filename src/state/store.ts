@@ -5,7 +5,7 @@ import { PackingResult, RecipeData, RecipeManifest } from "../types";
 import { jsonToString } from "../utils/recipeLoader";
 import { getRecipeDataFromFirebase, getRecipeManifestFromFirebase } from "../utils/firebase";
 import { EMPTY_PACKING_RESULT } from "./constants";
-import { buildRecipeObject } from "./utils";
+import { applyChangesToNestedObject } from "./utils";
 
 export interface RecipeState {
     selectedRecipeId: string;
@@ -208,7 +208,8 @@ export const useRecipeStore = create<RecipeStore>()(
             const s = get();
             const input = s.inputOptions[s.selectedRecipeId];
             const configId = input?.configId ?? "";
-            const recipeObject = buildRecipeObject(s.recipes[s.selectedRecipeId]);
+            const { defaultRecipeData, edits } = s.recipes[s.selectedRecipeId];
+            const recipeObject = applyChangesToNestedObject(defaultRecipeData, edits);
             if (!recipeObject) return;
             const recipeString = jsonToString(recipeObject);
             set({ isPacking: true });
@@ -250,7 +251,7 @@ export const usePackingResults = () => useRecipeStore(s => s.packingResults);
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
-    return recipe ? buildRecipeObject(recipe) : undefined;
+    return recipe ? applyChangesToNestedObject(recipe.defaultRecipeData, recipe.edits) : undefined;
 }
 
 const useCurrentRecipeManifest = () => {
