@@ -53,7 +53,7 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
                         disabled={isPacking || isOriginalRecipe}
                         style={{ width: "100%" }}
                     >
-                        Re-run
+                        <strong>Re-run</strong>
                     </Button>
                 </Tooltip>
             )}
