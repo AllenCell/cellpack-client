@@ -113,7 +113,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                             min={minValue}
                             max={maxValue}
                             step={step}
-                            style={{ margin: "0 10px 10px" }}
+                            style={{ margin: "0 0 10px 10px" }}
                             value={numericValue}
                             onChange={handleInputChange}
                             type="number"
@@ -139,7 +139,6 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
                             options={selectOptions}
                             value={String(value)}
                             onChange={handleInputChange}
-                            style={{ width: 200, marginLeft: 10 }}
                         />
                     </div>
                 </div>

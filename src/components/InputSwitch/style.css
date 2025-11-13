@@ -42,3 +42,8 @@
     float: right;
     text-align: right;
 }
+
+.ant-select-outlined {
+    width: 100% !important;
+    margin: 0 !important;
+}
