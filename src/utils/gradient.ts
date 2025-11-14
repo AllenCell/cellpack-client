@@ -81,10 +81,11 @@ export function deriveGradientStrength(
             ? storeRaw
             : opt.strength_default ?? storeMin;
     const uiValue = round2(clampUi(storeNum));
+    const strengthDescription = opt.strength_description || "Smaller decay length indicates stronger bias"
 
     return {
         displayName: `Decay Length`,
-        description: "Smaller decay length indicates stronger gradient",
+        description: strengthDescription,
         path: opt.strength_path,
         uiValue,
         min: uiMin,
