@@ -16,7 +16,7 @@ interface GradientInputProps {
 };
 
 const GradientInput = (props: GradientInputProps): JSX.Element => {
-    const { displayName, description, gradientOptions, defaultValue } = props;
+    const { displayName, gradientOptions, defaultValue } = props;
     const selectedRecipeId = useSelectedRecipeId();
     const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
