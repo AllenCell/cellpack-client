@@ -6,6 +6,7 @@ const { Paragraph } = Typography;
 
 interface ExpandableTextProps {
     text: string;
+    onExpand: () => void;
 }
 
 const expandSymbol = (
@@ -20,10 +21,11 @@ const collapseSymbol = (
     </span>
 );
 
-export const ExpandableText = ({ text }: ExpandableTextProps) => {
+const ExpandableText = ({ text, onExpand }: ExpandableTextProps) => {
     return (
         <Paragraph
             ellipsis={{
+                onExpand: onExpand,
                 rows: 2,
                 expandable: "collapsible",
                 symbol: (expanded) =>
