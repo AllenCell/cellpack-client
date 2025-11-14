@@ -69,7 +69,7 @@ export function deriveGradientStrength(
     if (!opt?.strength_path) return undefined;
 
     const storeMin = opt.strength_min ?? 0;
-    const storeMax = opt.strength_max ?? 5;
+    const storeMax = opt.strength_max ?? 1;
 
     const uiMin = storeMin;
     const uiMax = storeMax;
