@@ -23,7 +23,6 @@ const collapseSymbol = (
 export const ExpandableText = ({ text }: ExpandableTextProps) => {
     return (
         <Paragraph
-            style={{ marginBottom: 0 }}
             ellipsis={{
                 rows: 2,
                 expandable: "collapsible",

@@ -1,3 +1,8 @@
+.ant-typography-expand span, .ant-typography-collapse span {
+  font-size: 12px;
+  color: #2656AB;
+}
+
 .ant-typography-expand:hover, .ant-typography-collapse:hover {
   text-decoration: underline;
 }
