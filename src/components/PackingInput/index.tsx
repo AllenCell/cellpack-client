@@ -13,6 +13,7 @@ import {
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
+import { ExpandableText } from "../ExpandableDescription";
 import "./style.css";
 
 interface PackingInputProps {
@@ -70,14 +71,19 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
             {!recipeObj ? (
                 loadingText
             ) : (
-                <Tabs defaultActiveKey="1" className="recipe-content">
-                    <Tabs.TabPane tab="Edit" key="1">
-                        <RecipeForm onStartPacking={handleStartPacking} />
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Full Recipe" key="2">
-                        <JSONViewer title="Recipe" content={recipeObj} />
-                    </Tabs.TabPane>
-                </Tabs>
+                <>
+                    {recipeObj.description && (
+                        <ExpandableText text={recipeObj.description} />
+                    )}
+                    <Tabs defaultActiveKey="1" className="recipe-content">
+                        <Tabs.TabPane tab="Edit" key="1">
+                            <RecipeForm onStartPacking={handleStartPacking} />
+                        </Tabs.TabPane>
+                        <Tabs.TabPane tab="Full Recipe" key="2">
+                            <JSONViewer title="Recipe" content={recipeObj} />
+                        </Tabs.TabPane>
+                    </Tabs>
+                </>
             )}
         </>
     );
