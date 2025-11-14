@@ -84,7 +84,7 @@ export function deriveGradientStrength(
 
     return {
         displayName: `Decay Length`,
-        description: "Higher values will increase the decay length",
+        description: "Smaller decay length indicates stronger gradient",
         path: opt.strength_path,
         uiValue,
         min: uiMin,
