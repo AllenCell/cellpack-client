@@ -107,10 +107,11 @@ export const useRecipeStore = create<RecipeStore>()(
             const remainingRecipesToLoad = recipeIds.filter(
                 (id) => id !== initialIdToLoad
             );
-            Promise.all(remainingRecipesToLoad.map((id) => loadRecipe(id)))
-                .catch((err) => {
-                    console.error("Error loading remaining recipes:", err);
-                });
+            Promise.all(
+                remainingRecipesToLoad.map((id) => loadRecipe(id))
+            ).catch((err) => {
+                console.error("Error loading remaining recipes:", err);
+            });
         },
 
         selectRecipe: async (recipeId) => {
@@ -338,6 +339,12 @@ export const useResultUrl = () => {
         path = defaultResultPath;
     }
     return path;
+};
+
+export const useIsOriginalRecipe = () => {
+    const recipe = useCurrentRecipeData();
+    if (!recipe) return true;
+    return Object.keys(recipe.edits).length === 0;
 };
 
 // Action selectors
