@@ -2,48 +2,26 @@
     "version": "1.0.0",
     "format_version": "2.1",
     "name": "one_sphere",
+    "description": "Sphere packed within a bounding box.",
     "bounding_box": [
-        [
-            -20,
-            -20,
-            -20
-        ],
-        [
-            100,
-            100,
-            100
-        ]
+        [-20, -20, -20],
+        [100, 100, 100]
     ],
     "objects": {
         "base": {
             "name": "base",
             "jitter_attempts": 10,
-            "orient_bias_range": [
-                -3.1415927,
-                3.1415927
-            ],
+            "orient_bias_range": [-3.1415927, 3.1415927],
             "rotation_range": 6.2831,
             "cutoff_boundary": 0,
-            "max_jitter": [
-                0.2,
-                0.2,
-                0.01
-            ],
+            "max_jitter": [0.2, 0.2, 0.01],
             "perturb_axis_amplitude": 0.1,
             "packing_mode": "random",
-            "principal_vector": [
-                0,
-                0,
-                1
-            ],
+            "principal_vector": [0, 0, 1],
             "rejection_threshold": 50,
             "place_method": "spheresSST",
             "cutoff_surface": 42,
-            "rotation_axis": [
-                0,
-                0,
-                1
-            ],
+            "rotation_axis": [0, 0, 1],
             "partners": {
                 "all_partners": []
             },
@@ -64,11 +42,7 @@
             "name": "sphere_25",
             "type": "single_sphere",
             "inherit": "base",
-            "color": [
-                0.5,
-                0.5,
-                0.5
-            ],
+            "color": [0.5, 0.5, 0.5],
             "radius": 40,
             "representations": {
                 "mesh": null,
@@ -79,11 +53,7 @@
             "partners": {
                 "all_partners": []
             },
-            "max_jitter": [
-                1,
-                1,
-                0
-            ]
+            "max_jitter": [1, 1, 0]
         }
     },
     "gradients": {},
@@ -94,9 +64,7 @@
             "name": "space",
             "object": null,
             "regions": {
-                "interior": [
-                    "A"
-                ]
+                "interior": ["A"]
             }
         },
         "A": {
