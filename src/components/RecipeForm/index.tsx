@@ -1,10 +1,11 @@
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import InputSwitch from "../InputSwitch";
 import "./style.css";
 import {
     useSelectedRecipeId,
     useFieldsToDisplay,
     useIsPacking,
+    useIsOriginalRecipe,
 } from "../../state/store";
 
 interface RecipeFormProps {
@@ -15,6 +16,7 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
     const recipeId = useSelectedRecipeId();
     const fieldsToDisplay = useFieldsToDisplay();
     const isPacking = useIsPacking();
+    const isOriginalRecipe = useIsOriginalRecipe();
 
     return (
         <div className="recipe-form">
@@ -39,15 +41,21 @@ const RecipeForm = ({ onStartPacking }: RecipeFormProps) => {
                 </div>
             )}
             {recipeId && (
-                <Button
-                    onClick={onStartPacking}
-                    color="primary"
-                    variant="filled"
-                    disabled={isPacking}
-                    style={{ width: "100%" }}
+                <Tooltip
+                    title={
+                        isOriginalRecipe ? "Adjust any parameter to re-run" : ""
+                    }
                 >
-                    Re-run
-                </Button>
+                    <Button
+                        onClick={onStartPacking}
+                        color="primary"
+                        variant="filled"
+                        disabled={isPacking || isOriginalRecipe}
+                        style={{ width: "100%" }}
+                    >
+                        <strong>Re-run</strong>
+                    </Button>
+                </Tooltip>
             )}
         </div>
     );

@@ -17,7 +17,7 @@
     align-items: center;
     height: var(--header-height);
     box-sizing: border-box;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #ddd;
 }
 
 .sider {
