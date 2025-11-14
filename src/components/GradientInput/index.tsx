@@ -55,7 +55,6 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
             <div className="input-switch">
                 <div className="input-label">
                     <strong>{displayName}</strong>
-                    <small>{description}</small>
                 </div>
                 <div className="input-content">
                     <Select
