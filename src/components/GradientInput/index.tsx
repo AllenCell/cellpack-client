@@ -85,11 +85,9 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         <div className="slider-labels">
                             <small className="slider-label-left">
                                 <span>{gradientStrengthData.min}</span>
-                                <span>strong</span>
                             </small>
                             <small className="slider-label-right" style={{ marginRight: "5px" }}>
                                 <span>{gradientStrengthData.max}</span>
-                                <span>weak</span>
                             </small>
                         </div>
                     </div>
