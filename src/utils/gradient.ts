@@ -69,7 +69,7 @@ export function deriveGradientStrength(
     if (!opt?.strength_path) return undefined;
 
     const storeMin = opt.strength_min ?? 0;
-    const storeMax = opt.strength_max ?? 5;
+    const storeMax = opt.strength_max ?? 1;
 
     const uiMin = storeMin;
     const uiMax = storeMax;
@@ -81,10 +81,11 @@ export function deriveGradientStrength(
             ? storeRaw
             : opt.strength_default ?? storeMin;
     const uiValue = round2(clampUi(storeNum));
+    const strengthDescription = opt.strength_description || "Smaller decay length indicates stronger bias"
 
     return {
         displayName: `Decay Length`,
-        description: "Higher values will increase the decay length",
+        description: strengthDescription,
         path: opt.strength_path,
         uiValue,
         min: uiMin,

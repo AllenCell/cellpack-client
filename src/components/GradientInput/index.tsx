@@ -16,7 +16,7 @@ interface GradientInputProps {
 };
 
 const GradientInput = (props: GradientInputProps): JSX.Element => {
-    const { displayName, description, gradientOptions, defaultValue } = props;
+    const { displayName, gradientOptions, defaultValue } = props;
     const selectedRecipeId = useSelectedRecipeId();
     const editRecipe = useEditRecipe();
     const getCurrentValue = useGetCurrentValue();
@@ -55,7 +55,6 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
             <div className="input-switch">
                 <div className="input-label">
                     <strong>{displayName}</strong>
-                    <small>{description}</small>
                 </div>
                 <div className="input-content">
                     <Select
@@ -85,11 +84,9 @@ const GradientInput = (props: GradientInputProps): JSX.Element => {
                         <div className="slider-labels">
                             <small className="slider-label-left">
                                 <span>{gradientStrengthData.min}</span>
-                                <span>weak</span>
                             </small>
                             <small className="slider-label-right" style={{ marginRight: "5px" }}>
                                 <span>{gradientStrengthData.max}</span>
-                                <span>strong</span>
                             </small>
                         </div>
                     </div>
