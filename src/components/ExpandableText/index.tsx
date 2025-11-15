@@ -1,12 +1,12 @@
 import { Typography } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import "./style.css";
 import { useEffect, useRef, useState } from "react";
 import {
     DEFAULT_DESCRIPTION_HEIGHT,
     TEXT_BOTTOM_MARGIN,
 } from "../../constants";
 
+import "./style.css";
 const { Paragraph } = Typography;
 
 interface ExpandableTextProps {
