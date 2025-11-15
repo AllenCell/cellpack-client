@@ -52,7 +52,7 @@ const RecipeForm = ({ onStartPacking, availableHeight }: RecipeFormProps) => {
                         color="primary"
                         variant="filled"
                         disabled={isPacking || isOriginalRecipe}
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", minHeight: 38 }}
                     >
                         <strong>Re-run</strong>
                     </Button>

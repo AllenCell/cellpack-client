@@ -16,6 +16,12 @@ import RecipeForm from "../RecipeForm";
 import ExpandableText from "../ExpandableText";
 import "./style.css";
 import { useSiderHeight } from "../../hooks/useSiderHeight";
+import {
+    DEFAULT_DESCRIPTION_HEIGHT,
+    SELECT_HEIGHT,
+    TABS_HEADER_HEIGHT,
+    TEXT_BOTTOM_MARGIN,
+} from "../../constants";
 
 interface PackingInputProps {
     startPacking: (
@@ -24,9 +30,6 @@ interface PackingInputProps {
         recipeString: string
     ) => Promise<void>;
 }
-
-const DEFAULT_DESCRIPTION_HEIGHT = 58;
-const SELECT_HEIGHT = 52;
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
     const { startPacking } = props;
@@ -41,16 +44,23 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const siderHeight = useSiderHeight();
 
     const recipeDescription = useRef<HTMLDivElement>(null);
-    const [tabsHeight, setTabsHeight] = useState<number>();
+    const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
+        siderHeight - DEFAULT_DESCRIPTION_HEIGHT - SELECT_HEIGHT
+    );
+    const [descriptionHeight, setDescriptionHeight] = useState<number>(
+        DEFAULT_DESCRIPTION_HEIGHT
+    );
+
+    const getAvailableHeight = useCallback(() => {
+        return (
+            siderHeight - descriptionHeight - SELECT_HEIGHT - TEXT_BOTTOM_MARGIN
+        );
+    }, [siderHeight, descriptionHeight]);
 
     useEffect(() => {
-        setTabsHeight(
-            siderHeight -
-                (recipeDescription.current?.offsetHeight ||
-                    DEFAULT_DESCRIPTION_HEIGHT) -
-                SELECT_HEIGHT
-        );
-    }, [setTabsHeight, siderHeight]);
+        const newAvailableHeight = getAvailableHeight();
+        setAvailableRecipeHeight(newAvailableHeight);
+    }, [setAvailableRecipeHeight, getAvailableHeight]);
 
     const preFetchInputsAndRecipes = useCallback(async () => {
         await loadInputOptions();
@@ -72,11 +82,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     if (!recipeObj && !inputOptions[selectedRecipeId]) {
         return loadingText;
     }
-
-    const onExpandCollapse = () => {
-        console.log("expanded:", recipeDescription.current?.offsetHeight);
-        setTabsHeight(recipeDescription.current?.offsetHeight);
-    };
 
     return (
         <>
@@ -101,19 +106,17 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                         >
                             <ExpandableText
                                 text={recipeObj.description}
-                                onExpand={onExpandCollapse}
+                                setCurrentHeight={setDescriptionHeight}
                             />
                         </div>
                     )}
-                    <Tabs
-                        defaultActiveKey="1"
-                        className="recipe-content"
-                        style={{ height: tabsHeight }}
-                    >
+                    <Tabs defaultActiveKey="1" className="recipe-content">
                         <Tabs.TabPane tab="Editable fields" key="1">
                             <RecipeForm
                                 onStartPacking={handleStartPacking}
-                                // availableHeight={tabsHeight - 46}
+                                availableHeight={
+                                    availableRecipeHeight - TABS_HEADER_HEIGHT
+                                }
                             />
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="Full Recipe" key="2">
