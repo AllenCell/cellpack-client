@@ -32,8 +32,8 @@ const ExpandableText = ({ text, setCurrentHeight }: ExpandableTextProps) => {
 
     useEffect(() => {
         setCurrentHeight(
-            ref.current?.clientHeight ||
-                DEFAULT_DESCRIPTION_HEIGHT + TEXT_BOTTOM_MARGIN
+            (ref.current?.clientHeight || DEFAULT_DESCRIPTION_HEIGHT) +
+                TEXT_BOTTOM_MARGIN
         );
     }, [isExpanded, setCurrentHeight]);
     return (
