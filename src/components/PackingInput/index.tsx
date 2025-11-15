@@ -44,7 +44,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const siderHeight = useSiderHeight();
 
     const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
-        siderHeight - DEFAULT_DESCRIPTION_HEIGHT - SELECT_HEIGHT
+        siderHeight - DEFAULT_DESCRIPTION_HEIGHT - SELECT_HEIGHT - TEXT_BOTTOM_MARGIN
     );
     const [descriptionHeight, setDescriptionHeight] = useState<number>(
         DEFAULT_DESCRIPTION_HEIGHT
