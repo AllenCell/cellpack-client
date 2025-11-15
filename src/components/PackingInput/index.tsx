@@ -59,7 +59,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     useEffect(() => {
         const newAvailableHeight = getAvailableHeight();
         setAvailableRecipeHeight(newAvailableHeight);
-    }, [setAvailableRecipeHeight, getAvailableHeight]);
+    }, [getAvailableHeight]);
 
     const preFetchInputsAndRecipes = useCallback(async () => {
         await loadInputOptions();
