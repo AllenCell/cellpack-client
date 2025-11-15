@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Tabs } from "antd";
 
 import {
@@ -43,7 +43,6 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const storeStartPacking = useStartPacking();
     const siderHeight = useSiderHeight();
 
-    const recipeDescription = useRef<HTMLDivElement>(null);
     const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
         siderHeight - DEFAULT_DESCRIPTION_HEIGHT - SELECT_HEIGHT
     );
@@ -100,10 +99,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
             ) : (
                 <>
                     {recipeObj.description && (
-                        <div
-                            className="recipe-description"
-                            ref={recipeDescription}
-                        >
+                        <div className="recipe-description">
                             <ExpandableText
                                 text={recipeObj.description}
                                 setCurrentHeight={setDescriptionHeight}
