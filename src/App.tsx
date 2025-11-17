@@ -177,7 +177,7 @@ function App() {
                     width="35%"
                     theme="light"
                     className="sider"
-                    style={{ height: siderHeight }}
+                    // style={{ height: siderHeight }}
                 >
                     <PackingInput startPacking={startPacking} />
                 </Sider>

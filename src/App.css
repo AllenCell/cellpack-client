@@ -22,8 +22,7 @@
 }
 
 .sider {
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 0 40px;
 }
 

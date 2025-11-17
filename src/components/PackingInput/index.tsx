@@ -44,7 +44,10 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const siderHeight = useSiderHeight();
 
     const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
-        siderHeight - DEFAULT_DESCRIPTION_HEIGHT - SELECT_HEIGHT - TEXT_BOTTOM_MARGIN
+        siderHeight -
+            DEFAULT_DESCRIPTION_HEIGHT -
+            SELECT_HEIGHT -
+            TEXT_BOTTOM_MARGIN
     );
     const [descriptionHeight, setDescriptionHeight] = useState<number>(
         DEFAULT_DESCRIPTION_HEIGHT
@@ -116,7 +119,13 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
                             />
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="Full Recipe" key="2">
-                            <JSONViewer title="Recipe" content={recipeObj} />
+                            <JSONViewer
+                                title="Recipe"
+                                content={recipeObj}
+                                availableHeight={
+                                    availableRecipeHeight - TABS_HEADER_HEIGHT
+                                }
+                            />
                         </Tabs.TabPane>
                     </Tabs>
                 </>

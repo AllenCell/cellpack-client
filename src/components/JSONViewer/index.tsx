@@ -11,11 +11,12 @@ import { ViewableRecipe } from "../../types";
 
 interface JSONViewerProps {
     title: string;
+    availableHeight?: number;
     content?: ViewableRecipe;
 }
 
 const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
-    const { content } = props;
+    const { content, availableHeight } = props;
 
     if (!content) {
         return null;
@@ -67,7 +68,7 @@ const JSONViewer = (props: JSONViewerProps): JSX.Element | null => {
     });
 
     return (
-        <div className="full-recipe">
+        <div className="full-recipe" style={{ height: availableHeight }}>
             <Descriptions
                 size="small"
                 bordered

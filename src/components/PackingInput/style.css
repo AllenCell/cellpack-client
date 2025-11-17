@@ -5,3 +5,7 @@
     align-items: center;
     height: var(--recipe-select-height);
 }
+
+.ant-tabs-content-holder {
+    overflow-y: auto;
+}
