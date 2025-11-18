@@ -43,20 +43,15 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const storeStartPacking = useStartPacking();
     const siderHeight = useSiderHeight();
 
-    const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
-        siderHeight -
-            DEFAULT_DESCRIPTION_HEIGHT -
-            SELECT_HEIGHT -
-            TEXT_BOTTOM_MARGIN
-    );
     const [descriptionHeight, setDescriptionHeight] = useState<number>(
-        DEFAULT_DESCRIPTION_HEIGHT
+        DEFAULT_DESCRIPTION_HEIGHT + TEXT_BOTTOM_MARGIN
+    );
+    const [availableRecipeHeight, setAvailableRecipeHeight] = useState<number>(
+        siderHeight - descriptionHeight - SELECT_HEIGHT
     );
 
     const getAvailableHeight = useCallback(() => {
-        return (
-            siderHeight - descriptionHeight - SELECT_HEIGHT - TEXT_BOTTOM_MARGIN
-        );
+        return siderHeight - descriptionHeight - SELECT_HEIGHT;
     }, [siderHeight, descriptionHeight]);
 
     useEffect(() => {

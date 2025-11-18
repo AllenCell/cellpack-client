@@ -31,11 +31,15 @@ const ExpandableText = ({ text, setCurrentHeight }: ExpandableTextProps) => {
     const ref = useRef<HTMLParagraphElement>(null);
 
     useEffect(() => {
+        setIsExpanded(false);
+    }, [text]);
+
+    useEffect(() => {
         setCurrentHeight(
             (ref.current?.clientHeight || DEFAULT_DESCRIPTION_HEIGHT) +
                 TEXT_BOTTOM_MARGIN
         );
-    }, [isExpanded, setCurrentHeight]);
+    }, [isExpanded, setCurrentHeight, text]);
     return (
         <Paragraph
             ref={ref}

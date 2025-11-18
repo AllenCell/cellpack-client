@@ -49,6 +49,7 @@ const RecipeForm = ({ onStartPacking, availableHeight }: RecipeFormProps) => {
                 >
                     <Button
                         onClick={onStartPacking}
+                        className="packing-button"
                         color="primary"
                         variant="filled"
                         disabled={isPacking || isOriginalRecipe}

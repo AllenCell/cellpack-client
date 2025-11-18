@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 const HEADER_HEIGHT = 48;
-const FOOTER_HEIGHT = 64;
+const FOOTER_HEIGHT = 51;
 
 export function useSiderHeight() {
     const [siderHeight, setSiderHeight] = useState<number>(
