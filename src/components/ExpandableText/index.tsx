@@ -1,6 +1,6 @@
 import { Typography } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
     DEFAULT_DESCRIPTION_HEIGHT,
     TEXT_BOTTOM_MARGIN,
@@ -34,12 +34,12 @@ const ExpandableText = ({ text, setCurrentHeight }: ExpandableTextProps) => {
         setIsExpanded(false);
     }, [text]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setCurrentHeight(
             (ref.current?.clientHeight || DEFAULT_DESCRIPTION_HEIGHT) +
                 TEXT_BOTTOM_MARGIN
         );
-    }, [isExpanded, setCurrentHeight, text]);
+    }, [isExpanded, setCurrentHeight]);
     return (
         <Paragraph
             ref={ref}
