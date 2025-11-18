@@ -6,6 +6,7 @@ import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
 import {
+    useCurrentRecipeData,
     useJobId,
     useJobLogs,
     useOutputsDirectory,
@@ -32,6 +33,7 @@ function App() {
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
+    const edits = useCurrentRecipeData()?.edits || {};
 
     let start = 0;
 
@@ -143,6 +145,7 @@ function App() {
                 resultUrl: localJobStatus.result_path,
                 runTime: range,
                 outputDir: localJobStatus.outputs_directory,
+                edits: edits,
             });
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
             setPackingResults({
@@ -151,6 +154,7 @@ function App() {
                 resultUrl: "",
                 runTime: range,
                 outputDir: "",
+                edits: {}
             });
         }
     };

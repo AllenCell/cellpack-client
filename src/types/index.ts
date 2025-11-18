@@ -46,6 +46,7 @@ export type PackingResult = {
     resultUrl: string;
     runTime: number;
     outputDir: string;
+    edits: Record<string, string | number>;
 };
 
 export type EditableField = {

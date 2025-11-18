@@ -273,6 +273,20 @@ export const useFieldsToDisplay = () =>
 export const useRecipes = () => useRecipeStore((s) => s.recipes);
 export const usePackingResults = () => useRecipeStore((s) => s.packingResults);
 
+export const useIsLoading = () => {
+    const recipeObj = useCurrentRecipeData();
+    const selectedRecipeId = useSelectedRecipeId();
+    const inputOptions = useInputOptions();
+    return !recipeObj && !inputOptions[selectedRecipeId];
+};
+
+export const useIsModified = () => {
+    const recipeObj = useCurrentRecipeData();
+    const packingResults = useCurrentPackingResult();
+    if (!recipeObj || !packingResults) return false;
+    return !isEqual(recipeObj.edits, packingResults.edits);
+}
+
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
     return recipe
