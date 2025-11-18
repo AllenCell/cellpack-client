@@ -13,6 +13,7 @@ import {
     Timestamp,
     deleteDoc,
 } from "firebase/firestore";
+import { sortBy } from "lodash-es";
 import {
     FIREBASE_CONFIG,
     FIRESTORE_COLLECTIONS,
@@ -162,7 +163,8 @@ const getEditableFieldsList = async (
         conversion_factor: doc.data().conversion_factor,
         unit: doc.data().unit,
     }));
-    return docs;
+    const sortedDocs = sortBy(docs, "name");
+    return sortedDocs;
 };
 
 /**
