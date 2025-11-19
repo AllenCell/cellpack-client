@@ -285,7 +285,7 @@ export const useIsModified = () => {
     const packingResults = useCurrentPackingResult();
     if (!recipeObj || !packingResults) return false;
     return !isEqual(recipeObj.edits, packingResults.edits);
-}
+};
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
