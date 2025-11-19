@@ -25,6 +25,7 @@ const { Link } = Typography;
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
+
     const setJobLogs = useSetJobLogs();
     const jobLogs = useJobLogs();
     const setJobId = useSetJobId();
