@@ -50,14 +50,11 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         siderHeight - descriptionHeight - SELECT_HEIGHT
     );
 
-    const getAvailableHeight = useCallback(() => {
-        return siderHeight - descriptionHeight - SELECT_HEIGHT;
-    }, [siderHeight, descriptionHeight]);
-
     useEffect(() => {
-        const newAvailableHeight = getAvailableHeight();
+        const newAvailableHeight =
+            siderHeight - descriptionHeight - SELECT_HEIGHT;
         setAvailableRecipeHeight(newAvailableHeight);
-    }, [getAvailableHeight]);
+    }, [siderHeight, descriptionHeight]);
 
     const preFetchInputsAndRecipes = useCallback(async () => {
         await loadInputOptions();
