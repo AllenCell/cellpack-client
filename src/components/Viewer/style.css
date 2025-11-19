@@ -37,6 +37,6 @@
     background-color: #2C2F38;
 }
 
-.dark-theme .overlay-content {
+.dark-theme .overlay-content.active {
     color: #8b91ff;
 }
