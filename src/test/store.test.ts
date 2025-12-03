@@ -131,7 +131,7 @@ test("setJobLogs updates job logs for current recipe", async () => {
     }
 });
 
-test("setJobId updates job ID", async () => {
+test("setJobId updates job ID for current recipe", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -153,7 +153,7 @@ test("setJobId updates job ID", async () => {
     }
 });
 
-test("setPackingResults updates packing results", async () => {
+test("setPackingResults updates packing results for current recipe", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
