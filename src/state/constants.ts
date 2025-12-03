@@ -8,4 +8,5 @@ export const EMPTY_PACKING_RESULT: PackingResult = Object.freeze({
     resultUrl: "",
     runTime: 0,
     outputDir: "",
+    edits: {},
 });
