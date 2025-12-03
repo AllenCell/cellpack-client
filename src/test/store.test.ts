@@ -114,7 +114,7 @@ test("should set packing results", async () => {
     await result.current.selectRecipe(recipeId);
 
     const packingResult = {
-        jobId: "job-123",
+        jobId: "job-456",
         jobLogs: "Packing completed successfully.",
         resultUrl: "http://example.com/result",
         runTime: 120,
