@@ -4,7 +4,7 @@ import { useRecipeStore, INITIAL_RECIPE_ID  } from "../state/store";
 import { EMPTY_PACKING_RESULT } from "../state/constants";
 
 
-test("should load default state", () => {
+test("recipeStore loads default state", () => {
     const { result } = renderHook(() => useRecipeStore());
     const store = result.current;
 
@@ -16,7 +16,7 @@ test("should load default state", () => {
     expect(store.packingResults[INITIAL_RECIPE_ID]).toEqual(EMPTY_PACKING_RESULT);
 });
 
-test("should default to INITIAL_RECIPE_ID for invalid id", () => {
+test("selectedRecipeId defaults to INITIAL_RECIPE_ID when invalid id selected", () => {
     const { result } = renderHook(() => useRecipeStore());
     const store = result.current;
 
@@ -27,7 +27,7 @@ test("should default to INITIAL_RECIPE_ID for invalid id", () => {
     expect(store.selectedRecipeId).toBe(INITIAL_RECIPE_ID);
 });
 
-test("should load all recipes", async () => {
+test("recipeStore loads all recipes", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     await result.current.loadInputOptions();
@@ -44,7 +44,7 @@ test("should load all recipes", async () => {
     expect(Object.keys(result.current.recipes)).toHaveLength(5);
 });
 
-test("should update recipe object", async () => {
+test("editRecipe updates recipe object", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -61,7 +61,7 @@ test("should update recipe object", async () => {
     expect(result.current.getCurrentValue(path)).toBe(newValue);
 });
 
-test("should restore recipe object to default", async () => {
+test("restoreRecipeDefault resets recipe to initial state", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -77,7 +77,7 @@ test("should restore recipe object to default", async () => {
     expect(result.current.getCurrentValue(path)).toBe(initialValue);
 });
 
-test("should set job logs", async () => {
+test("setJobLogs updates job logs", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -92,7 +92,7 @@ test("should set job logs", async () => {
     expect(result.current.packingResults[recipeId].jobLogs).toBe(logs);
 });
 
-test("should set job ID", async () => {
+test("setJobId updates job ID", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -107,7 +107,7 @@ test("should set job ID", async () => {
     expect(result.current.packingResults[recipeId].jobId).toBe(jobId);
 });
 
-test("should set packing results", async () => {
+test("setPackingResults updates packing results", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
