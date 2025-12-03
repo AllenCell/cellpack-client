@@ -77,7 +77,39 @@ test("restoreRecipeDefault resets recipe to initial state", async () => {
     expect(result.current.getCurrentValue(path)).toBe(initialValue);
 });
 
-test("setJobLogs updates job logs", async () => {
+test("editing one recipe does not affect others", async () => {
+    const { result } = renderHook(() => useRecipeStore());
+
+    const recipeId1 = INITIAL_RECIPE_ID;
+
+    // Select a different recipe ID for recipeId2
+    const recipeId2 = Object.keys(result.current.inputOptions)[1];
+
+    await result.current.selectRecipe(recipeId1);
+    const path = "composition.membrane.count";
+    const initialCount = 1;
+    expect(result.current.getCurrentValue(path)).toBe(initialCount);
+
+    await result.current.selectRecipe(recipeId2);
+    expect(result.current.getCurrentValue(path)).toBe(initialCount);
+
+    const newValue1 = 5;
+    await result.current.selectRecipe(recipeId1);
+    act(() => {
+        result.current.editRecipe(recipeId1, path, newValue1);
+    });
+    expect(result.current.getCurrentValue(path)).toBe(newValue1);
+
+    // Switch back to recipeId2 and verify its value is unchanged
+    await result.current.selectRecipe(recipeId2);
+    expect(result.current.getCurrentValue(path)).toBe(initialCount);
+
+    // Switch back to recipeId1 and verify its value is the edited one
+    await result.current.selectRecipe(recipeId1);
+    expect(result.current.getCurrentValue(path)).toBe(newValue1);
+});
+
+test("setJobLogs updates job logs for current recipe", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
     const recipeId = INITIAL_RECIPE_ID;
@@ -90,6 +122,13 @@ test("setJobLogs updates job logs", async () => {
     });
 
     expect(result.current.packingResults[recipeId].jobLogs).toBe(logs);
+
+    for (const recipeId of Object.keys(result.current.inputOptions)) {
+        if (recipeId !== INITIAL_RECIPE_ID) {
+            // No other job logs should have been updated to `logs`
+            expect(result.current.packingResults[recipeId]?.jobLogs).not.toBe(logs);
+        }
+    }
 });
 
 test("setJobId updates job ID", async () => {
@@ -105,6 +144,13 @@ test("setJobId updates job ID", async () => {
     });
 
     expect(result.current.packingResults[recipeId].jobId).toBe(jobId);
+
+    for (const recipeId of Object.keys(result.current.inputOptions)) {
+        if (recipeId !== INITIAL_RECIPE_ID) {
+            // No other job ids should have been updated to `jobId`
+            expect(result.current.packingResults[recipeId]?.jobId).not.toBe(jobId);
+        }
+    }
 });
 
 test("setPackingResults updates packing results", async () => {
@@ -126,4 +172,11 @@ test("setPackingResults updates packing results", async () => {
     });
 
     expect(result.current.packingResults[recipeId]).toEqual(packingResult);
+
+    for (const recipeId of Object.keys(result.current.inputOptions)) {
+        if (recipeId !== INITIAL_RECIPE_ID) {
+            // No other packing results should have been updated to `packingResult`
+            expect(result.current.packingResults[recipeId]).not.toEqual(packingResult);
+        }
+    }
 });
