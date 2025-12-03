@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { expect, test } from "vitest";
-import { useRecipeStore, INITIAL_RECIPE_ID } from "../state/store";
+import { useRecipeStore, INITIAL_RECIPE_ID  } from "../state/store";
 import { EMPTY_PACKING_RESULT } from "../state/constants";
 
 
@@ -75,4 +75,55 @@ test("should restore recipe object to default", async () => {
         result.current.restoreRecipeDefault(recipeId);
     });
     expect(result.current.getCurrentValue(path)).toBe(initialValue);
+});
+
+test("should set job logs", async () => {
+    const { result } = renderHook(() => useRecipeStore());
+
+    const recipeId = INITIAL_RECIPE_ID;
+    await result.current.selectRecipe(recipeId);
+
+    const logs = "Some Error Message";
+
+    act(() => {
+        result.current.setJobLogs(logs);
+    });
+
+    expect(result.current.packingResults[recipeId].jobLogs).toBe(logs);
+});
+
+test("should set job ID", async () => {
+    const { result } = renderHook(() => useRecipeStore());
+
+    const recipeId = INITIAL_RECIPE_ID;
+    await result.current.selectRecipe(recipeId);
+
+    const jobId = "job-123";
+
+    act(() => {
+        result.current.setJobId(jobId);
+    });
+
+    expect(result.current.packingResults[recipeId].jobId).toBe(jobId);
+});
+
+test("should set packing results", async () => {
+    const { result } = renderHook(() => useRecipeStore());
+
+    const recipeId = INITIAL_RECIPE_ID;
+    await result.current.selectRecipe(recipeId);
+
+    const packingResult = {
+        jobId: "job-123",
+        jobLogs: "Packing completed successfully.",
+        resultUrl: "http://example.com/result",
+        runTime: 120,
+        outputDir: "/output/dir",
+    };
+
+    act(() => {
+        result.current.setPackingResults(packingResult);
+    });
+
+    expect(result.current.packingResults[recipeId]).toEqual(packingResult);
 });
