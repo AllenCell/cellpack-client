@@ -8,5 +8,6 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json-summary', 'json'],
     },
+    environment: 'jsdom',
   },
 })
