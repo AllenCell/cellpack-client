@@ -38,4 +38,4 @@ jobs:
         run: bun run build
 
       - name: Copy files to production bucket
-        run: aws s3 sync ./dist/ s3://cellpack-results/test/test-gh-action/ --delete
+        run: aws s3 sync ./dist/ s3://cellpack-datasets/test-deploy/ --delete
