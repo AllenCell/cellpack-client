@@ -14,6 +14,7 @@ import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import ExpandableText from "../ExpandableText";
+import LocalRecipe from "../LocalRecipe";
 import "./style.css";
 import { useSiderHeight } from "../../hooks/useSiderHeight";
 import {
@@ -29,10 +30,11 @@ interface PackingInputProps {
         configId: string,
         recipeString: string
     ) => Promise<void>;
+    recipeString: string | null;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
-    const { startPacking } = props;
+    const { startPacking, recipeString } = props;
     const selectedRecipeId = useSelectedRecipeId();
     const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
@@ -75,6 +77,17 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     // No recipe or dropdown options to load
     if (!recipeObj && !inputOptions[selectedRecipeId]) {
         return loadingText;
+    }
+
+    // Local recipe loaded
+    if (recipeString) {
+        return (
+            <LocalRecipe
+                recipeString={recipeString}
+                startPacking={startPacking}
+                maxHeight={availableRecipeHeight}
+            />
+        )
     }
 
     return (
