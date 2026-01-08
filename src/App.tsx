@@ -42,7 +42,7 @@ function App() {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    const recipeHasChanged = async (
+    const isUploadNeeded = async (
         recipeId: string,
         recipeString: string
     ): Promise<boolean> => {
@@ -78,11 +78,11 @@ function App() {
         const firebaseConfig = configId
             ? "firebase:configs/" + configId
             : undefined;
-        const recipeChanged: boolean = await recipeHasChanged(
+        const uploadNeeded: boolean = await isUploadNeeded(
             recipeId,
             recipeString
         );
-        if (recipeChanged) {
+        if (uploadNeeded) {
             const recipeId = uuidv4();
             firebaseRecipe = "firebase:recipes_edited/" + recipeId;
             const recipeJson = recipeToFirebase(
