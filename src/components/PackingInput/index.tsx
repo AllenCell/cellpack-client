@@ -9,11 +9,13 @@ import {
     useCurrentRecipeObject,
     useInputOptions,
     useLoadInputOptions,
+    useLocalRecipeString,
 } from "../../state/store";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
 import RecipeForm from "../RecipeForm";
 import ExpandableText from "../ExpandableText";
+import LocalRecipe from "../LocalRecipe";
 import "./style.css";
 import { useSiderHeight } from "../../hooks/useSiderHeight";
 import {
@@ -36,6 +38,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const selectedRecipeId = useSelectedRecipeId();
     const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
+    const localRecipeString = useLocalRecipeString();
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
@@ -69,6 +72,16 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const handleStartPacking = async () => {
         await storeStartPacking(startPacking);
     };
+
+    // Local recipe loaded
+    if (localRecipeString) {
+        return (
+            <LocalRecipe
+                startPacking={startPacking}
+                maxHeight={availableRecipeHeight}
+            />
+        )
+    }
 
     const loadingText = <div className="recipe-select">Loading...</div>;
 
