@@ -26,6 +26,10 @@
     padding: 0 40px;
 }
 
+.load-button {
+    margin-right: 20px;
+}
+
 .footer {
     display: flex;
     flex-direction: row;

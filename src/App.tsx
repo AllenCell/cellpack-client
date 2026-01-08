@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Layout, Typography } from "antd";
+import { Button, Layout, Typography } from "antd";
 import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
@@ -15,6 +15,7 @@ import {
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
+import UploadModal from "./components/UploadModal";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
 
@@ -25,6 +26,8 @@ const { Link } = Typography;
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [localFile, setLocalFile] = useState<string | null>(null);
 
     const setJobLogs = useSetJobLogs();
     const jobLogs = useJobLogs();
@@ -44,6 +47,9 @@ function App() {
         recipeId: string,
         recipeString: string
     ): Promise<boolean> => {
+        if (!recipeId) {
+            return true;
+        }
         const originalRecipe = await getFirebaseRecipe(recipeId);
         return !(jsonToString(originalRecipe) == recipeString);
     };
@@ -156,6 +162,14 @@ function App() {
         }
     };
 
+    const showUploadDialog = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <Layout className="app-container">
             <Header
@@ -163,16 +177,22 @@ function App() {
                 style={{ justifyContent: "space-between" }}
             >
                 <h2 className="header-title">cellPACK Studio</h2>
-                <Link
-                    href="https://github.com/mesoscope/cellpack"
-                    className="header-link"
-                >
-                    GitHub
-                </Link>
+                <div className="header-buttons">
+                    <Button className="load-button" color="primary" variant="filled" onClick={showUploadDialog}>
+                        Load My Own Recipe
+                    </Button>
+                    <Link
+                        href="https://github.com/mesoscope/cellpack"
+                        className="header-link"
+                    >
+                        GitHub
+                    </Link>
+                </div>
             </Header>
+            <UploadModal isOpen={isModalOpen} onClose={handleModalClose} selectRecipe={setLocalFile} />
             <Layout>
                 <Sider width="35%" theme="light" className="sider">
-                    <PackingInput startPacking={startPacking} />
+                    <PackingInput startPacking={startPacking} recipeString={localFile} />
                 </Sider>
                 <Content className="content-container">
                     <Viewer />
