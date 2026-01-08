@@ -19,6 +19,7 @@ export interface RecipeState {
 
 export interface UIState {
     isPacking: boolean;
+    localRecipeString?: string;
 }
 
 type Actions = {
@@ -44,17 +45,20 @@ type Actions = {
     setPackingResults: (results: PackingResult) => void;
     setJobLogs: (logs: string) => void;
     setJobId: (jobId: string) => void;
+    setLocalRecipe: (recipeString?: string) => void;
 };
 
 export type RecipeStore = RecipeState & UIState & Actions;
 
 export const INITIAL_RECIPE_ID = "peroxisome_v_gradient_packing";
+export const LOCAL_RECIPE_ID = "LOCAL_RECIPE";
 
 const initialState: RecipeState & UIState = {
     selectedRecipeId: INITIAL_RECIPE_ID,
     inputOptions: {},
     recipes: {},
     isPacking: false,
+    localRecipeString: undefined,
     packingResults: { [INITIAL_RECIPE_ID]: EMPTY_PACKING_RESULT },
 };
 
@@ -125,6 +129,26 @@ export const useRecipeStore = create<RecipeStore>()(
             if (sel.recipeId && !get().recipes[sel.recipeId]) {
                 await get().loadRecipe(sel.recipeId);
             }
+        },
+
+        setLocalRecipe: (recipeString?: string) => {
+            if (recipeString) {
+                set({
+                    localRecipeString: recipeString,
+                    selectedRecipeId: LOCAL_RECIPE_ID
+                });
+            } else {
+                // Clear local recipe
+                set({
+                    localRecipeString: undefined,
+                    selectedRecipeId: INITIAL_RECIPE_ID,
+                    packingResults: {
+                        ...get().packingResults,
+                        [LOCAL_RECIPE_ID]: EMPTY_PACKING_RESULT,
+                    },
+                });
+            }
+
         },
 
         setPackingResults: (results: PackingResult) => {
@@ -272,6 +296,7 @@ export const useFieldsToDisplay = () =>
     useRecipeStore((s) => s.recipes[s.selectedRecipeId]?.editableFields);
 export const useRecipes = () => useRecipeStore((s) => s.recipes);
 export const usePackingResults = () => useRecipeStore((s) => s.packingResults);
+export const useLocalRecipeString = () => useRecipeStore((s) => s.localRecipeString);
 
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
@@ -364,3 +389,4 @@ export const useSetPackingResults = () =>
     useRecipeStore((s) => s.setPackingResults);
 export const useSetJobLogs = () => useRecipeStore((s) => s.setJobLogs);
 export const useSetJobId = () => useRecipeStore((s) => s.setJobId);
+export const useSetLocalRecipe = () => useRecipeStore((s) => s.setLocalRecipe);

@@ -9,6 +9,7 @@ import {
     useCurrentRecipeObject,
     useInputOptions,
     useLoadInputOptions,
+    useLocalRecipeString,
 } from "../../state/store";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -30,14 +31,14 @@ interface PackingInputProps {
         configId: string,
         recipeString: string
     ) => Promise<void>;
-    recipeString: string | null;
 }
 
 const PackingInput = (props: PackingInputProps): JSX.Element => {
-    const { startPacking, recipeString } = props;
+    const { startPacking } = props;
     const selectedRecipeId = useSelectedRecipeId();
     const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
+    const localRecipeString = useLocalRecipeString();
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
@@ -72,22 +73,21 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
         await storeStartPacking(startPacking);
     };
 
+    // Local recipe loaded
+    if (localRecipeString) {
+        return (
+            <LocalRecipe
+                startPacking={startPacking}
+                maxHeight={availableRecipeHeight}
+            />
+        )
+    }
+
     const loadingText = <div className="recipe-select">Loading...</div>;
 
     // No recipe or dropdown options to load
     if (!recipeObj && !inputOptions[selectedRecipeId]) {
         return loadingText;
-    }
-
-    // Local recipe loaded
-    if (recipeString) {
-        return (
-            <LocalRecipe
-                recipeString={recipeString}
-                startPacking={startPacking}
-                maxHeight={availableRecipeHeight}
-            />
-        )
     }
 
     return (

@@ -27,7 +27,6 @@ const { Link } = Typography;
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [localFile, setLocalFile] = useState<string | null>(null);
 
     const setJobLogs = useSetJobLogs();
     const jobLogs = useJobLogs();
@@ -189,10 +188,10 @@ function App() {
                     </Link>
                 </div>
             </Header>
-            <UploadModal isOpen={isModalOpen} onClose={handleModalClose} selectRecipe={setLocalFile} />
+            <UploadModal isOpen={isModalOpen} onClose={handleModalClose} />
             <Layout>
                 <Sider width="35%" theme="light" className="sider">
-                    <PackingInput startPacking={startPacking} recipeString={localFile} />
+                    <PackingInput startPacking={startPacking} />
                 </Sider>
                 <Content className="content-container">
                     <Viewer />

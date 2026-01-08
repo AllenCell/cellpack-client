@@ -1,17 +1,18 @@
-import { Button, message, Modal, Upload } from "antd";
+import { Button, Divider, message, Modal, Upload } from "antd";
 import type { UploadProps } from 'antd';
 import { useState } from "react";
+import { useSetLocalRecipe } from "../../state/store";
 
 
 interface UploadModalProps {
     isOpen: boolean;
     onClose: () => void;
-    selectRecipe: (recipeContent: string | null) => void;
 }
 
 const UploadModal = (props: UploadModalProps): JSX.Element => {
-    const { isOpen, onClose, selectRecipe } = props;
+    const { isOpen, onClose } = props;
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const setLocalRecipe = useSetLocalRecipe();
 
     const uploadProps: UploadProps = {
         name: 'file',
@@ -32,10 +33,7 @@ const UploadModal = (props: UploadModalProps): JSX.Element => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const content = e.target?.result;
-                selectRecipe(content as string);
-                console.log("File content:");
-                console.log(content);
-                // Handle the loaded content here
+                setLocalRecipe(content as string);
             };
             reader.readAsText(selectedFile);
         }
@@ -44,7 +42,7 @@ const UploadModal = (props: UploadModalProps): JSX.Element => {
 
     const handleCancel = () => {
         setSelectedFile(null);
-        selectRecipe(null);
+        setLocalRecipe(undefined);
         onClose();
     }
 
@@ -57,13 +55,14 @@ const UploadModal = (props: UploadModalProps): JSX.Element => {
                 <Button onClick={handleCancel}>
                     Cancel
                 </Button>,
-                <Button onClick={handleSubmit} color="primary" variant="filled">
+                <Button onClick={handleSubmit} color="primary" variant="filled" disabled={!selectedFile}>
                     Load
                 </Button>
             ]}
         >
+            <Divider size="small" />
             <Upload {...uploadProps}>
-                <Button type="primary">Select a File</Button>
+                <Button color="primary" variant="filled">Select a File</Button>
             </Upload>
             {selectedFile && (
                 <div>
