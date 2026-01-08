@@ -37,12 +37,11 @@ const UploadModal = (props: UploadModalProps): JSX.Element => {
             };
             reader.readAsText(selectedFile);
         }
-        handleCancel();
+        handleClose();
     };
 
-    const handleCancel = () => {
+    const handleClose = () => {
         setSelectedFile(null);
-        setLocalRecipe(undefined);
         onClose();
     }
 
@@ -52,7 +51,7 @@ const UploadModal = (props: UploadModalProps): JSX.Element => {
             open={isOpen}
             onCancel={onClose}
             footer={[
-                <Button onClick={handleCancel}>
+                <Button onClick={handleClose}>
                     Cancel
                 </Button>,
                 <Button onClick={handleSubmit} color="primary" variant="filled" disabled={!selectedFile}>
