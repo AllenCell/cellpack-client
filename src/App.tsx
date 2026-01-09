@@ -5,16 +5,19 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
+import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useJobId,
     useJobLogs,
     useOutputsDirectory,
+    useResultUrl,
     useRunTime,
     useSetJobId,
     useSetJobLogs,
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
+import ShareModal from "./components/ShareModal";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
 
@@ -25,6 +28,7 @@ const { Link } = Typography;
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const setJobLogs = useSetJobLogs();
     const jobLogs = useJobLogs();
@@ -33,6 +37,8 @@ function App() {
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
+    const resultUrl = useResultUrl();
+    const shareUrl = resultUrl ? `${SIMULARIUM_VIEWER_URL}${resultUrl}` : "";
 
     let start = 0;
 
@@ -163,13 +169,27 @@ function App() {
                 style={{ justifyContent: "space-between" }}
             >
                 <h2 className="header-title">cellPACK Studio</h2>
-                <Link
-                    href="https://github.com/mesoscope/cellpack"
-                    className="header-link"
-                >
-                    GitHub
-                </Link>
+                <div style={{ display: "flex", gap: "16px" }}>
+                    <Link
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="header-link"
+                        disabled={!shareUrl}
+                    >
+                        Share
+                    </Link>
+                    <Link
+                        href="https://github.com/mesoscope/cellpack"
+                        className="header-link"
+                    >
+                        GitHub
+                    </Link>
+                </div>
             </Header>
+            <ShareModal
+                open={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                shareUrl={shareUrl}
+            />
             <Layout>
                 <Sider width="35%" theme="light" className="sider">
                     <PackingInput startPacking={startPacking} />
