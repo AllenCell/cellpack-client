@@ -29,6 +29,22 @@ Typical steps to contribute:
 
 4. Submit a pull request to merge your fork's branch into this repository, via GitHub.
 
+## Deployment
+
+#### Staging deployment
+Automatically builds from `main`
+- [Staging site](https://allencell.github.io/cellpack-client/)
+
+#### Production deployment
+Make sure the main branch is checked out and all desired changes are merged. Then:
+1. Make a new version: `bun pm version [patch/minor/major]` -- this will give you the new tag, e.g., `1.3.2`
+2. Push the new package.json version: `git push origin main`
+3. Push the new tag: `git push origin [NEW_TAG]` -- e.g. `git push origin v1.3.2`
+4. Write up [release notes](https://github.com/AllenCell/cellpack-client/releases).
+    - Select the tag
+    - Click "generate release notes"
+    - Use this template to summarize changes (delete any categories that aren't relevant)
+
 ## Questions or Thoughts?
 
 Talk to us on [one of our community forums][community].
