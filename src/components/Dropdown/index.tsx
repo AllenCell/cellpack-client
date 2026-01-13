@@ -1,5 +1,5 @@
 import { Select } from "antd";
-import { map } from "lodash-es";
+import { map, sortBy } from "lodash-es";
 import { Dictionary, RecipeManifest } from "../../types";
 
 interface DropdownProps {
@@ -15,13 +15,14 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         label: opt.displayName || key,
         value: opt.recipeId,
     }));
+    const sortedOptions = sortBy(selectOptions, "label");
 
     return (
         <Select
             defaultValue={defaultValue}
             onChange={onChange}
             placeholder={placeholder}
-            options={selectOptions}
+            options={sortedOptions}
             style={{ width: "100%", paddingLeft: 5 }}
         />
     );
