@@ -165,6 +165,7 @@ test("setPackingResults updates packing results for current recipe", async () =>
         resultUrl: "http://example.com/result",
         runTime: 120,
         outputDir: "/output/dir",
+        edits: {}
     };
 
     act(() => {
