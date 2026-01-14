@@ -8,7 +8,6 @@ import {
     documentId,
     QuerySnapshot,
     DocumentData,
-    setDoc,
     doc,
     Timestamp,
     deleteDoc,
@@ -211,14 +210,6 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
     return docs;
 };
 
-const addRecipe = async (id: string, data: object) => {
-    const timestampedData = {
-        ...data,
-        [FIRESTORE_FIELDS.TIMESTAMP]: Timestamp.now(),
-    };
-    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), timestampedData);
-};
-
 const docCleanup = async () => {
     const now = Date.now();
     const collectionsToClean = [
@@ -262,7 +253,6 @@ export {
     queryDocumentById,
     getDocsByIds,
     getJobStatus,
-    addRecipe,
     docCleanup,
     getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
