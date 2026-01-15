@@ -229,11 +229,11 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
 };
 
 const addRecipe = async (id: string, data: object) => {
-    data = {
+    const timestampedData = {
         ...data,
         [FIRESTORE_FIELDS.TIMESTAMP]: Timestamp.now(),
     };
-    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
+    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), timestampedData);
 };
 
 const docCleanup = async () => {
