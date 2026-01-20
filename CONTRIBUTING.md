@@ -17,6 +17,31 @@ project documentation. If you cannot find the documentation you're
 looking for, please file a GitHub issue with details of what
 you'd like to see documented.
 
+## Firebase Overview
+
+cellPACK Studio reads recipe data from Firebase and writes user edits back. The backend handles uploading recipes and running packing jobs.
+
+### Collections Used by cellPACK Studio
+
+| Collection | What It Does | Access |
+|------------|--------------|---------------|
+| `example_packings` | Maps recipes to UI display names and editable fields | Read |
+| `editable_fields` | Defines which recipe fields users can edit | Read |
+| `recipes` | Full recipe data with references | Read |
+| `objects` | Object definitions (molecules, organelles) | Read |
+| `gradients` | Gradient definitions for spatial distributions | Read |
+| `composition` | Composition definitions | Read |
+| `recipes_edited` | User-modified recipes | Write |
+| `job_status` | Packing job progress | Poll (read) |
+
+> **Note:** Collections like `configs` and `results` are managed by the backend. For the complete database schema, see [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md).
+
+### Getting Access
+
+- **Development:** Create your own Firebase project in test mode. See [Firebase Firestore tutorial](https://firebase.google.com/docs/firestore).
+- **Staging:** Contact the code owner for credentials, then configure your `.env` file (see README).
+
+
 ## How to Contribute
 
 Typical steps to contribute:
