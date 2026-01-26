@@ -23,6 +23,7 @@ const Viewer = (): JSX.Element => {
     return (
         <div className="viewer-container">
             <iframe
+                key={resultUrl}
                 className="simularium-embed"
                 src={`${SIMULARIUM_EMBED_URL}${resultUrl}`}
             />
