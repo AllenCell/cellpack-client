@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { SIMULARIUM_EMBED_URL } from "../../constants/urls";
-import { useIsLoading, useIsModified, useIsPacking, useResultUrl } from "../../state/store";
+import {
+    useIsLoading,
+    useIsModified,
+    useIsPacking,
+    useResultUrl,
+} from "../../state/store";
 import "./style.css";
 
 const Viewer = (): JSX.Element => {
@@ -10,10 +15,10 @@ const Viewer = (): JSX.Element => {
     const isPacking = useIsPacking();
     const isModified = useIsModified();
 
-  const iframeSrc = resultUrl ? `${SIMULARIUM_EMBED_URL}${resultUrl}` : "";
+    const iframeSrc = resultUrl ? `${SIMULARIUM_EMBED_URL}${resultUrl}` : "";
 
-  const lastSrcRef = useRef<string>("");
-  const [isLoadingIframe, setIsLoadingIframe] = useState(false);
+    const lastSrcRef = useRef<string>("");
+    const [isLoadingIframe, setIsLoadingIframe] = useState(false);
 
     useEffect(() => {
         if (!iframeSrc) return;
@@ -23,9 +28,7 @@ const Viewer = (): JSX.Element => {
         setIsLoadingIframe(true);
     }, [iframeSrc]);
 
-
-  const isLoading =
-      isLoadingGlobally || isLoadingIframe || !iframeSrc;
+    const isLoading = isLoadingGlobally || isLoadingIframe || !iframeSrc;
 
     const overlayText = isPacking
         ? "Running..."
@@ -34,7 +37,7 @@ const Viewer = (): JSX.Element => {
         : isModified
         ? "Re-run packing to view result"
         : "";
-    
+
     const activeState = isLoading || isPacking;
     const showOverlay = activeState || isModified;
 
