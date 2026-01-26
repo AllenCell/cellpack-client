@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { SIMULARIUM_EMBED_URL } from "../../constants/urls";
 import { useIsLoading, useIsModified, useIsPacking, useResultUrl } from "../../state/store";
@@ -5,9 +6,26 @@ import "./style.css";
 
 const Viewer = (): JSX.Element => {
     const resultUrl = useResultUrl();
-    const isLoading = useIsLoading();
+    const isLoadingGlobally = useIsLoading();
     const isPacking = useIsPacking();
     const isModified = useIsModified();
+
+  const iframeSrc = resultUrl ? `${SIMULARIUM_EMBED_URL}${resultUrl}` : "";
+
+  const lastSrcRef = useRef<string>("");
+  const [isLoadingIframe, setIsLoadingIframe] = useState(false);
+
+    useEffect(() => {
+        if (!iframeSrc) return;
+        if (iframeSrc === lastSrcRef.current) return;
+
+        lastSrcRef.current = iframeSrc;
+        setIsLoadingIframe(true);
+    }, [iframeSrc]);
+
+
+  const isLoading =
+      isLoadingGlobally || isLoadingIframe || !iframeSrc;
 
     const overlayText = isPacking
         ? "Running..."
@@ -22,11 +40,14 @@ const Viewer = (): JSX.Element => {
 
     return (
         <div className="viewer-container">
-            <iframe
-                key={resultUrl}
-                className="simularium-embed"
-                src={`${SIMULARIUM_EMBED_URL}${resultUrl}`}
-            />
+            {iframeSrc && (
+                <iframe
+                    key={iframeSrc}
+                    className="simularium-embed"
+                    src={iframeSrc}
+                    onLoad={() => setIsLoadingIframe(false)}
+                />
+            )}
             {showOverlay && (
                 <div className="viewer-overlay">
                     <div
