@@ -9,6 +9,7 @@ import {
     useCurrentRecipeObject,
     useInputOptions,
     useLoadInputOptions,
+    useIsLoading,
 } from "../../state/store";
 import Dropdown from "../Dropdown";
 import JSONViewer from "../JSONViewer";
@@ -36,6 +37,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const selectedRecipeId = useSelectedRecipeId();
     const recipeObj = useCurrentRecipeObject();
     const inputOptions = useInputOptions();
+    const isLoading = useIsLoading();
 
     const loadInputOptions = useLoadInputOptions();
     const loadAllRecipes = useLoadAllRecipes();
@@ -73,7 +75,7 @@ const PackingInput = (props: PackingInputProps): JSX.Element => {
     const loadingText = <div className="recipe-select">Loading...</div>;
 
     // No recipe or dropdown options to load
-    if (!recipeObj && !inputOptions[selectedRecipeId]) {
+    if (isLoading) {
         return loadingText;
     }
 
