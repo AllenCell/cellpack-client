@@ -42,7 +42,6 @@ export type JobStatusObject = {
 
 export type PackingResult = {
     jobId: string;
-    jobLogs: string;
     resultUrl: string;
     runTime: number;
     outputDir: string;

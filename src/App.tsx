@@ -8,11 +8,9 @@ import { FIRESTORE_FIELDS } from "./constants/firebase";
 import {
     useCurrentRecipeData,
     useJobId,
-    useJobLogs,
     useOutputsDirectory,
     useRunTime,
     useSetJobId,
-    useSetJobLogs,
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
@@ -26,9 +24,8 @@ const { Link } = Typography;
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
+    const [jobLogs, setJobLogs] = useState<string>("");
 
-    const setJobLogs = useSetJobLogs();
-    const jobLogs = useJobLogs();
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
@@ -99,6 +96,7 @@ function App() {
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
+        setJobLogs("");
         const data = await response.json();
         if (response.ok) {
             setJobId(data.jobId);
@@ -141,16 +139,15 @@ function App() {
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({
                 jobId: id,
-                jobLogs: "",
                 resultUrl: localJobStatus.result_path,
                 runTime: range,
                 outputDir: localJobStatus.outputs_directory,
                 edits: edits,
             });
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
+            setJobLogs(`Packing job failed: ${localJobStatus.error_message}`);
             setPackingResults({
                 jobId: id,
-                jobLogs: `Packing job failed: ${localJobStatus.error_message}`,
                 resultUrl: "",
                 runTime: range,
                 outputDir: "",

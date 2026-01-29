@@ -37,7 +37,6 @@ const Viewer = (): JSX.Element => {
         : isModified
         ? "Re-run packing to view result"
         : "";
-
     const activeState = isLoading || isPacking;
     const showOverlay = activeState || isModified;
 
