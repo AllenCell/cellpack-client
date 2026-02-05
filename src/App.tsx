@@ -113,7 +113,7 @@ function App() {
 
         // Update the job status timestamp after reading the final status to
         // ensure we have the most recent timestamp for retention policy
-        updateJobStatusTimestamp(id);
+        await updateJobStatusTimestamp(id);
 
         const range = (Date.now() - start) / 1000;
         if (localJobStatus.status == JOB_STATUS.DONE) {

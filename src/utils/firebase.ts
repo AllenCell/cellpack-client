@@ -127,10 +127,9 @@ const getJobStatus = async (
 };
 
 const updateJobStatusTimestamp = async (jobId: string) => {
-    const timestamp = Timestamp.now();
     const data = {
-        "timestamp": timestamp,
-    }
+        timestamp: Timestamp.now(),
+    };
     await updateDoc(doc(db, FIRESTORE_COLLECTIONS.JOB_STATUS, jobId), data);
 };
 
