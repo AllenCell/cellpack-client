@@ -11,6 +11,7 @@ import {
     doc,
     Timestamp,
     deleteDoc,
+    updateDoc
 } from "firebase/firestore";
 import { sortBy } from "lodash-es";
 import {
@@ -123,6 +124,14 @@ const getJobStatus = async (
         result_path: doc.data().result_path,
     }));
     return docs[0] || undefined;
+};
+
+const updateJobStatusTimestamp = async (jobId: string) => {
+    const timestamp = Timestamp.now();
+    const data = {
+        "timestamp": timestamp,
+    }
+    await updateDoc(doc(db, FIRESTORE_COLLECTIONS.JOB_STATUS, jobId), data);
 };
 
 const getOutputsDirectory = async (jobId: string) => {
@@ -274,4 +283,5 @@ export {
     getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
     getOutputsDirectory,
+    updateJobStatusTimestamp,
 };
