@@ -42,7 +42,6 @@ type Actions = {
         ) => Promise<void>
     ) => Promise<void>;
     setPackingResults: (results: PackingResult) => void;
-    setJobLogs: (logs: string) => void;
     setJobId: (jobId: string) => void;
 };
 
@@ -133,19 +132,6 @@ export const useRecipeStore = create<RecipeStore>()(
                 packingResults: {
                     ...get().packingResults,
                     [currentRecipeId]: results,
-                },
-            });
-        },
-
-        setJobLogs: (logs: string) => {
-            const currentRecipeId = get().selectedRecipeId;
-            set({
-                packingResults: {
-                    ...get().packingResults,
-                    [currentRecipeId]: {
-                        ...get().packingResults[currentRecipeId],
-                        jobLogs: logs,
-                    },
                 },
             });
         },
@@ -273,6 +259,20 @@ export const useFieldsToDisplay = () =>
 export const useRecipes = () => useRecipeStore((s) => s.recipes);
 export const usePackingResults = () => useRecipeStore((s) => s.packingResults);
 
+export const useIsLoading = () => {
+    const recipeObj = useCurrentRecipeData();
+    const selectedRecipeId = useSelectedRecipeId();
+    const inputOptions = useInputOptions();
+    return !recipeObj && !inputOptions[selectedRecipeId];
+};
+
+export const useIsModified = () => {
+    const recipeObj = useCurrentRecipeData();
+    const packingResults = useCurrentPackingResult();
+    if (!recipeObj || !packingResults) return false;
+    return !isEqual(recipeObj.edits, packingResults.edits);
+};
+
 export const useCurrentRecipeObject = () => {
     const recipe = useCurrentRecipeData();
     return recipe
@@ -311,11 +311,6 @@ const useDefaultResultPath = () => {
 export const useRunTime = () => {
     const results = useCurrentPackingResult();
     return results.runTime;
-};
-
-export const useJobLogs = () => {
-    const results = useCurrentPackingResult();
-    return results.jobLogs;
 };
 
 export const useJobId = () => {
@@ -362,5 +357,4 @@ export const useGetOriginalValue = () =>
     useRecipeStore((s) => s.getOriginalValue);
 export const useSetPackingResults = () =>
     useRecipeStore((s) => s.setPackingResults);
-export const useSetJobLogs = () => useRecipeStore((s) => s.setJobLogs);
 export const useSetJobId = () => useRecipeStore((s) => s.setJobId);
