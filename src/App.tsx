@@ -170,13 +170,6 @@ function App() {
                 <h2 className="header-title">cellPACK Studio</h2>
                 <div style={{ display: "flex", gap: "16px" }}>
                     <Link
-                        onClick={() => setIsShareModalOpen(true)}
-                        className="header-link"
-                        disabled={!shareUrl}
-                    >
-                        Share
-                    </Link>
-                    <Link
                         href="https://github.com/mesoscope/cellpack"
                         className="header-link"
                     >
@@ -204,6 +197,8 @@ function App() {
                     jobId={jobId}
                     errorLogs={jobLogs}
                     outputDir={outputDir}
+                    shareUrl={shareUrl}
+                    onShareClick={() => setIsShareModalOpen(true)}
                 />
             </Footer>
         </Layout>
