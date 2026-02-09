@@ -98,17 +98,6 @@ const mapQuerySnapshotToDocs = (querySnapshot: QuerySnapshot<DocumentData>) => {
     })) as FirestoreDoc[];
 };
 
-const extractSingleDocumentData = (
-    querySnapshot: QuerySnapshot<DocumentData>,
-    field?: string
-) => {
-    let result = "";
-    querySnapshot.forEach((doc) => {
-        result = field ? doc.data()[field] : doc.data();
-    });
-    return result;
-};
-
 // Query functions for our use case using generic functions
 const getJobStatus = async (
     jobId: string
@@ -124,14 +113,6 @@ const getJobStatus = async (
         result_path: doc.data().result_path,
     }));
     return docs[0] || undefined;
-};
-
-const getOutputsDirectory = async (jobId: string) => {
-    const querySnapshot = await queryDocumentById(
-        FIRESTORE_COLLECTIONS.JOB_STATUS,
-        jobId
-    );
-    return extractSingleDocumentData(querySnapshot, "outputs_directory");
 };
 
 const getAllDocsFromCollection = async (collectionName: string) => {
@@ -283,5 +264,4 @@ export {
     docCleanup,
     getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
-    getOutputsDirectory,
 };
