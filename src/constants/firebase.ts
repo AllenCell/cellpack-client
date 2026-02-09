@@ -7,7 +7,6 @@ export const FIREBASE_CONFIG = {
 
 //firestore collection names
 export const FIRESTORE_COLLECTIONS = {
-    RESULTS: "results",
     RECIPES: "recipes",
     CONFIGS: "configs",
     OBJECTS: "objects",
