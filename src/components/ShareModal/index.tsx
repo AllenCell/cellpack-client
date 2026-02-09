@@ -9,7 +9,7 @@ interface ShareModalProps {
 const ShareModal = ({ open, onClose, shareUrl }: ShareModalProps) => {
     return (
         <Modal
-            title="Share Result"
+            title="Share packing result"
             open={open}
             onCancel={onClose}
             footer={null}
