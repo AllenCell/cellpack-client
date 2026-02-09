@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Layout, Typography } from "antd";
-import { getJobStatus } from "./utils/firebase";
+import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
@@ -71,14 +71,15 @@ function App() {
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
         setJobLogs("");
-        const data = await response.json();
         if (response.ok) {
+            const data = await response.json();
             setJobId(data.jobId);
             setJobStatus(JOB_STATUS.STARTING);
             return data.jobId;
         } else {
+            const errorText = await response.text();
             setJobStatus(JOB_STATUS.FAILED);
-            setJobLogs(JSON.stringify(data));
+            setJobLogs(errorText);
         }
     };
 
@@ -95,6 +96,9 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
         let localJobStatus = await getJobStatus(id);
+        if (localJobStatus) {
+            setJobStatus(localJobStatus.status);
+        }
         while (
             localJobStatus?.status !== JOB_STATUS.DONE &&
             localJobStatus?.status !== JOB_STATUS.FAILED
@@ -109,6 +113,11 @@ function App() {
                 setJobStatus(newJobStatus.status);
             }
         }
+
+        // Update the job status timestamp after reading the final status to
+        // ensure we have the most recent timestamp for retention policy
+        await updateJobStatusTimestamp(id);
+
         const range = (Date.now() - start) / 1000;
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({
