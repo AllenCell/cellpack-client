@@ -328,13 +328,16 @@ const getFirebaseRecipe = async (name: string): Promise<ViewableRecipe> => {
     return unpackedRecipe;
 }
 
-const recipeToString = (recipe: ViewableRecipe): string => {
+const recipeToString = (rec: ViewableRecipe): string => {
+    // Deep copy recipe to avoid mutating original object
+    const recipe: ViewableRecipe = structuredClone(rec);
+
     // Collect a list of gradients that are referenced by objects the recipe
-    const referencedGradients: string[] = [];
+    const referencedGradients: Set<string> = new Set();
     if (recipe.objects) {
         for (const obj of Object.values(recipe.objects)) {
             if (obj.packing_mode === "gradient" && obj.gradient) {
-                referencedGradients.push(obj.gradient);
+                referencedGradients.add(obj.gradient);
             } else if (obj.packing_mode === "random" && obj.gradient) {
                 // If packing mode is random, gradient field is irrelevant
                 // and should be cleared
@@ -346,7 +349,7 @@ const recipeToString = (recipe: ViewableRecipe): string => {
     // If the recipe has gradients that aren't referenced in any objects, delete them
     if (recipe.gradients) {
         for (const gradientName of Object.keys(recipe.gradients)) {
-            if (!referencedGradients.includes(gradientName)) {
+            if (!referencedGradients.has(gradientName)) {
                 delete recipe.gradients[gradientName];
             }
         }
