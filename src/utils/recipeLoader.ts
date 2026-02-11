@@ -328,9 +328,31 @@ const getFirebaseRecipe = async (name: string): Promise<ViewableRecipe> => {
     return unpackedRecipe;
 }
 
-const jsonToString = (json: ViewableRecipe): string => {
-    return JSON.stringify(json, null, 2);
+const recipeToString = (recipe: ViewableRecipe): string => {
+    // Collect a list of gradients that are referenced by objects the recipe
+    const referencedGradients: string[] = [];
+    if (recipe.objects) {
+        for (const obj of Object.values(recipe.objects)) {
+            if (obj.packing_mode === "gradient" && obj.gradient) {
+                referencedGradients.push(obj.gradient);
+            } else if (obj.packing_mode === "random" && obj.gradient) {
+                // If packing mode is random, gradient field is irrelevant
+                // and should be cleared
+                delete obj.gradient;
+            }
+        }
+    }
+
+    // If the recipe has gradients that aren't referenced in any objects, delete them
+    if (recipe.gradients) {
+        for (const gradientName of Object.keys(recipe.gradients)) {
+            if (!referencedGradients.includes(gradientName)) {
+                delete recipe.gradients[gradientName];
+            }
+        }
+    }
+    return JSON.stringify(recipe, null, 2);
 }
 
 
-export { getFirebaseRecipe, isFirebaseRef, jsonToString };
+export { getFirebaseRecipe, isFirebaseRef, recipeToString };
