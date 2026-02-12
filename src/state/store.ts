@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { isEmpty, isEqual, get as lodashGet } from "lodash-es";
 import { PackingResult, RecipeData, RecipeManifest } from "../types";
-import { jsonToString } from "../utils/recipeLoader";
+import { recipeToString } from "../utils/recipeLoader";
 import {
     getRecipeDataFromFirebase,
     getRecipeManifestFromFirebase,
@@ -236,7 +236,7 @@ export const useRecipeStore = create<RecipeStore>()(
                 edits
             );
             if (!recipeObject) return;
-            const recipeString = jsonToString(recipeObject);
+            const recipeString = recipeToString(recipeObject);
             set({ isPacking: true });
             try {
                 await callback(s.selectedRecipeId, configId, recipeString);
