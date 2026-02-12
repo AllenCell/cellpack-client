@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout, Typography } from "antd";
 import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
-import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
+import { getFirebaseRecipe, recipeToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
@@ -45,7 +45,7 @@ function App() {
         recipeString: string
     ): Promise<boolean> => {
         const originalRecipe = await getFirebaseRecipe(recipeId);
-        return !(jsonToString(originalRecipe) == recipeString);
+        return !(recipeToString(originalRecipe) == recipeString);
     };
 
     const submitRecipe = async (

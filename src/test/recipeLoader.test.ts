@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import fs from 'fs';
-import { isFirebaseRef, getFirebaseRecipe, jsonToString } from '../utils/recipeLoader';
+import { isFirebaseRef, getFirebaseRecipe, recipeToString } from '../utils/recipeLoader';
 
 test('isFirebaseRef detects Firebase references correctly', () => {
     expect(isFirebaseRef('firebase:recipes/some_id')).toBe(true);
@@ -14,7 +14,7 @@ test('isFirebaseRef detects Firebase references correctly', () => {
 test('getFirebaseRecipe works as expected for ER_peroxisome_v_struct_gradient_370574', async () => {
     const recipeId = 'ER_peroxisome_v_struct_gradient_370574';
     const recipeJson = await getFirebaseRecipe(recipeId);
-    const recipeString = jsonToString(recipeJson);
+    const recipeString = recipeToString(recipeJson);
 
     expect(recipeString).toBeDefined();
     expect(typeof recipeString).toBe('string');
@@ -30,7 +30,7 @@ test('getFirebaseRecipe works as expected for ER_peroxisome_v_struct_gradient_37
 test('getFirebaseRecipe works as expected for one_sphere', async () => {
     const recipeId = 'one_sphere_v_1.0.0';
     const recipeJson = await getFirebaseRecipe(recipeId);
-    const recipeString = jsonToString(recipeJson);
+    const recipeString = recipeToString(recipeJson);
     
     expect(recipeString).toBeDefined();
     expect(typeof recipeString).toBe('string');
