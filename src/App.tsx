@@ -169,14 +169,12 @@ function App() {
                 style={{ justifyContent: "space-between" }}
             >
                 <h2 className="header-title">cellPACK Studio</h2>
-                <div style={{ display: "flex", gap: "16px" }}>
-                    <Link
-                        href="https://github.com/mesoscope/cellpack"
-                        className="header-link"
-                    >
-                        GitHub
-                    </Link>
-                </div>
+                <Link
+                    href="https://github.com/mesoscope/cellpack"
+                    className="header-link"
+                >
+                    GitHub
+                </Link>
             </Header>
             <ShareModal
                 open={isShareModalOpen}
