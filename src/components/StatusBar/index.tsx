@@ -54,7 +54,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     onClick={() => downloadResults(jobId)}
                     loading={isDownloading}
                     disabled={!jobSucceeded}
-                    icon={<DownloadIcon width={18} height={18} />}
+                    icon={<DownloadIcon />}
                 >
                     Download packing result
                 </Button>
@@ -62,7 +62,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     {...statusBarButtonProps}
                     onClick={onShareClick}
                     disabled={!shareUrl}
-                    icon={<ShareIcon width={18} height={18} />}
+                    icon={<ShareIcon />}
                 >
                     Share
                 </Button>
