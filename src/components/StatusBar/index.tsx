@@ -4,8 +4,7 @@ import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
 import ErrorLogs from "../ErrorLogs";
-import DownloadIcon from "../../assets/download.svg?react";
-import ShareIcon from "../../assets/share.svg?react";
+import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
 
 const statusBarButtonProps: Pick<ButtonProps, "color" | "variant" | "className"> = {
     color: "primary",
@@ -54,7 +53,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     onClick={() => downloadResults(jobId)}
                     loading={isDownloading}
                     disabled={!jobSucceeded}
-                    icon={<DownloadIcon />}
+                    icon={<DownloadOutlined style={{ fontSize: 18 }} />}
                 >
                     Download packing result
                 </Button>
@@ -62,7 +61,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     {...statusBarButtonProps}
                     onClick={onShareClick}
                     disabled={!shareUrl}
-                    icon={<ShareIcon />}
+                    icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
                 >
                     Share
                 </Button>
