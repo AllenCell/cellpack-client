@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "antd";
+import { Button, ButtonProps } from "antd";
 import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
@@ -7,9 +7,9 @@ import ErrorLogs from "../ErrorLogs";
 import DownloadIcon from "../../assets/download.svg?react";
 import ShareIcon from "../../assets/share.svg?react";
 
-const statusBarButtonProps = {
-    color: "primary" as const,
-    variant: "filled" as const,
+const statusBarButtonProps: Pick<ButtonProps, "color" | "variant" | "className"> = {
+    color: "primary",
+    variant: "filled",
     className: "status-bar-button",
 };
 
