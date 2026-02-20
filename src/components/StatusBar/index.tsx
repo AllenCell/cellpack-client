@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { Button } from "antd";
+import { Button, ButtonProps } from "antd";
 import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
 import ErrorLogs from "../ErrorLogs";
+import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
+
+const statusBarButtonProps: Pick<ButtonProps, "color" | "variant" | "className"> = {
+    color: "primary",
+    variant: "filled",
+    className: "status-bar-button",
+};
 
 interface StatusBarProps {
     jobStatus: string;
@@ -11,10 +18,12 @@ interface StatusBarProps {
     jobId: string;
     outputDir: string;
     errorLogs: string;
+    shareUrl: string;
+    onShareClick: () => void;
 }
 
 const StatusBar = (props: StatusBarProps): JSX.Element => {
-    const { jobStatus, runTime, jobId, errorLogs, outputDir } = props;
+    const { jobStatus, runTime, jobId, errorLogs, outputDir, shareUrl, onShareClick } = props;
 
     const [isDownloading, setIsDownloading] = useState(false);
 
@@ -38,17 +47,25 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                     </div>
                 )}
             </div>
-            {jobSucceeded && (
+            <div className="status-bar-actions">
                 <Button
+                    {...statusBarButtonProps}
                     onClick={() => downloadResults(jobId)}
                     loading={isDownloading}
-                    color="primary"
-                    variant="filled"
-                    className="download-button"
+                    disabled={!jobSucceeded}
+                    icon={<DownloadOutlined style={{ fontSize: 18 }} />}
                 >
-                    Download Packing Result
+                    Download packing result
                 </Button>
-            )}
+                <Button
+                    {...statusBarButtonProps}
+                    onClick={onShareClick}
+                    disabled={!shareUrl}
+                    icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
+                >
+                    Share
+                </Button>
+            </div>
             {errorLogs && <ErrorLogs errorLogs={errorLogs} />}
         </>
     );

@@ -5,15 +5,18 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
+import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useCurrentRecipeData,
     useJobId,
     useOutputsDirectory,
+    useResultUrl,
     useRunTime,
     useSetJobId,
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
+import ShareModal from "./components/ShareModal";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
 
@@ -25,6 +28,7 @@ const { Link } = Typography;
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const setJobId = useSetJobId();
     const jobId = useJobId();
@@ -32,6 +36,8 @@ function App() {
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
     const edits = useCurrentRecipeData()?.edits || {};
+    const resultUrl = useResultUrl();
+    const shareUrl = resultUrl ? `${SIMULARIUM_VIEWER_URL}${resultUrl}` : "";
 
     let start = 0;
 
@@ -170,6 +176,11 @@ function App() {
                     GitHub
                 </Link>
             </Header>
+            <ShareModal
+                open={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                shareUrl={shareUrl}
+            />
             <Layout>
                 <Sider width="35%" theme="light" className="sider">
                     <PackingInput startPacking={startPacking} />
@@ -185,6 +196,8 @@ function App() {
                     jobId={jobId}
                     errorLogs={jobLogs}
                     outputDir={outputDir}
+                    shareUrl={shareUrl}
+                    onShareClick={() => setIsShareModalOpen(true)}
                 />
             </Footer>
         </Layout>
