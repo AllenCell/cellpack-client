@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Button, ButtonProps } from "antd";
+import { useEffect, useState } from "react";
+import { Button, ButtonProps, Input, Popover, Space } from "antd";
 import { downloadOutputs } from "../../utils/aws";
 import { JOB_STATUS } from "../../constants/aws";
 import "./style.css";
@@ -19,13 +19,22 @@ interface StatusBarProps {
     outputDir: string;
     errorLogs: string;
     shareUrl: string;
-    onShareClick: () => void;
 }
 
 const StatusBar = (props: StatusBarProps): JSX.Element => {
-    const { jobStatus, runTime, jobId, errorLogs, outputDir, shareUrl, onShareClick } = props;
+    const { jobStatus, runTime, jobId, errorLogs, outputDir, shareUrl } = props;
 
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
+
+    // Listen for window blur to handle cases where clicking inside an
+    // iframe shifts focus away from the parent window
+    useEffect(() => {
+        if (!isShareOpen) return;
+        const onBlur = () => setIsShareOpen(false);
+        window.addEventListener("blur", onBlur);
+        return () => window.removeEventListener("blur", onBlur);
+    }, [isShareOpen]);
 
     const downloadResults = async (jobId: string) => {
         setIsDownloading(true);
@@ -34,6 +43,18 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
     };
 
     const jobSucceeded = jobStatus == JOB_STATUS.DONE;
+
+    const shareResultUrl = (
+        <Space.Compact style={{ display: "flex", width: 400 }}>
+            <Input value={shareUrl} readOnly style={{ flex: 1 }} />
+            <Button
+                type="primary"
+                onClick={() => navigator.clipboard.writeText(shareUrl)}
+            >
+                Copy
+            </Button>
+        </Space.Compact>
+    );
 
     return (
         <>
@@ -57,14 +78,22 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                 >
                     Download packing result
                 </Button>
-                <Button
-                    {...statusBarButtonProps}
-                    onClick={onShareClick}
-                    disabled={!shareUrl}
-                    icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
+                <Popover
+                    content={shareResultUrl}
+                    title="Share packing result"
+                    trigger="click"
+                    placement="topRight"
+                    open={isShareOpen}
+                    onOpenChange={setIsShareOpen}
                 >
-                    Share
-                </Button>
+                    <Button
+                        {...statusBarButtonProps}
+                        disabled={!shareUrl}
+                        icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
+                    >
+                        Share
+                    </Button>
+                </Popover>
             </div>
             {errorLogs && <ErrorLogs errorLogs={errorLogs} />}
         </>

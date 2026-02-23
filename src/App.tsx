@@ -16,7 +16,6 @@ import {
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
-import ShareModal from "./components/ShareModal";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
 
@@ -28,8 +27,6 @@ const { Link } = Typography;
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
@@ -176,11 +173,6 @@ function App() {
                     GitHub
                 </Link>
             </Header>
-            <ShareModal
-                open={isShareModalOpen}
-                onClose={() => setIsShareModalOpen(false)}
-                shareUrl={shareUrl}
-            />
             <Layout>
                 <Sider width="35%" theme="light" className="sider">
                     <PackingInput startPacking={startPacking} />
@@ -197,7 +189,6 @@ function App() {
                     errorLogs={jobLogs}
                     outputDir={outputDir}
                     shareUrl={shareUrl}
-                    onShareClick={() => setIsShareModalOpen(true)}
                 />
             </Footer>
         </Layout>
