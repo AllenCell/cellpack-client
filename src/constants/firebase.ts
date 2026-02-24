@@ -36,6 +36,7 @@ export const FIRESTORE_FIELDS = {
     CONFIG: "config",
     EDITABLE_FIELDS: "editable_fields",
     RESULT_PATH: "result_path",
+    OUTPUTS_DIRECTORY: "outputs_directory",
 } as const;
 
 export const RETENTION_POLICY = {
