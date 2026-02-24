@@ -19,7 +19,10 @@
     align-items: center;
 }
 
-.status-bar-button {
+button.status-bar-button.ant-btn {
     height: 30px;
     border-radius: 4px;
+    background-color: #cbe3ff;
+    border-color: #cbe3ff;
+    color: #213547;
 }
