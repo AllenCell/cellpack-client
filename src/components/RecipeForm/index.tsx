@@ -44,18 +44,22 @@ const RecipeForm = ({ onStartPacking, availableHeight }: RecipeFormProps) => {
             {recipeId && (
                 <Tooltip
                     title={
-                        isOriginalRecipe ? "Adjust any parameter to re-run" : ""
+                        isOriginalRecipe
+                            ? "Adjust any parameter to re-run"
+                            : ""
                     }
+                    color="#cbe3ff"
+                    placement="topRight"
                 >
                     <Button
                         onClick={onStartPacking}
                         className="packing-button"
-                        color="primary"
+                        color="default"
                         variant="filled"
                         disabled={isPacking || isOriginalRecipe}
-                        style={{ width: "100%", minHeight: 38 }}
+                        style={{ width: "100%", height: 30 }}
                     >
-                        <strong>Re-run</strong>
+                        Re-run
                     </Button>
                 </Tooltip>
             )}

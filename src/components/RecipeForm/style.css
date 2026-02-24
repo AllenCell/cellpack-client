@@ -7,3 +7,9 @@
 .packing-button {
     margin-bottom: 20px;
 }
+
+button.packing-button.ant-btn {
+    background-color: #cbe3ff;
+    border-color: #cbe3ff;
+    color: #213547;
+}
