@@ -5,6 +5,7 @@ export interface Document {
     config?: string;
     editable_fields?: string[];
     result_path?: string;
+    outputs_directory?: string;
 }
 
 export type FirestoreDoc = Document & {
@@ -23,6 +24,7 @@ export interface RecipeManifest {
     displayName: string;
     editableFieldIds: string[];
     defaultResultPath?: string;
+    defaultOutputDir?: string;
 }
 
 export interface RecipeData {
