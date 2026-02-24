@@ -36,13 +36,14 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
         return () => window.removeEventListener("blur", onBlur);
     }, [isShareOpen]);
 
-    const downloadResults = async (jobId: string) => {
+    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
+    const canDownload = !!(outputDir) || jobSucceeded;
+
+    const downloadResults = async () => {
         setIsDownloading(true);
         await downloadOutputs(jobId, outputDir);
         setIsDownloading(false);
     };
-
-    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
 
     const shareResultUrl = (
         <Space.Compact style={{ display: "flex", width: 400 }}>
@@ -71,9 +72,9 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
             <div className="status-bar-actions">
                 <Button
                     {...statusBarButtonProps}
-                    onClick={() => downloadResults(jobId)}
+                    onClick={downloadResults}
                     loading={isDownloading}
-                    disabled={!jobSucceeded}
+                    disabled={!canDownload}
                     icon={<DownloadOutlined style={{ fontSize: 18 }} />}
                 >
                     Download packing result
