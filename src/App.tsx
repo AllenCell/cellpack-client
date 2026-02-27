@@ -5,10 +5,12 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
+import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useCurrentRecipeData,
     useJobId,
     useOutputsDirectory,
+    useResultUrl,
     useRunTime,
     useSetJobId,
     useSetPackingResults,
@@ -25,13 +27,14 @@ const { Link } = Typography;
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
-
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
     const edits = useCurrentRecipeData()?.edits || {};
+    const resultUrl = useResultUrl();
+    const shareUrl = resultUrl ? `${SIMULARIUM_VIEWER_URL}${resultUrl}` : "";
 
     let start = 0;
 
@@ -185,6 +188,7 @@ function App() {
                     jobId={jobId}
                     errorLogs={jobLogs}
                     outputDir={outputDir}
+                    shareUrl={shareUrl}
                 />
             </Footer>
         </Layout>

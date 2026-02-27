@@ -12,7 +12,14 @@
     align-items: center;
 }
 
-.download-button {
-    height: auto;
-    min-height: 48px;
+.status-bar-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+}
+
+.status-bar-button {
+    height: 30px;
+    border-radius: 4px;
 }
