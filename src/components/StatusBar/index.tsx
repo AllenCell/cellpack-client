@@ -37,7 +37,9 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
     }, [isShareOpen]);
 
     const jobSucceeded = jobStatus == JOB_STATUS.DONE;
-    const canDownload = !!(outputDir) || jobSucceeded;
+    const buttonsEnabled = !jobStatus || jobSucceeded;
+    const canDownload = buttonsEnabled && !!outputDir;
+    const canShare = buttonsEnabled && !!shareUrl;
 
     const downloadResults = async () => {
         setIsDownloading(true);
@@ -89,7 +91,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                 >
                     <Button
                         {...statusBarButtonProps}
-                        disabled={!shareUrl}
+                        disabled={!canShare}
                         icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
                     >
                         Share
