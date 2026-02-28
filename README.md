@@ -27,6 +27,9 @@ This client interacts with the cellPACK server, which consists of a variety of b
 * **ECR**: Docker image built from the [cellPACK github repo](https://github.com/mesoscope/cellpack) is published to the `cellpack-private` ECR repository. That image defines the container specificationsin which the batch job will run.
 * **CloudWatch**: Logs from each AWS Batch job are written to CloudWatch. These logs can be accessed via the GET /logs endpoint.
 
+### cellPACK Database
+* **Firebase Firestore**: The cellPACK database is hosted in Firebase Firestore. This database stores all recipes, objects, gradients, compositions, packing configurations, job statuses, and results metadata. See [CONTRIBUTING.md](CONTRIBUTING.md#firebase-overview) for Firebase overview and [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md) for the complete database schema.
+
 #### Resources
 * [Server Architecture Overview Diagram](https://docs.google.com/presentation/d/1eG2XCxgYNaoDIYI-M6Tzef17bGuFirZZhmfZlBFTaXc/edit#slide=id.g26c8fd413da_0_34)
 * [AWS Batch Dashboard](https://us-west-2.console.aws.amazon.com/batch/home?region=us-west-2#)
