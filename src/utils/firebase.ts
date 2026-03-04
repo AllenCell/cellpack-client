@@ -166,7 +166,7 @@ const getRecipeManifestFromFirebase = async (): Promise<
         const editableFieldIds = doc[FIRESTORE_FIELDS.EDITABLE_FIELDS];
         const defaultResultPath = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
 
-        if (displayName && config && recipeId) {
+        if (displayName && recipeId) {
             inputsDict[recipeId] = {
                 recipeId: recipeId,
                 configId: config,

@@ -19,7 +19,7 @@ export interface Dictionary<T> {
 // getAllDocsFromCollection
 export interface RecipeManifest {
     recipeId: string;
-    configId: string;
+    configId?: string;
     displayName: string;
     editableFieldIds: string[];
     defaultResultPath?: string;
