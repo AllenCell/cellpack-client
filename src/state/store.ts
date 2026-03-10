@@ -318,9 +318,16 @@ export const useJobId = () => {
     return results.jobId;
 };
 
+const useDefaultOutputDir = () => {
+    const manifest = useCurrentRecipeManifest();
+    const recipe = useCurrentRecipeData();
+    return (recipe && manifest?.defaultOutputDir) || "";
+};
+
 export const useOutputsDirectory = () => {
     const results = useCurrentPackingResult();
-    return results.outputDir;
+    const defaultOutputDir = useDefaultOutputDir();
+    return results.outputDir || defaultOutputDir;
 };
 
 export const useResultUrl = () => {

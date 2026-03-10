@@ -83,5 +83,7 @@ export const downloadOutputs = async (jobId: string, outputsDir?: string) => {
         const jobStatus = await getJobStatus(jobId);
         outputsDir = jobStatus?.outputs_directory ?? "";
     }
-    await downloadOutputsFromS3(outputsDir, jobId);
+    // use jobId when an edited recipe packing completes. For an example recipe, grab the last part of the s3 path as the zip name
+    const zipName = jobId || outputsDir.split("/").filter(Boolean).pop() || "output";
+    await downloadOutputsFromS3(outputsDir, zipName);
 }
