@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { Layout, Typography } from "antd";
-import { getJobStatus, addRecipe } from "./utils/firebase";
-import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
+import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
+import { getFirebaseRecipe, recipeToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
-import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useCurrentRecipeData,
@@ -47,22 +45,7 @@ function App() {
         recipeString: string
     ): Promise<boolean> => {
         const originalRecipe = await getFirebaseRecipe(recipeId);
-        return !(jsonToString(originalRecipe) == recipeString);
-    };
-
-    const recipeToFirebase = (
-        recipe: string,
-        path: string,
-        id: string
-    ): object => {
-        const recipeJson = JSON.parse(recipe);
-        if (recipeJson.bounding_box) {
-            const flattened_array = Object.assign({}, recipeJson.bounding_box);
-            recipeJson.bounding_box = flattened_array;
-        }
-        recipeJson[FIRESTORE_FIELDS.RECIPE_PATH] = path;
-        recipeJson[FIRESTORE_FIELDS.NAME] = id;
-        return recipeJson;
+        return !(recipeToString(originalRecipe) == recipeString);
     };
 
     const submitRecipe = async (
@@ -70,44 +53,33 @@ function App() {
         configId: string,
         recipeString: string
     ) => {
-        let firebaseRecipe = "firebase:recipes/" + recipeId;
-        const firebaseConfig = configId
-            ? "firebase:configs/" + configId
-            : undefined;
         const recipeChanged: boolean = await recipeHasChanged(
             recipeId,
             recipeString
         );
-        if (recipeChanged) {
-            const recipeId = uuidv4();
-            firebaseRecipe = "firebase:recipes_edited/" + recipeId;
-            const recipeJson = recipeToFirebase(
-                recipeString,
-                firebaseRecipe,
-                recipeId
-            );
-            try {
-                await addRecipe(recipeId, recipeJson);
-            } catch (e) {
-                setJobStatus(JOB_STATUS.FAILED);
-                setJobLogs(String(e));
-                return;
-            }
-        }
+        const firebaseRecipe = recipeChanged
+            ? undefined
+            : "firebase:recipes/" + recipeId;
+        const firebaseConfig = configId
+            ? "firebase:configs/" + configId
+            : undefined;
+
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
-        const request: RequestInfo = new Request(url, { method: "POST" });
+        const requestBody = recipeChanged ? recipeString : undefined;
+        const request: RequestInfo = new Request(url, { method: "POST", body: requestBody });
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
         setJobLogs("");
-        const data = await response.json();
         if (response.ok) {
+            const data = await response.json();
             setJobId(data.jobId);
             setJobStatus(JOB_STATUS.STARTING);
             return data.jobId;
         } else {
+            const errorText = await response.text();
             setJobStatus(JOB_STATUS.FAILED);
-            setJobLogs(JSON.stringify(data));
+            setJobLogs(errorText);
         }
     };
 
@@ -124,6 +96,9 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
         let localJobStatus = await getJobStatus(id);
+        if (localJobStatus) {
+            setJobStatus(localJobStatus.status);
+        }
         while (
             localJobStatus?.status !== JOB_STATUS.DONE &&
             localJobStatus?.status !== JOB_STATUS.FAILED
@@ -138,6 +113,11 @@ function App() {
                 setJobStatus(newJobStatus.status);
             }
         }
+
+        // Update the job status timestamp after reading the final status to
+        // ensure we have the most recent timestamp for retention policy
+        await updateJobStatusTimestamp(id);
+
         const range = (Date.now() - start) / 1000;
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({

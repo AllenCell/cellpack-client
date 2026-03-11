@@ -49,7 +49,7 @@ const InputSwitch = (props: InputSwitchProps): JSX.Element => {
         }
         if (typeof value == "number") {
             value = value * conversion;
-            value = Number(value.toFixed(4));
+            value = Number(value.toFixed(2));
         }
         return value;
     }, [getCurrentValue, id, min, conversion, dataType]);
