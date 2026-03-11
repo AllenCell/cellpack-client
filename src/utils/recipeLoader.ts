@@ -332,7 +332,7 @@ const recipeToString = (rec: ViewableRecipe): string => {
     // Deep copy recipe to avoid mutating original object
     const recipe: ViewableRecipe = structuredClone(rec);
 
-    // Collect a list of gradients that are referenced by objects the recipe
+    // Collect a list of gradients that are referenced by objects in the recipe
     const referencedGradients: Set<string> = new Set();
     if (recipe.objects) {
         for (const obj of Object.values(recipe.objects)) {
