@@ -1,11 +1,11 @@
 export interface Document {
     name?: string;
-    original_location?: string;
     recipe_path?: string;
     recipe?: string;
     config?: string;
     editable_fields?: string[];
     result_path?: string;
+    outputs_directory?: string;
 }
 
 export type FirestoreDoc = Document & {
@@ -24,6 +24,7 @@ export interface RecipeManifest {
     displayName: string;
     editableFieldIds: string[];
     defaultResultPath?: string;
+    defaultOutputDir?: string;
 }
 
 export interface RecipeData {
@@ -42,10 +43,10 @@ export type JobStatusObject = {
 
 export type PackingResult = {
     jobId: string;
-    jobLogs: string;
     resultUrl: string;
     runTime: number;
     outputDir: string;
+    edits: Record<string, string | number>;
 };
 
 export type EditableField = {

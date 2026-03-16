@@ -7,7 +7,6 @@ export const FIREBASE_CONFIG = {
 
 //firestore collection names
 export const FIRESTORE_COLLECTIONS = {
-    RESULTS: "results",
     RECIPES: "recipes",
     CONFIGS: "configs",
     OBJECTS: "objects",
@@ -22,8 +21,6 @@ export const FIRESTORE_COLLECTIONS = {
 //firestore field names
 export const FIRESTORE_FIELDS = {
     NAME: "name",
-    BATCH_JOB_ID: "batch_job_id",
-    ORIGINAL_LOCATION: "original_location",
     RECIPE_PATH: "recipe_path",
     INHERIT: "inherit",
     COMPOSITION: "composition",
@@ -39,6 +36,7 @@ export const FIRESTORE_FIELDS = {
     CONFIG: "config",
     EDITABLE_FIELDS: "editable_fields",
     RESULT_PATH: "result_path",
+    OUTPUTS_DIRECTORY: "outputs_directory",
 } as const;
 
 export const RETENTION_POLICY = {

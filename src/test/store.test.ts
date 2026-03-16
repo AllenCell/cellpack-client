@@ -109,28 +109,6 @@ test("editing one recipe does not affect others", async () => {
     expect(result.current.getCurrentValue(path)).toBe(newValue1);
 });
 
-test("setJobLogs updates job logs for current recipe", async () => {
-    const { result } = renderHook(() => useRecipeStore());
-
-    const recipeId = INITIAL_RECIPE_ID;
-    await result.current.selectRecipe(recipeId);
-
-    const logs = "Some Error Message";
-
-    act(() => {
-        result.current.setJobLogs(logs);
-    });
-
-    expect(result.current.packingResults[recipeId].jobLogs).toBe(logs);
-
-    for (const recipeId of Object.keys(result.current.inputOptions)) {
-        if (recipeId !== INITIAL_RECIPE_ID) {
-            // No other job logs should have been updated to `logs`
-            expect(result.current.packingResults[recipeId]?.jobLogs).not.toBe(logs);
-        }
-    }
-});
-
 test("setJobId updates job ID for current recipe", async () => {
     const { result } = renderHook(() => useRecipeStore());
 
@@ -165,6 +143,7 @@ test("setPackingResults updates packing results for current recipe", async () =>
         resultUrl: "http://example.com/result",
         runTime: 120,
         outputDir: "/output/dir",
+        edits: {}
     };
 
     act(() => {

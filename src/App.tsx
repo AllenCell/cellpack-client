@@ -5,13 +5,14 @@ import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
 import { FIRESTORE_FIELDS } from "./constants/firebase";
+import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
+    useCurrentRecipeData,
     useJobId,
-    useJobLogs,
     useOutputsDirectory,
+    useResultUrl,
     useRunTime,
     useSetJobId,
-    useSetJobLogs,
     useSetPackingResults,
 } from "./state/store";
 import PackingInput from "./components/PackingInput";
@@ -25,14 +26,15 @@ const { Link } = Typography;
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
-
-    const setJobLogs = useSetJobLogs();
-    const jobLogs = useJobLogs();
+    const [jobLogs, setJobLogs] = useState<string>("");
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
     const runTime = useRunTime();
     const outputDir = useOutputsDirectory();
+    const edits = useCurrentRecipeData()?.edits || {};
+    const resultUrl = useResultUrl();
+    const shareUrl = resultUrl ? `${SIMULARIUM_VIEWER_URL}${resultUrl}` : "";
 
     let start = 0;
 
@@ -60,7 +62,6 @@ function App() {
         }
         recipeJson[FIRESTORE_FIELDS.RECIPE_PATH] = path;
         recipeJson[FIRESTORE_FIELDS.NAME] = id;
-        recipeJson[FIRESTORE_FIELDS.TIMESTAMP] = Date.now();
         return recipeJson;
     };
 
@@ -98,6 +99,7 @@ function App() {
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
+        setJobLogs("");
         const data = await response.json();
         if (response.ok) {
             setJobId(data.jobId);
@@ -140,18 +142,19 @@ function App() {
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({
                 jobId: id,
-                jobLogs: "",
                 resultUrl: localJobStatus.result_path,
                 runTime: range,
                 outputDir: localJobStatus.outputs_directory,
+                edits: edits,
             });
         } else if (localJobStatus.status == JOB_STATUS.FAILED) {
+            setJobLogs(`Packing job failed: ${localJobStatus.error_message}`);
             setPackingResults({
                 jobId: id,
-                jobLogs: `Packing job failed: ${localJobStatus.error_message}`,
                 resultUrl: "",
                 runTime: range,
                 outputDir: "",
+                edits: {}
             });
         }
     };
@@ -185,6 +188,7 @@ function App() {
                     jobId={jobId}
                     errorLogs={jobLogs}
                     outputDir={outputDir}
+                    shareUrl={shareUrl}
                 />
             </Footer>
         </Layout>

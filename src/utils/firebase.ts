@@ -98,17 +98,6 @@ const mapQuerySnapshotToDocs = (querySnapshot: QuerySnapshot<DocumentData>) => {
     })) as FirestoreDoc[];
 };
 
-const extractSingleDocumentData = (
-    querySnapshot: QuerySnapshot<DocumentData>,
-    field?: string
-) => {
-    let result = "";
-    querySnapshot.forEach((doc) => {
-        result = field ? doc.data()[field] : doc.data();
-    });
-    return result;
-};
-
 // Query functions for our use case using generic functions
 const getJobStatus = async (
     jobId: string
@@ -124,14 +113,6 @@ const getJobStatus = async (
         result_path: doc.data().result_path,
     }));
     return docs[0] || undefined;
-};
-
-const getOutputsDirectory = async (jobId: string) => {
-    const querySnapshot = await queryDocumentById(
-        FIRESTORE_COLLECTIONS.JOB_STATUS,
-        jobId
-    );
-    return extractSingleDocumentData(querySnapshot, "outputs_directory");
 };
 
 const getAllDocsFromCollection = async (collectionName: string) => {
@@ -184,6 +165,7 @@ const getRecipeManifestFromFirebase = async (): Promise<
         const recipeId = doc[FIRESTORE_FIELDS.RECIPE];
         const editableFieldIds = doc[FIRESTORE_FIELDS.EDITABLE_FIELDS];
         const defaultResultPath = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
+        const defaultOutputDir = doc[FIRESTORE_FIELDS.OUTPUTS_DIRECTORY] || "";
 
         if (displayName && config && recipeId) {
             inputsDict[recipeId] = {
@@ -192,6 +174,7 @@ const getRecipeManifestFromFirebase = async (): Promise<
                 displayName,
                 editableFieldIds: editableFieldIds || [],
                 defaultResultPath,
+                defaultOutputDir,
             };
         }
     }
@@ -229,7 +212,11 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
 };
 
 const addRecipe = async (id: string, data: object) => {
-    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), data);
+    const timestampedData = {
+        ...data,
+        [FIRESTORE_FIELDS.TIMESTAMP]: Timestamp.now(),
+    };
+    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), timestampedData);
 };
 
 const docCleanup = async () => {
@@ -279,5 +266,4 @@ export {
     docCleanup,
     getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
-    getOutputsDirectory,
 };
