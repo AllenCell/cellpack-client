@@ -1,20 +1,13 @@
-.status-container {
-    display: flex;
-    flex-direction: row;
-    gap: 30px;
-    padding: 10px;
-    padding-left: 20px;
-}
-
 .status-bar {
-    flex: 1;
     display: flex;
+    flex: 1;
     align-items: center;
+    gap: 30px;
+    padding: 10px 10px 10px 20px;
 }
 
 .status-bar-actions {
     display: flex;
-    flex-direction: row;
     gap: 12px;
     align-items: center;
 }
@@ -25,12 +18,16 @@
 }
 
 @media (max-width: 900px) {
-    .status-container {
+    .status-bar {
         gap: 12px;
         padding-left: 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .status-bar-actions {
         gap: 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
     }
 }

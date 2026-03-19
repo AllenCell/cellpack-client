@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Layout, Typography } from "antd";
+import { Layout, Typography, Button } from "antd";
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
@@ -15,6 +16,7 @@ import {
     useSetJobId,
     useSetPackingResults,
 } from "./state/store";
+import { useMediaQuery } from "./hooks/useMediaQuery";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
@@ -28,6 +30,8 @@ const { Link } = Typography;
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
+    const [menuOpen, setMenuOpen] = useState(false);
+    const isSmallScreen = useMediaQuery("(max-width: 900px)");
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
@@ -167,7 +171,17 @@ function App() {
                 className="header"
                 style={{ justifyContent: "space-between" }}
             >
-                <h2 className="header-title">cellPACK Studio</h2>
+                <div className="header-left">
+                    {isSmallScreen && (
+                        <Button
+                            type="text"
+                            icon={menuOpen ? <CloseOutlined /> : <MenuOutlined />}
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            className="menu-toggle"
+                        />
+                    )}
+                    <h2 className="header-title">cellPACK Studio</h2>
+                </div>
                 <Link
                     href="https://github.com/mesoscope/cellpack"
                     className="header-link"
@@ -176,12 +190,43 @@ function App() {
                 </Link>
             </Header>
             <Layout>
-                <Sider width="35%" theme="light" className="sider">
-                    <PackingInput startPacking={startPacking} />
-                </Sider>
-                <Content className="content-container">
-                    <Viewer />
-                </Content>
+                {isSmallScreen ? (
+                    <>
+                        <div
+                            className={`mobile-menu-backdrop ${menuOpen ? "open" : ""}`}
+                            onClick={() => setMenuOpen(false)}
+                        />
+                        <div className={`mobile-menu-overlay ${menuOpen ? "open" : ""}`}>
+                            <div className="mobile-menu-header">
+                                <h2 className="header-title">cellPACK Studio</h2>
+                                <Button
+                                    type="text"
+                                    icon={<CloseOutlined />}
+                                    onClick={() => setMenuOpen(false)}
+                                />
+                            </div>
+                            <div className="mobile-menu-panel">
+                                <PackingInput startPacking={async (...args) => {
+                                    const result = startPacking(...args);
+                                    setTimeout(() => setMenuOpen(false), 400);
+                                    return result;
+                                }} />
+                            </div>
+                        </div>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                ) : (
+                    <>
+                        <Sider width="35%" theme="light" className="sider">
+                            <PackingInput startPacking={startPacking} />
+                        </Sider>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                )}
             </Layout>
             <Footer className="footer">
                 <StatusBar

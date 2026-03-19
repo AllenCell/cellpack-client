@@ -61,7 +61,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
 
     return (
         <>
-            <div className="status-container status-bar">
+            <div className="status-bar">
                 <div>
                     <b>Status</b> {jobStatus}
                 </div>
