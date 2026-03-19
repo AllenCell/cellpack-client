@@ -1,0 +1,18 @@
+.small-screen-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100svw;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.small-screen-warning .ant-alert-message {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.small-screen-warning .ant-alert-close-icon {
+    flex-shrink: 0;
+    padding: 8px;
+}

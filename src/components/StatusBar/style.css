@@ -23,3 +23,14 @@
     height: 30px;
     border-radius: 4px;
 }
+
+@media (max-width: 900px) {
+    .status-container {
+        gap: 12px;
+        padding-left: 10px;
+    }
+
+    .status-bar-actions {
+        gap: 6px;
+    }
+}

@@ -18,6 +18,7 @@ import {
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
+import SmallScreenWarning from "./components/SmallScreenWarning";
 
 import "./App.css";
 
@@ -161,6 +162,7 @@ function App() {
 
     return (
         <Layout className="app-container">
+            <SmallScreenWarning />
             <Header
                 className="header"
                 style={{ justifyContent: "space-between" }}
