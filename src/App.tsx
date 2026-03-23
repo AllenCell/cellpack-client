@@ -176,7 +176,7 @@ function App() {
                         <Button
                             type="text"
                             icon={menuOpen ? <CloseOutlined /> : <MenuOutlined />}
-                            onClick={() => setMenuOpen(!menuOpen)}
+                            onClick={() => setMenuOpen(prev => !prev)}
                             className="menu-toggle"
                         />
                     )}
