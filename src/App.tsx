@@ -200,6 +200,7 @@ function App() {
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
                             width="85%"
+                            forceRender
                             styles={{ header: { marginBottom: 14 }, body: { padding: "0 12px" } }}
                         >
                             <PackingInput startPacking={startPacking} />
