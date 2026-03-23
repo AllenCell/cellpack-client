@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Layout, Typography, Button } from "antd";
-import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import { Layout, Typography, Button, Drawer } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import { getJobStatus, addRecipe } from "./utils/firebase";
 import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
@@ -175,9 +175,10 @@ function App() {
                     {isSmallScreen && (
                         <Button
                             type="text"
-                            icon={menuOpen ? <CloseOutlined /> : <MenuOutlined />}
-                            onClick={() => setMenuOpen(!menuOpen)}
+                            icon={<MenuOutlined />}
+                            onClick={() => setMenuOpen(true)}
                             className="menu-toggle"
+                            aria-label="Open menu"
                         />
                     )}
                     <h2 className="header-title">cellPACK Studio</h2>
@@ -192,27 +193,16 @@ function App() {
             <Layout>
                 {isSmallScreen ? (
                     <>
-                        <div
-                            className={`mobile-menu-backdrop ${menuOpen ? "open" : ""}`}
-                            onClick={() => setMenuOpen(false)}
-                        />
-                        <div className={`mobile-menu-overlay ${menuOpen ? "open" : ""}`}>
-                            <div className="mobile-menu-header">
-                                <h2 className="header-title">cellPACK Studio</h2>
-                                <Button
-                                    type="text"
-                                    icon={<CloseOutlined />}
-                                    onClick={() => setMenuOpen(false)}
-                                />
-                            </div>
-                            <div className="mobile-menu-panel">
-                                <PackingInput startPacking={async (...args) => {
-                                    const result = startPacking(...args);
-                                    setTimeout(() => setMenuOpen(false), 400);
-                                    return result;
-                                }} />
-                            </div>
-                        </div>
+                        <Drawer
+                            title="cellPACK Studio"
+                            placement="left"
+                            open={menuOpen}
+                            onClose={() => setMenuOpen(false)}
+                            width="85%"
+                            styles={{ header: { marginBottom: 14 }, body: { padding: "0 12px" } }}
+                        >
+                            <PackingInput startPacking={startPacking} />
+                        </Drawer>
                         <Content className="content-container">
                             <Viewer />
                         </Content>
