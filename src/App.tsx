@@ -26,6 +26,7 @@ import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
+const APP_TITLE = "cellPACK Studio";
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
@@ -181,7 +182,7 @@ function App() {
                             aria-label="Open menu"
                         />
                     )}
-                    <h2 className="header-title">cellPACK Studio</h2>
+                    <h2 className="header-title">{APP_TITLE}</h2>
                 </div>
                 <Link
                     href="https://github.com/mesoscope/cellpack"
@@ -194,7 +195,7 @@ function App() {
                 {isSmallScreen ? (
                     <>
                         <Drawer
-                            title="cellPACK Studio"
+                            title={APP_TITLE}
                             placement="left"
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}

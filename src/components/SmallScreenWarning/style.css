@@ -1,13 +1,9 @@
 .small-screen-warning {
     position: fixed;
-    inset: 0;
-    width: 100svw;
-    height: 100svh;
-    display: flex;
-    align-items: center;
-    max-width: 320px;
-    margin: 0 16px;
-    justify-content: center;
+    top: 50%;
+    left: 16px;
+    right: 16px;
+    transform: translateY(-50%);
     z-index: 1000;
 }
 
