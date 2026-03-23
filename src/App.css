@@ -51,10 +51,6 @@
 }
 
 @media (max-width: 900px) {
-    .sider {
-        padding: 0 12px;
-    }
-
     .header {
         padding: 0 12px;
     }
