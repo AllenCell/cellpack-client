@@ -1,6 +1,10 @@
 name: deploy-prod
 run-name: Deploy to Production
-on: pull_request
+
+on:
+  push:
+    tags:
+      - "v*"
 
 env:
   AWS_REGION: ${{ vars.AWS_DEFAULT_REGION }}
