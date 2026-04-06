@@ -8,15 +8,11 @@ export const getSubmitPackingUrl = (
     recipe?: string,
     config?: string,
 ) => {
-    let url = SUBMIT_PACKING_ECS;
-    if (recipe && config) {
-        url += `?recipe=${recipe}&config=${config}`;
-    } else if (recipe) {
-        url += `?recipe=${recipe}`;
-    } else if (config) {
-        url += `?config=${config}`;
-    }
-    return url;
+    const params = new URLSearchParams();
+    if (recipe) params.set("recipe", recipe);
+    if (config) params.set("config", config);
+    const query = params.toString();
+    return query ? `${SUBMIT_PACKING_ECS}?${query}` : SUBMIT_PACKING_ECS;
 };
 
 export const getS3ListUrl = (bucketName: string, folderPath: string) => {
