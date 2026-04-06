@@ -36,13 +36,16 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
         return () => window.removeEventListener("blur", onBlur);
     }, [isShareOpen]);
 
-    const downloadResults = async (jobId: string) => {
+    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
+    const buttonsEnabled = !jobStatus || jobSucceeded;
+    const canDownload = buttonsEnabled && !!outputDir;
+    const canShare = buttonsEnabled && !!shareUrl;
+
+    const downloadResults = async () => {
         setIsDownloading(true);
         await downloadOutputs(jobId, outputDir);
         setIsDownloading(false);
     };
-
-    const jobSucceeded = jobStatus == JOB_STATUS.DONE;
 
     const shareResultUrl = (
         <Space.Compact style={{ display: "flex", width: 400 }}>
@@ -58,7 +61,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
 
     return (
         <>
-            <div className="status-container status-bar">
+            <div className="status-bar">
                 <div>
                     <b>Status</b> {jobStatus}
                 </div>
@@ -71,9 +74,9 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
             <div className="status-bar-actions">
                 <Button
                     {...statusBarButtonProps}
-                    onClick={() => downloadResults(jobId)}
+                    onClick={downloadResults}
                     loading={isDownloading}
-                    disabled={!jobSucceeded}
+                    disabled={!canDownload}
                     icon={<DownloadOutlined style={{ fontSize: 18 }} />}
                 >
                     Download packing result
@@ -88,7 +91,7 @@ const StatusBar = (props: StatusBarProps): JSX.Element => {
                 >
                     <Button
                         {...statusBarButtonProps}
-                        disabled={!shareUrl}
+                        disabled={!canShare}
                         icon={<ShareAltOutlined style={{ fontSize: 18 }} />}
                     >
                         Share

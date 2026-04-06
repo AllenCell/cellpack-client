@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Layout, Typography } from "antd";
+import { Layout, Typography, Button, Drawer } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
 import { getFirebaseRecipe, recipeToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
@@ -14,18 +15,23 @@ import {
     useSetJobId,
     useSetPackingResults,
 } from "./state/store";
+import { useMediaQuery } from "./hooks/useMediaQuery";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
+import SmallScreenWarning from "./components/SmallScreenWarning";
 
 import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
+const APP_TITLE = "cellPACK Studio";
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
+    const [menuOpen, setMenuOpen] = useState(false);
+    const isSmallScreen = useMediaQuery("(max-width: 900px)");
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
@@ -142,11 +148,23 @@ function App() {
 
     return (
         <Layout className="app-container">
+            <SmallScreenWarning />
             <Header
                 className="header"
                 style={{ justifyContent: "space-between" }}
             >
-                <h2 className="header-title">cellPACK Studio</h2>
+                <div className="header-left">
+                    {isSmallScreen && (
+                        <Button
+                            type="text"
+                            icon={<MenuOutlined />}
+                            onClick={() => setMenuOpen(true)}
+                            className="menu-toggle"
+                            aria-label="Open menu"
+                        />
+                    )}
+                    <h2 className="header-title">{APP_TITLE}</h2>
+                </div>
                 <Link
                     href="https://github.com/mesoscope/cellpack"
                     className="header-link"
@@ -155,12 +173,33 @@ function App() {
                 </Link>
             </Header>
             <Layout>
-                <Sider width="35%" theme="light" className="sider">
-                    <PackingInput startPacking={startPacking} />
-                </Sider>
-                <Content className="content-container">
-                    <Viewer />
-                </Content>
+                {isSmallScreen ? (
+                    <>
+                        <Drawer
+                            title={APP_TITLE}
+                            placement="left"
+                            open={menuOpen}
+                            onClose={() => setMenuOpen(false)}
+                            width="85%"
+                            forceRender
+                            styles={{ header: { marginBottom: 14 }, body: { padding: "0 12px" } }}
+                        >
+                            <PackingInput startPacking={startPacking} />
+                        </Drawer>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                ) : (
+                    <>
+                        <Sider width="35%" theme="light" className="sider">
+                            <PackingInput startPacking={startPacking} />
+                        </Sider>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                )}
             </Layout>
             <Footer className="footer">
                 <StatusBar

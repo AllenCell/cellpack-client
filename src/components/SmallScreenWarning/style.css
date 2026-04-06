@@ -1,0 +1,18 @@
+.small-screen-warning {
+    position: fixed;
+    top: 50%;
+    left: 16px;
+    right: 16px;
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+.small-screen-warning .ant-alert-message {
+    white-space: normal;
+    word-break: break-word;
+}
+
+.small-screen-warning .ant-alert-close-icon {
+    flex-shrink: 0;
+    padding: 8px;
+}

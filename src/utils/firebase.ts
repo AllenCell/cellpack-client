@@ -172,6 +172,7 @@ const getRecipeManifestFromFirebase = async (): Promise<
         const recipeId = doc[FIRESTORE_FIELDS.RECIPE];
         const editableFieldIds = doc[FIRESTORE_FIELDS.EDITABLE_FIELDS];
         const defaultResultPath = doc[FIRESTORE_FIELDS.RESULT_PATH] || "";
+        const defaultOutputDir = doc[FIRESTORE_FIELDS.OUTPUTS_DIRECTORY] || "";
 
         if (displayName && config && recipeId) {
             inputsDict[recipeId] = {
@@ -180,6 +181,7 @@ const getRecipeManifestFromFirebase = async (): Promise<
                 displayName,
                 editableFieldIds: editableFieldIds || [],
                 defaultResultPath,
+                defaultOutputDir,
             };
         }
     }
