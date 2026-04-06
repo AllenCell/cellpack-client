@@ -4,7 +4,6 @@ import { MenuOutlined } from "@ant-design/icons";
 import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
 import { getFirebaseRecipe, recipeToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
-import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useCurrentRecipeData,
