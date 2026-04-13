@@ -8,10 +8,10 @@ import {
     documentId,
     QuerySnapshot,
     DocumentData,
-    setDoc,
     doc,
     Timestamp,
     deleteDoc,
+    updateDoc
 } from "firebase/firestore";
 import { sortBy } from "lodash-es";
 import {
@@ -115,6 +115,13 @@ const getJobStatus = async (
     return docs[0] || undefined;
 };
 
+const updateJobStatusTimestamp = async (jobId: string) => {
+    const data = {
+        timestamp: Timestamp.now(),
+    };
+    await updateDoc(doc(db, FIRESTORE_COLLECTIONS.JOB_STATUS, jobId), data);
+};
+
 const getAllDocsFromCollection = async (collectionName: string) => {
     const querySnapshot = await queryAllDocuments(collectionName);
     return mapQuerySnapshotToDocs(querySnapshot);
@@ -211,14 +218,6 @@ const getDocsByIds = async (coll: string, ids: string[]) => {
     return docs;
 };
 
-const addRecipe = async (id: string, data: object) => {
-    const timestampedData = {
-        ...data,
-        [FIRESTORE_FIELDS.TIMESTAMP]: Timestamp.now(),
-    };
-    await setDoc(doc(db, FIRESTORE_COLLECTIONS.EDITED_RECIPES, id), timestampedData);
-};
-
 const docCleanup = async () => {
     const now = Date.now();
     const collectionsToClean = [
@@ -262,8 +261,8 @@ export {
     queryDocumentById,
     getDocsByIds,
     getJobStatus,
-    addRecipe,
     docCleanup,
     getRecipeManifestFromFirebase,
     getRecipeDataFromFirebase,
+    updateJobStatusTimestamp,
 };
