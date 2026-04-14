@@ -72,8 +72,7 @@ function App() {
 
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
         const requestBody = recipeChanged ? recipeString : undefined;
-        const headers = requestBody ? { "Content-Type": "application/json" } : undefined;
-        const request: RequestInfo = new Request(url, { method: "POST", body: requestBody, headers });
+        const request: RequestInfo = new Request(url, { method: "POST", body: requestBody });
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
