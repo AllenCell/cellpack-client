@@ -5,14 +5,14 @@ const SUBMIT_PACKING_ECS = "https://bda21vau5c.execute-api.us-west-2.amazonaws.c
 const S3_BASE_URL = "https://s3.us-west-2.amazonaws.com";
 
 export const getSubmitPackingUrl = (
-    recipe: string,
+    recipe?: string,
     config?: string,
 ) => {
-    let url = `${SUBMIT_PACKING_ECS}?recipe=${recipe}`;
-    if (config) {
-        url += `&config=${config}`;
-    }
-    return url;
+    const params = new URLSearchParams();
+    if (recipe) params.set("recipe", recipe);
+    if (config) params.set("config", config);
+    const query = params.toString();
+    return query ? `${SUBMIT_PACKING_ECS}?${query}` : SUBMIT_PACKING_ECS;
 };
 
 export const getS3ListUrl = (bucketName: string, folderPath: string) => {

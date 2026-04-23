@@ -1,7 +1,7 @@
 {
   "name": "cellpack-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "@testing-library/react": "^16.3.0",
     "@types/lodash-es": "^4.17.12",
     "antd": "^5.27.1",

@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Layout, Typography } from "antd";
-import { getJobStatus, addRecipe } from "./utils/firebase";
-import { getFirebaseRecipe, jsonToString } from "./utils/recipeLoader";
+import { Layout, Typography, Button, Drawer } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
+import { getJobStatus, updateJobStatusTimestamp } from "./utils/firebase";
+import { getFirebaseRecipe, recipeToString } from "./utils/recipeLoader";
 import { getSubmitPackingUrl, JOB_STATUS } from "./constants/aws";
-import { FIRESTORE_FIELDS } from "./constants/firebase";
 import { SIMULARIUM_VIEWER_URL } from "./constants/urls";
 import {
     useCurrentRecipeData,
@@ -15,18 +14,23 @@ import {
     useSetJobId,
     useSetPackingResults,
 } from "./state/store";
+import { useMediaQuery } from "./hooks/useMediaQuery";
 import PackingInput from "./components/PackingInput";
 import Viewer from "./components/Viewer";
 import StatusBar from "./components/StatusBar";
+import SmallScreenWarning from "./components/SmallScreenWarning";
 
 import "./App.css";
 
 const { Header, Content, Sider, Footer } = Layout;
 const { Link } = Typography;
+const APP_TITLE = "cellPACK Studio";
 
 function App() {
     const [jobStatus, setJobStatus] = useState<string>("");
     const [jobLogs, setJobLogs] = useState<string>("");
+    const [menuOpen, setMenuOpen] = useState(false);
+    const isSmallScreen = useMediaQuery("(max-width: 900px)");
     const setJobId = useSetJobId();
     const jobId = useJobId();
     const setPackingResults = useSetPackingResults();
@@ -47,22 +51,7 @@ function App() {
         recipeString: string
     ): Promise<boolean> => {
         const originalRecipe = await getFirebaseRecipe(recipeId);
-        return !(jsonToString(originalRecipe) == recipeString);
-    };
-
-    const recipeToFirebase = (
-        recipe: string,
-        path: string,
-        id: string
-    ): object => {
-        const recipeJson = JSON.parse(recipe);
-        if (recipeJson.bounding_box) {
-            const flattened_array = Object.assign({}, recipeJson.bounding_box);
-            recipeJson.bounding_box = flattened_array;
-        }
-        recipeJson[FIRESTORE_FIELDS.RECIPE_PATH] = path;
-        recipeJson[FIRESTORE_FIELDS.NAME] = id;
-        return recipeJson;
+        return !(recipeToString(originalRecipe) == recipeString);
     };
 
     const submitRecipe = async (
@@ -70,44 +59,34 @@ function App() {
         configId: string,
         recipeString: string
     ) => {
-        let firebaseRecipe = "firebase:recipes/" + recipeId;
-        const firebaseConfig = configId
-            ? "firebase:configs/" + configId
-            : undefined;
         const recipeChanged: boolean = await recipeHasChanged(
             recipeId,
             recipeString
         );
-        if (recipeChanged) {
-            const recipeId = uuidv4();
-            firebaseRecipe = "firebase:recipes_edited/" + recipeId;
-            const recipeJson = recipeToFirebase(
-                recipeString,
-                firebaseRecipe,
-                recipeId
-            );
-            try {
-                await addRecipe(recipeId, recipeJson);
-            } catch (e) {
-                setJobStatus(JOB_STATUS.FAILED);
-                setJobLogs(String(e));
-                return;
-            }
-        }
+        const firebaseRecipe = recipeChanged
+            ? undefined
+            : "firebase:recipes/" + recipeId;
+        const firebaseConfig = configId
+            ? "firebase:configs/" + configId
+            : undefined;
+
         const url = getSubmitPackingUrl(firebaseRecipe, firebaseConfig);
-        const request: RequestInfo = new Request(url, { method: "POST" });
+        const requestBody = recipeChanged ? recipeString : undefined;
+        const headers = requestBody ? { "Content-Type": "application/json" } : undefined;
+        const request: RequestInfo = new Request(url, { method: "POST", body: requestBody, headers });
         start = Date.now();
         const response = await fetch(request);
         setJobStatus(JOB_STATUS.SUBMITTED);
         setJobLogs("");
-        const data = await response.json();
         if (response.ok) {
+            const data = await response.json();
             setJobId(data.jobId);
             setJobStatus(JOB_STATUS.STARTING);
             return data.jobId;
         } else {
+            const errorText = await response.text();
             setJobStatus(JOB_STATUS.FAILED);
-            setJobLogs(JSON.stringify(data));
+            setJobLogs(errorText);
         }
     };
 
@@ -124,6 +103,9 @@ function App() {
     const checkStatus = async (jobIdFromSubmit: string) => {
         const id = jobIdFromSubmit || jobId;
         let localJobStatus = await getJobStatus(id);
+        if (localJobStatus) {
+            setJobStatus(localJobStatus.status);
+        }
         while (
             localJobStatus?.status !== JOB_STATUS.DONE &&
             localJobStatus?.status !== JOB_STATUS.FAILED
@@ -138,6 +120,11 @@ function App() {
                 setJobStatus(newJobStatus.status);
             }
         }
+
+        // Update the job status timestamp after reading the final status to
+        // ensure we have the most recent timestamp for retention policy
+        await updateJobStatusTimestamp(id);
+
         const range = (Date.now() - start) / 1000;
         if (localJobStatus.status == JOB_STATUS.DONE) {
             setPackingResults({
@@ -161,11 +148,23 @@ function App() {
 
     return (
         <Layout className="app-container">
+            <SmallScreenWarning />
             <Header
                 className="header"
                 style={{ justifyContent: "space-between" }}
             >
-                <h2 className="header-title">cellPACK Studio</h2>
+                <div className="header-left">
+                    {isSmallScreen && (
+                        <Button
+                            type="text"
+                            icon={<MenuOutlined />}
+                            onClick={() => setMenuOpen(true)}
+                            className="menu-toggle"
+                            aria-label="Open menu"
+                        />
+                    )}
+                    <h2 className="header-title">{APP_TITLE}</h2>
+                </div>
                 <Link
                     href="https://github.com/mesoscope/cellpack"
                     className="header-link"
@@ -174,12 +173,33 @@ function App() {
                 </Link>
             </Header>
             <Layout>
-                <Sider width="35%" theme="light" className="sider">
-                    <PackingInput startPacking={startPacking} />
-                </Sider>
-                <Content className="content-container">
-                    <Viewer />
-                </Content>
+                {isSmallScreen ? (
+                    <>
+                        <Drawer
+                            title={APP_TITLE}
+                            placement="left"
+                            open={menuOpen}
+                            onClose={() => setMenuOpen(false)}
+                            width="85%"
+                            forceRender
+                            styles={{ header: { marginBottom: 14 }, body: { padding: "0 12px" } }}
+                        >
+                            <PackingInput startPacking={startPacking} />
+                        </Drawer>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                ) : (
+                    <>
+                        <Sider width="35%" theme="light" className="sider">
+                            <PackingInput startPacking={startPacking} />
+                        </Sider>
+                        <Content className="content-container">
+                            <Viewer />
+                        </Content>
+                    </>
+                )}
             </Layout>
             <Footer className="footer">
                 <StatusBar

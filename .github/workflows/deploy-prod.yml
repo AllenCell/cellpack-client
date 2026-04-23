@@ -1,11 +1,10 @@
-# Simple workflow for deploying static content to GitHub Pages
-# Adapted from vite.dev
-name: Deploy static content to Pages
+name: deploy-prod
+run-name: Deploy to Production
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ['main']
+    tags:
+      - "v*"
 
 env:
   AWS_REGION: ${{ vars.AWS_DEFAULT_REGION }}
@@ -17,30 +16,7 @@ permissions:
   id-token: write
 
 jobs:
-  deploy-staging:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install
-        run: bun install
-
-      - name: Build with Vite
-        run: bun run build --base=/cellpack-client
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: ./dist
-          clean-exclude: pr-preview/
-          branch: gh-pages
-
   deploy-prod:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
