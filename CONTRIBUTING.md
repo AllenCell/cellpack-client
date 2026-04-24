@@ -19,7 +19,7 @@ you'd like to see documented.
 
 ## Firebase Overview
 
-cellPACK Studio reads recipe data from Firebase and writes user edits back. The backend handles uploading recipes and running packing jobs.
+cellPACK Studio reads recipe data from Firebase to render the editor and polls job status during a packing. When a user submits an edited recipe, the client sends the modified recipe as JSON in the packing-request body and the backend processes it directly.
 
 ### Collections Used by cellPACK Studio
 
@@ -31,10 +31,9 @@ cellPACK Studio reads recipe data from Firebase and writes user edits back. The 
 | `objects` | Object definitions (molecules, organelles) | Read |
 | `gradients` | Gradient definitions for spatial distributions | Read |
 | `composition` | Composition definitions | Read |
-| `recipes_edited` | User-modified recipes | Write |
-| `job_status` | Packing job progress | Poll (read) |
+| `job_status` | Packing job progress | Poll (read), refresh `timestamp`, cleanup |
 
-> **Note:** Collections like `configs` and `results` are managed by the backend. For the complete database schema, see [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md).
+> **Note:** Collections like `configs` and `results` are managed by the backend. Scheduled cleanup of `job_status` is run by this repo via `.github/workflows/cleanup.yml` (see `scripts/cleanup.ts`). For the complete database schema, see [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md).
 
 ### Getting Access
 
