@@ -222,10 +222,6 @@ const docCleanup = async () => {
     const now = Date.now();
     const collectionsToClean = [
         {
-            name: FIRESTORE_COLLECTIONS.EDITED_RECIPES,
-            retention: RETENTION_POLICY.RETENTION_PERIODS.RECIPES_EDITED,
-        },
-        {
             name: FIRESTORE_COLLECTIONS.JOB_STATUS,
             retention: RETENTION_POLICY.RETENTION_PERIODS.JOB_STATUS,
         },

@@ -12,7 +12,6 @@ export const FIRESTORE_COLLECTIONS = {
     OBJECTS: "objects",
     GRADIENTS: "gradients",
     COMPOSITION: "composition",
-    EDITED_RECIPES: "recipes_edited",
     JOB_STATUS: "job_status",
     PACKING_INPUTS: "example_packings",
     EDITABLE_FIELDS: "editable_fields",
@@ -41,7 +40,6 @@ export const FIRESTORE_FIELDS = {
 
 export const RETENTION_POLICY = {
     RETENTION_PERIODS: {
-        RECIPES_EDITED: 24 * 60 * 60 * 1000, // 24 hours
         JOB_STATUS: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
 
