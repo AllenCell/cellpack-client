@@ -33,7 +33,7 @@ cellPACK Studio reads recipe data from Firebase to render the editor and polls j
 | `composition` | Composition definitions | Read |
 | `job_status` | Packing job progress | Poll (read), refresh `timestamp`, cleanup |
 
-> **Note:** Collections like `configs` and `results` are managed by the backend. Scheduled cleanup of `job_status` is run by this repo via `.github/workflows/cleanup.yml` (see `scripts/cleanup.ts`). For the complete database schema, see [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md).
+> **Note:** The `configs` collection is managed by the backend. Scheduled cleanup of `job_status` is run by this repo via `.github/workflows/cleanup.yml` (see `scripts/cleanup.ts`). For the complete database schema, see [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md).
 
 ### Getting Access
 

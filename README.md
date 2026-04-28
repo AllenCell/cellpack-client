@@ -22,13 +22,13 @@ This client interacts with the cellPACK server, which consists of a variety of b
   * POST /submit-packing?recipe={myrecipe}&config={myconfig}
   * GET /logs?logStreamName={name}
   * GET /packing-status?jobId={id}
-* **Batch**: A call to POST /submit-packing launches a new batch job to run. A call to GET /packing-status will return the status of the specified batch job. Once the job is completed, the path to the results file(s) will be added to the results table of the cellPACK Firebase database.
+* **Batch**: A call to POST /submit-packing launches a new batch job to run. A call to GET /packing-status will return the status of the specified batch job. Once the job is completed, the path to the results file(s) is written to the job's `job_status` entry in the cellPACK Firebase database.
 * **S3**: Result files from the AWS Batch job are written to the `cellpack-demo` S3 bucket.
 * **ECR**: Docker image built from the [cellPACK github repo](https://github.com/mesoscope/cellpack) is published to the `cellpack-private` ECR repository. That image defines the container specificationsin which the batch job will run.
 * **CloudWatch**: Logs from each AWS Batch job are written to CloudWatch. These logs can be accessed via the GET /logs endpoint.
 
 ### cellPACK Database
-* **Firebase Firestore**: The cellPACK database is hosted in Firebase Firestore. This database stores all recipes, objects, gradients, compositions, packing configurations, job statuses, and results metadata. See [CONTRIBUTING.md](CONTRIBUTING.md#firebase-overview) for Firebase overview and [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md) for the complete database schema.
+* **Firebase Firestore**: The cellPACK database is hosted in Firebase Firestore. This database stores all recipes, objects, gradients, compositions, packing configurations, and job statuses. See [CONTRIBUTING.md](CONTRIBUTING.md#firebase-overview) for Firebase overview and [FIREBASE_SCHEMA.md](FIREBASE_SCHEMA.md) for the complete database schema.
 
 #### Resources
 * [Server Architecture Overview Diagram](https://docs.google.com/presentation/d/1eG2XCxgYNaoDIYI-M6Tzef17bGuFirZZhmfZlBFTaXc/edit#slide=id.g26c8fd413da_0_34)
