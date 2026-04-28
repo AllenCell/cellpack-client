@@ -1,6 +1,6 @@
 # Firebase Schema Documentation
 
-This document describes the Firestore database schema used by cellPACK. Collections are accessed by the client (cellPACK Studio), the core package(backend), or both.
+This document describes the Firestore database schema used by cellPACK. Collections are accessed by the client (cellPACK Studio), the core package (backend), or both.
 
 ## Collections
 
