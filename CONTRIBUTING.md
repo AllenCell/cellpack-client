@@ -38,7 +38,7 @@ cellPACK Studio reads recipe data from Firebase to render the editor and polls j
 ### Getting Access
 
 - **Development:** Create your own Firebase project in test mode. See [Firebase Firestore tutorial](https://firebase.google.com/docs/firestore).
-- **Staging:** Contact the code owner for credentials, then configure your `.env` file (see README).
+- **Staging:** Contact the code owner for credentials, then configure your `.env` file.
 
 
 ## How to Contribute
