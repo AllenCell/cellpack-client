@@ -19,7 +19,7 @@ Front end website to interact with the cellPACK services running in AWS. This we
 ### cellPACK Server
 This client interacts with the cellPACK server, which consists of a variety of backend services hosted in AWS to run [cellPACK packings](https://github.com/mesoscope/cellpack). These AWS services include:
 * **API Gateway**: cellPACK REST API providing this client with access to needed AWS resources for running and receiving data from cellPACK jobs. Includes the following endpoints:
-  * POST /start-packing?recipe={myrecipe}&config={myconfig}
+  * POST /start-packing?recipe={myrecipe}[&config={myconfig}]
 * **ECS**: A call to POST /start-packing launches a new AWS packing job to run. Once the job is completed, the path to the results file(s) is written to the job's `job_status` entry in the cellPACK Firebase database.
 * **S3**: Result files from the AWS packing job are written to the `cellpack-demo` S3 bucket.
 * **ECR**: Docker image built from the [cellPACK github repo](https://github.com/mesoscope/cellpack) is published to the `cellpack-private` ECR repository. That image defines the container specifications in which the AWS packing job will run.
