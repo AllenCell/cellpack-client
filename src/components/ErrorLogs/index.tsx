@@ -16,7 +16,7 @@ const ErrorLogs = (props: ErrorLogsProps): JSX.Element => {
 
     return (
         <>
-            <Button color="primary" variant="filled" onClick={toggleLogs}>
+            <Button color="default" variant="filled" onClick={toggleLogs}>
                 Logs
             </Button>
             <Drawer

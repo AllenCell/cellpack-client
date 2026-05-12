@@ -1,0 +1,17 @@
+export const VISTA_BLUE = '#7AA4D7';
+export const STEEL_BLUE = '#5F92CE';
+export const TUFTS_BLUE = '#3378C4';
+export const BEAU_BLUE = '#C6D2DE';
+export const BLEU_DE_FRANCE = '#468ADE';
+export const CAROLINA_BLUE = '#6BA0E5';
+export const HAWKES_BLUE = '#cbe3ff';
+export const POWDER_BLUE = '#b5cffe';
+export const ALICE_BLUE = '#e6f4ff';
+export const DELFT_BLUE = '#1f3a5a';
+export const BDAZZLED_BLUE = '#2a4a6e';
+export const LAPIS_LAZULI = '#365a82';
+export const EERIE_BLACK = '#1F1F1F';
+export const RAISIN_BLACK = '#1a1a1a';
+export const PLATINUM = '#dcdde5';
+export const BATTLESHIP_GRAY = '#989898';
+export const DAVYS_GREY = '#595959';
