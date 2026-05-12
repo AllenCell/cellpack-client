@@ -2,7 +2,13 @@ import type { ThemeConfig } from "antd";
 import { theme } from "antd";
 
 const commonComponents = {
-    Button: { controlHeight: 40 },
+    Button: {
+        controlHeight: 40,
+        colorFillSecondary: '#b5cffe',
+        colorFillTertiary: '#e6f4ff',
+        colorBgContainerDisabled: '#dcdde5',
+        colorTextDisabled: '#989898',
+    },
     Slider: {
         trackBg: '#7AA4D7',
         trackHoverBg: '#5F92CE',
@@ -33,6 +39,15 @@ const lightComponents = {
 
 const darkComponents = {
     ...commonComponents,
+    Button: {
+        ...commonComponents.Button,
+        defaultColor: '#e6f4ff',
+        colorFillTertiary: '#1f3a5a',
+        colorFillSecondary: '#2a4a6e',
+        colorFill: '#365a82',
+        colorBgContainerDisabled: '#1a1a1a',
+        colorTextDisabled: '#595959',
+    },
     Tabs: {
         ...commonComponents.Tabs,
         colorPrimary: '#ffffff',

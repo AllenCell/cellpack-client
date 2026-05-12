@@ -50,7 +50,7 @@ const RecipeForm = ({ onStartPacking, availableHeight }: RecipeFormProps) => {
                     <Button
                         onClick={onStartPacking}
                         className="packing-button"
-                        color="primary"
+                        color="default"
                         variant="filled"
                         disabled={isPacking || isOriginalRecipe}
                         style={{ width: "100%", minHeight: 38 }}

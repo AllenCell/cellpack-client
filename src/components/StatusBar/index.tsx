@@ -7,7 +7,7 @@ import ErrorLogs from "../ErrorLogs";
 import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
 
 const statusBarButtonProps: Pick<ButtonProps, "color" | "variant" | "className"> = {
-    color: "primary",
+    color: "default",
     variant: "filled",
     className: "status-bar-button",
 };
